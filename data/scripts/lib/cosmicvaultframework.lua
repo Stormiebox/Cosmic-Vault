@@ -6,7 +6,8 @@ include("cosmicvaultdebug")
 -- namespace CosmicVaultFramework
 CosmicVaultFramework = CosmicVaultFramework or {}
 
-local _registered = _registered or {}
+local _registered = CosmicVaultFramework._registered or {}
+CosmicVaultFramework._registered = _registered
 
 local function _cfg()
     if CosmicVaultConfig and CosmicVaultConfig.get then
