@@ -1,5 +1,5 @@
 return {
-    image = "data/textures/icons/cosmicvault/MCM_Cosmic_Vault.png",
+    image = "data/textures/MCM_Cosmic_Vault.png",
     pages = {
         {
             title = "General",
