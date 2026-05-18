@@ -7,7 +7,7 @@ function CosmicVaultFactionIndex.initialize()
     if onServer() then
         local server = Server()
         if not server:getValue("factions_ready") then
-            server:setValue("factions", {})
+            server:setValue("factions", "")
             server:setValue("factions_last_refresh", 0)
             server:setValue("factions_source", "cosmicvault_faction_indexer_v1")
             server:setValue("factions_ready", false)
@@ -16,7 +16,11 @@ function CosmicVaultFactionIndex.initialize()
 end
 
 function CosmicVaultFactionIndex.getUpdateInterval()
-    return 300 -- Refresh every 5 minutes
+    local server = Server()
+    if server and not server:getValue("factions_ready") then
+        return 15 -- Short 15-second warm-up delay on first boot
+    end
+    return 300    -- Refresh every 5 minutes thereafter
 end
 
 function CosmicVaultFactionIndex.update(timeStep)
@@ -52,7 +56,11 @@ function CosmicVaultFactionIndex.update(timeStep)
         end
     end
 
-    server:setValue("factions", finalIndices)
+    if #finalIndices > 0 then
+        server:setValue("factions", table.concat(finalIndices, ","))
+    else
+        server:setValue("factions", "")
+    end
     server:setValue("factions_last_refresh", server.unpausedRuntime or 0)
     server:setValue("factions_source", "cosmicvault_faction_indexer_v1")
     server:setValue("factions_ready", true)

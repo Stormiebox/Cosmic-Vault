@@ -146,7 +146,7 @@ Provides universal, cached data payloads to the global `Server()` object to prev
 
 **Current Contracts:**
 - **Faction Index API:** Safely scans and caches active faction indices.
-  - `Server():getValue("factions")` (table): The canonical list of active AI, player, and alliance faction indices.
+  - `Server():getValue("factions")` (string): A comma-separated string containing the canonical list of active AI, player, and alliance faction indices. Consumer scripts must unpack this string into a table.
   - `Server():getValue("factions_ready")` (boolean): Safety flag indicating the indexer has completed its first warm-up cycle.
   - `Server():getValue("factions_count")` (number): The total number of indexed factions.
   - `Server():getValue("factions_last_refresh")` (number): The unpaused server runtime when the cache was last rebuilt.
