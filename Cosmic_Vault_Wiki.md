@@ -3,6 +3,7 @@
 Welcome to the **Cosmic Vault** official wiki! This page contains the full, detailed documentation for the shared foundation layer of the **Cosmic** mod series.
 
 **Cosmic Vault** is intended to centralize reusable code, configuration patterns, and shared assets so other mods in the series can:
+
 - Avoid duplicate implementations.
 - Stay behavior-consistent.
 - Integrate faster with lower maintenance costs.
@@ -10,6 +11,7 @@ Welcome to the **Cosmic Vault** official wiki! This page contains the full, deta
 ---
 
 ## Table of Contents
+
 - [Mod Identity & Purpose](#mod-identity--purpose)
 - [Core Design Principles](#core-design-principles)
 - [Foundation Scope & Features](#foundation-scope--features)
@@ -25,15 +27,18 @@ Welcome to the **Cosmic Vault** official wiki! This page contains the full, deta
 **Cosmic Vault** is an infrastructure-first module.
 
 Unlike feature-heavy gameplay mods, **Cosmic Vault** focuses exclusively on:
+
 - Shared utilities.
 - Common debug and diagnostics standards.
 - Modular helper libraries.
 - Reusable, series-wide architectural patterns.
 
 ### Primary Dependents (Current Direction)
+
 - **Cosmic Overhaul**
 - **Cosmic War**
 - **Cosmic Starfall**
+- **Cosmic Chronicles**
 
 ---
 
@@ -50,10 +55,12 @@ Unlike feature-heavy gameplay mods, **Cosmic Vault** focuses exclusively on:
 ## Foundation Scope & Features
 
 ### 1) Shared Configuration Baseline (MCM)
+
 <details>
 <summary><b>Click to expand details</b></summary>
 
 **Primary files:**
+
 - `modconfig.lua`
 - `modinfo.lua`
 
@@ -61,6 +68,7 @@ Unlike feature-heavy gameplay mods, **Cosmic Vault** focuses exclusively on:
 Provides a base configuration schema for shared Cosmic-level utility controls.
 
 **Current Baseline Controls (Planned/Active Pattern):**
+
 - `debugEnabled`
 - `debugPrefix`
 - `diagnosticsEnabled`
@@ -71,13 +79,16 @@ A centralized configuration baseline helps dependent mods align behavior without
 </details>
 
 ### 2) Shared Utility / Library Hub (Series Foundation)
+
 <details>
 <summary><b>Click to expand details</b></summary>
 
 **Primary path target:**
+
 - `data/scripts/lib/`
 
 **Intended Content:**
+
 - Shared config adapters.
 - Shared debug and log wrappers.
 - Shared utility helpers.
@@ -89,14 +100,17 @@ Prevents the repeated reimplementation of near-identical helper code in each ind
 </details>
 
 ### 3) Shared Diagnostics Pattern
+
 <details>
 <summary><b>Click to expand details</b></summary>
 
 **Primary path targets:**
+
 - `data/scripts/lib/` and optional server helpers
 
 **What it does:**
 Defines a common diagnostics convention for:
+
 - Periodic snapshots.
 - Standardized debug prefixes.
 - Consistent opt-in verbosity.
@@ -106,22 +120,27 @@ Makes troubleshooting across mixed Cosmic mod stacks significantly easier and mo
 </details>
 
 ### 4) Shared Visual/Asset Layer
+
 <details>
 <summary><b>Click to expand details</b></summary>
 
 **Primary path target:**
+
 - `data/textures/`
 
 **What it does:**
 Hosts reusable visual resources (such as icons and textures) used by multiple Cosmic mods.
 
 **Why it matters:**
+
 - Ensures a consistent visual identity.
 - Eliminates repeated asset copies to save memory and disk space.
 - Enables easier, coordinated graphical updates.
+
 </details>
 
 ### 5) Dependency Contract for Cosmic Series
+
 <details>
 <summary><b>Click to expand details</b></summary>
 
@@ -129,6 +148,7 @@ Hosts reusable visual resources (such as icons and textures) used by multiple Co
 Acts as a formal dependency target that future Cosmic modules can safely reference in their `modinfo.lua`.
 
 **Typical Dependent Behavior:**
+
 - Declare **Cosmic Vault** as a dependency.
 - Include shared configuration and debug libraries directly from the Vault.
 - Route diagnostics through Vault conventions.
@@ -138,6 +158,7 @@ Stabilizes cross-mod expectations and drastically reduces maintenance fragmentat
 </details>
 
 ### 6) Shared Server Data Contracts
+
 <details>
 <summary><b>Click to expand details</b></summary>
 
@@ -145,6 +166,7 @@ Stabilizes cross-mod expectations and drastically reduces maintenance fragmentat
 Provides universal, cached data payloads to the global `Server()` object to prevent expensive API loops across multiple mods.
 
 **Current Contracts:**
+
 - **Faction Index API:** Safely scans and caches active faction indices.
   - `Server():getValue("factions")` (string): A comma-separated string containing the canonical list of active AI, player, and alliance faction indices. Consumer scripts must unpack this string into a table.
   - `Server():getValue("factions_ready")` (boolean): Safety flag indicating the indexer has completed its first warm-up cycle.
@@ -155,21 +177,51 @@ Provides universal, cached data payloads to the global `Server()` object to prev
 Prevents background scripts from repeatedly running expensive calculations (e.g., iterating through thousands of potential faction IDs) by providing a single, highly performant source of truth for all Cosmic mods.
 </details>
 
+### 7) Shared Dialogue API Contract
+
+<details>
+<summary><b>Click to expand details</b></summary>
+
+**Primary path target:**
+
+- `data/scripts/lib/cosmicvaultdialogue.lua`
+
+**What it does:**
+Provides a centralized registry for narrative mods (like **Cosmic Chronicles**) to safely store, filter, and retrieve contextual dialogue, rumors, and lore strings.
+
+**Core Methods:**
+
+- `CosmicVaultDialogue.registerLine(entry)`: Registers a dialogue entry with a specific `category`, `text`, and optional contextual `conditions`.
+- `CosmicVaultDialogue.getValidLine(category, currentContext)`: Safely parses the registered lines and returns a random valid string that perfectly matches the provided `currentContext` table.
+
+**Supported Context Filters:**
+
+- `minWarHeat`, `factionTrait`, `factionWealth`, `stationType`, `minDistanceToCenter`, `maxDistanceToCenter`, `minReputation`.
+
+**Why it matters:**
+Standardizes how narrative text is injected into the game. It allows multiple mods to contribute lore to the same ambient pools without overwriting each other, while ensuring dialogue strictly reacts to dynamic background simulations (like War Heat or Economy changes).
+</details>
+
 ---
 
 ## Integration Guidelines
 
 ### Integration Contract (For Dependent Mods)
+
 When integrating with **Cosmic Vault**, dependent mods should generally follow these steps:
+
 1. Declare dependency in `modinfo.lua`.
 2. Use shared includes where available, e.g.:
    - `include("cosmicvaultconfig")`
    - `include("cosmicvaultdebug")`
+   - `include("cosmicvaultdialogue")`
 3. Follow Vault's debug prefix and diagnostics conventions.
 4. Keep fallback behaviors safe if optional helpers are absent during transitional phases.
 
 ### Example Integration Pattern (High-Level)
+
 A dependent mod can adopt this approach for safe integration:
+
 1. Load the Vault helper using a guarded `include` (especially useful during migration windows).
 2. Read shared configuration keys for debug and diagnostics behavior.
 3. Route log outputs through the shared formatter and prefix.
@@ -182,16 +234,20 @@ A dependent mod can adopt this approach for safe integration:
 ## Ecosystem & Architecture
 
 ### Architecture Position in Cosmic Series
+
 Think of **Cosmic Vault** as the structural base:
+
 - **Foundation Layer:** Provides common building blocks (**Cosmic Vault**).
-- **Gameplay Mods:** Consume those blocks to execute their own domain-specific logic (**Cosmic Overhaul**, **Cosmic War**, **Cosmic Starfall**, etc.).
+- **Gameplay Mods:** Consume those blocks to execute their own domain-specific logic (**Cosmic Overhaul**, **Cosmic War**, **Cosmic Starfall**, **Cosmic Chronicles**, etc.).
 
 This strict separation improves:
+
 - Maintainability.
 - Onboarding speed for new modules.
 - Cross-mod compatibility and reliability.
 
 ### Compatibility & Safety Notes
+
 - **Cosmic Vault** is strictly an additive foundation, not a hard gameplay override system.
 - Shared helper interfaces will remain conservative and backward-aware.
 - We actively avoid tight coupling that would force runtime failures in mixed mod stacks during update transition phases.
@@ -209,6 +265,7 @@ This strict separation improves:
 3. Restart Avorion when prompted.
 
 ### Troubleshooting Checklist
+
 - [ ] Confirm **Cosmic Vault** is enabled in your mod load order.
 - [ ] Confirm dependent mod dependency declarations match.
 - [ ] Verify include paths for shared libs under `data/scripts/lib/`.
@@ -222,11 +279,13 @@ This strict separation improves:
 **Lifecycle Status:** Foundational bootstrap + expansion phase.
 
 ### Already Established
+
 - Base metadata and configuration structure.
-- Project scaffold.
+- Server Data Contracts (Faction Index, Contextual Dialogue).
 - Initial documentation baseline.
 
 ### Ongoing & Next Growth Targets
+
 - Expand the `data/scripts/lib/` shared helper catalog.
 - Standardize diagnostics helper interfaces.
 - Provide stable helper APIs for dependent mods.

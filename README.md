@@ -5,9 +5,11 @@
 **Cosmic Vault** is the shared foundation module for the Cosmic mod series.
 
 It centralizes reusable infrastructure so Cosmic mods can share:
+
 - utility code,
 - diagnostics/logging patterns,
 - common configuration behavior,
+- dynamic dialogue & lore registries,
 - and shared assets.
 
 ---
@@ -23,8 +25,9 @@ For complete architecture and integration details, see:
 ## Quick Highlights
 
 - Establishes common baseline patterns for cross-mod consistency.
+- Features highly performant Server Data Contracts (like Faction Indexing and Contextual Dialogue).
 - Reduces duplicate helper code across Cosmic projects.
-- Intended dependency target for current and future Cosmic modules.
+- Intended dependency target for current and future Cosmic modules (Overhaul, War, Starfall, Chronicles).
 
 ---
 
@@ -41,6 +44,7 @@ For complete architecture and integration details, see:
 ## Integration Snapshot (For Dependent Mods)
 
 Dependent mods should:
+
 1. Declare Cosmic Vault in `modinfo.lua` dependencies.
 2. Use shared Vault helpers (where available) from `data/scripts/lib/`.
 3. Align debug/diagnostics behavior with Vault conventions.
