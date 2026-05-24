@@ -41,22 +41,22 @@ function CosmicVaultDialogue.getValidLine(category, currentContext)
             if entry.conditions.minWarHeat and (currentContext.warHeat or 0) < entry.conditions.minWarHeat then
                 isValid = false
             end
-            if entry.conditions.factionTrait and currentContext.factionTrait ~= entry.conditions.factionTrait then
+            if isValid and entry.conditions.factionTrait and currentContext.factionTrait ~= entry.conditions.factionTrait then
                 isValid = false
             end
-            if entry.conditions.factionWealth and currentContext.factionWealth ~= entry.conditions.factionWealth then
+            if isValid and entry.conditions.factionWealth and currentContext.factionWealth ~= entry.conditions.factionWealth then
                 isValid = false
             end
-            if entry.conditions.stationType and currentContext.stationType ~= entry.conditions.stationType then
+            if isValid and entry.conditions.stationType and currentContext.stationType ~= entry.conditions.stationType then
                 isValid = false
             end
-            if entry.conditions.minDistanceToCenter and (currentContext.distanceToCenter or 0) < entry.conditions.minDistanceToCenter then
+            if isValid and entry.conditions.minDistanceToCenter and (currentContext.distanceToCenter or 0) < entry.conditions.minDistanceToCenter then
                 isValid = false
             end
-            if entry.conditions.maxDistanceToCenter and (currentContext.distanceToCenter or 500) > entry.conditions.maxDistanceToCenter then
+            if isValid and entry.conditions.maxDistanceToCenter and (currentContext.distanceToCenter or 500) > entry.conditions.maxDistanceToCenter then
                 isValid = false
             end
-            if entry.conditions.minReputation and (currentContext.reputation or 0) < entry.conditions.minReputation then
+            if isValid and entry.conditions.minReputation and (currentContext.reputation or 0) < entry.conditions.minReputation then
                 isValid = false
             end
         end

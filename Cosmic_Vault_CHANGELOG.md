@@ -14,6 +14,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Added dynamic context filtering support for: `minWarHeat`, `factionTrait`, `factionWealth`, `stationType`, `minDistanceToCenter`, `maxDistanceToCenter`, and `minReputation`.
 - Integrated error handling and debug logging via `CosmicVaultDebug` for safe dialogue registration.
 
+### Optimized
+
+- **Dialogue Validation:** Fast-failed the sequential condition checks in `cosmicvaultdialogue.lua` using short-circuit evaluation (`isValid and ...`) to save server CPU cycles during heavy chatter.
+
 ## [1.1.0] - 2026-05-18
 
 ### Added
