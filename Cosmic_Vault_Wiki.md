@@ -1,5 +1,7 @@
 # Cosmic Vault - Detailed Features
 
+<img width="1200" height="400" alt="GitHubWiki_CV_Thumb" src="https://github.com/user-attachments/assets/6e1163e5-33c1-4e7f-b5f5-e204a450bea4" />
+
 Welcome to the **Cosmic Vault** official wiki! This page contains the full, detailed documentation for the shared foundation layer of the **Cosmic** mod series.
 
 **Cosmic Vault** is intended to centralize reusable code, configuration patterns, and shared assets so other mods in the series can:
@@ -250,7 +252,7 @@ This strict separation improves:
 
 - **Cosmic Vault** is strictly an additive foundation, not a hard gameplay override system.
 - Shared helper interfaces will remain conservative and backward-aware.
-- We actively avoid tight coupling that would force runtime failures in mixed mod stacks during update transition phases.
+- Actively avoiding tight coupling that would force runtime failures in mixed mod stacks during update transition phases.
 
 ---
 
