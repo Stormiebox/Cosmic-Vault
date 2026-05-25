@@ -33,6 +33,14 @@ function CosmicVaultFactionIndex.update(timeStep)
     local uniqueIndices = {}
     local finalIndices = {}
 
+    -- Preserve already discovered high-index factions (Pirates, Xsotan, DLC factions) from the current string
+    local currentFactions = server:getValue("factions")
+    if type(currentFactions) == "string" and currentFactions ~= "" then
+        for id in string.gmatch(currentFactions, "([^,]+)") do
+            table.insert(indices, tonumber(id))
+        end
+    end
+
     -- Collect player and alliance factions
     for _, player in pairs({ server:getPlayers() }) do
         table.insert(indices, player.index)
@@ -51,8 +59,11 @@ function CosmicVaultFactionIndex.update(timeStep)
 
     for _, idx in ipairs(indices) do
         if not uniqueIndices[idx] then
-            uniqueIndices[idx] = true
-            table.insert(finalIndices, idx)
+            -- Verify faction actually still exists
+            if Faction(idx) then
+                uniqueIndices[idx] = true
+                table.insert(finalIndices, idx)
+            end
         end
     end
 

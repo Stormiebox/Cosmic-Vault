@@ -5,6 +5,12 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-05-24
+
+### Fixed
+
+- **Faction Indexer (High-ID Preservation):** Fixed a critical blind spot in `cosmicvaultfactionindex.lua` where the registry would only scan standard AI faction IDs (1 to 2500). It now properly parses its own cache to preserve discovered dynamically generated factions (Pirates, Xsotan, DLC factions) that have IDs far beyond the 2500 threshold, preventing them from being wiped out during background refresh cycles.
+
 ## [1.2.0] - 2026-05-22
 
 ### Added
