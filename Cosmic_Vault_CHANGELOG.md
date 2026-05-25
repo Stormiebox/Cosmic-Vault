@@ -5,6 +5,14 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-05-25
+
+### Added
+
+- **Player Settings API**: Introduced `data/scripts/lib/cosmicvaultplayersettings.lua`, a new centralized API for storing and retrieving player-specific settings. This system uses the performant and persistent `Player():getValue()` and `setValue()` system, completely replacing the need for direct file I/O via `moddata.lua` and eliminating a major source of crashes on fresh servers.
+
+-- TODO: In Sync with Cosmic Overhaul changes. May have to merge changes past 1.4.0+ if I create additional API or make additional changes. This is a placeholder for now. I will combine all changelogs into one later.
+
 ## [1.3.0] - 2026-05-24
 
 ### Fixed
