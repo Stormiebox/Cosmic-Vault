@@ -5,13 +5,15 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - 2026-05-25
+## [1.4.0] - 2026-05-28
 
 ### Added
 
 - **Player Settings API**: Introduced `data/scripts/lib/cosmicvaultplayersettings.lua`, a new centralized API for storing and retrieving player-specific settings. This system uses the performant and persistent `Player():getValue()` and `setValue()` system, completely replacing the need for direct file I/O via `moddata.lua` and eliminating a major source of crashes on fresh servers.
 
--- TODO: In Sync with Cosmic Overhaul changes. May have to merge changes past 1.4.0+ if I create additional API or make additional changes. This is a placeholder for now. I will combine all changelogs into one later.
+### Changed
+
+- **Faction Indexer Warm-up:** Tweaked `cosmicvaultfactionindex.lua` to include a short 15-second warm-up delay on the first server boot before switching to the standard 5-minute refresh cycle. This ensures the registry rapidly catches initial faction generations when a new galaxy is loaded.
 
 ## [1.3.0] - 2026-05-24
 
