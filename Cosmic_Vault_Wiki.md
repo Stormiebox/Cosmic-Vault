@@ -1,7 +1,5 @@
 # Cosmic Vault - Detailed Features
 
-<img width="1200" height="400" alt="GitHubWiki_CV_Thumb" src="https://github.com/user-attachments/assets/6e1163e5-33c1-4e7f-b5f5-e204a450bea4" />
-
 Welcome to the **Cosmic Vault** official wiki! This page contains the full, detailed documentation for the shared foundation layer of the **Cosmic** mod series.
 
 **Cosmic Vault** is intended to centralize reusable code, configuration patterns, and shared assets so other mods in the series can:
@@ -71,7 +69,7 @@ Provides a base configuration schema for shared Cosmic-level utility controls.
 
 **Current Baseline Controls (Planned/Active Pattern):**
 
-- `debugEnabled`
+- `debugEnabled` (Defaults to `true` to ensure comprehensive logging from the get-go unless disabled by an admin)
 - `debugPrefix`
 - `diagnosticsEnabled`
 - `diagnosticsInterval`
@@ -149,6 +147,8 @@ Hosts reusable visual resources (such as icons and textures) used by multiple Co
 **What it does:**
 Acts as a formal dependency target that future Cosmic modules can safely reference in their `modinfo.lua`.
 
+*(Note: As of v1.4.0, Cosmic Vault's robust APIs have completely replaced the need for legacy third-party library dependencies like AzimuthLib across the entire Cosmic Series).*
+
 **Typical Dependent Behavior:**
 
 - Declare **Cosmic Vault** as a dependency.
@@ -159,17 +159,17 @@ Acts as a formal dependency target that future Cosmic modules can safely referen
 Stabilizes cross-mod expectations and drastically reduces maintenance fragmentation over time.
 </details>
 
-### 6) Shared Server Data Contracts
+### 6) Shared Server Data Contracts (Faction Index API)
 
 <details>
 <summary><b>Click to expand details</b></summary>
 
 **What it does:**
-Provides universal, cached data payloads to the global `Server()` object to prevent expensive API loops across multiple mods.
+Provides universal, cached data payloads to the global `Server()` object to prevent expensive API loops across multiple mods. Features a rapid 15-second warm-up delay on initial server boot before falling back to a 5-minute refresh cycle to rapidly catch new galaxy generations.
 
 **Current Contracts:**
 
-- **Faction Index API:** Safely scans and caches active faction indices.
+- **Faction Index API:** Safely scans and caches active faction indices, perfectly preserving dynamically generated High-ID factions (Pirates, Xsotan, DLC).
   - `Server():getValue("factions")` (string): A comma-separated string containing the canonical list of active AI, player, and alliance faction indices. Consumer scripts must unpack this string into a table.
   - `Server():getValue("factions_ready")` (boolean): Safety flag indicating the indexer has completed its first warm-up cycle.
   - `Server():getValue("factions_count")` (number): The total number of indexed factions.
@@ -189,7 +189,7 @@ Prevents background scripts from repeatedly running expensive calculations (e.g.
 - `data/scripts/lib/cosmicvaultdialogue.lua`
 
 **What it does:**
-Provides a centralized registry for narrative mods (like **Cosmic Chronicles**) to safely store, filter, and retrieve contextual dialogue, rumors, and lore strings.
+Provides a centralized registry for narrative mods (like **Cosmic Chronicles**) to safely store, filter, and retrieve contextual dialogue, rumors, and lore strings utilizing short-circuit evaluation for maximum performance.
 
 **Core Methods:**
 
@@ -202,6 +202,26 @@ Provides a centralized registry for narrative mods (like **Cosmic Chronicles**) 
 
 **Why it matters:**
 Standardizes how narrative text is injected into the game. It allows multiple mods to contribute lore to the same ambient pools without overwriting each other, while ensuring dialogue strictly reacts to dynamic background simulations (like War Heat or Economy changes).
+</details>
+
+### 8) Shared Player Settings API
+
+<details>
+<summary><b>Click to expand details</b></summary>
+
+**Primary path target:**
+
+- `data/scripts/lib/cosmicvaultplayersettings.lua`
+
+**What it does:**
+A centralized API for storing and retrieving persistent player-specific UI settings, filter states, and preferences natively through the engine.
+
+**Core Methods:**
+
+- Operates directly via the highly performant `Player():getValue()` and `Player():setValue()` bindings.
+
+**Why it matters:**
+Completely eliminates the need for fragile, file-based I/O operations (like legacy `moddata.lua` scripts), which were a primary source of crashes on fresh dedicated servers. This ensures UI preferences and mod settings are saved flawlessly and persistently across sessions without risking file corruption.
 </details>
 
 ---
@@ -217,6 +237,7 @@ When integrating with **Cosmic Vault**, dependent mods should generally follow t
    - `include("cosmicvaultconfig")`
    - `include("cosmicvaultdebug")`
    - `include("cosmicvaultdialogue")`
+   - `include("cosmicvaultplayersettings")`
 3. Follow Vault's debug prefix and diagnostics conventions.
 4. Keep fallback behaviors safe if optional helpers are absent during transitional phases.
 
@@ -283,7 +304,7 @@ This strict separation improves:
 ### Already Established
 
 - Base metadata and configuration structure.
-- Server Data Contracts (Faction Index, Contextual Dialogue).
+- Server Data Contracts (Faction Index, Contextual Dialogue, Player Settings).
 - Initial documentation baseline.
 
 ### Ongoing & Next Growth Targets

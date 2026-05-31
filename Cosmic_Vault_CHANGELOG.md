@@ -5,7 +5,7 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - 2026-05-28
+## [1.4.0] - 2026-05-31 - Synced with Cosmic Overhaul v4.0.0, Cosmic War v1.6.0 and Cosmic Chronicles v1.1.0 updates.
 
 ### Added
 
@@ -14,6 +14,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ### Changed
 
 - **Faction Indexer Warm-up:** Tweaked `cosmicvaultfactionindex.lua` to include a short 15-second warm-up delay on the first server boot before switching to the standard 5-minute refresh cycle. This ensures the registry rapidly catches initial faction generations when a new galaxy is loaded.
+- **Cosmic Series Debug:** Changed the default value from false to true so `[Cosmic]` debug logs is always on unless disabled by an admin. This will help logging all actions done by the Cosmic Series (where appliclable) done from the get-go.
+
+### Removed
+
+- **AzimuthLib - Library for modders (Mod Dependency):** Due to the recent changes done to Cosmic Overhaul v4.0.0 and the additions of new API's onto Cosmic Vault. AzimuthLib - Library for modders is no longer needed as a dependency mod for the Cosmic Series.
 
 ## [1.3.0] - 2026-05-24
 
