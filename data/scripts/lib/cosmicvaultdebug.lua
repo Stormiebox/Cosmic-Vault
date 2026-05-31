@@ -11,7 +11,7 @@ local function _cfg()
         return CosmicVaultConfig.get()
     end
     return {
-        debugEnabled = false,
+        debugEnabled = true,
         debugPrefix = "[Cosmic]",
     }
 end

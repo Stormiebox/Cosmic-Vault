@@ -8,8 +8,8 @@ return {
                     key = "debugEnabled",
                     type = "bool",
                     title = "Enable Cosmic Debug Logs",
-                    description = "Master toggle for Cosmic series debug logging output. (Default: false)",
-                    default = false,
+                    description = "Master toggle for Cosmic series debug logging output. (Default: true)",
+                    default = true,
                 },
                 {
                     key = "debugPrefix",
