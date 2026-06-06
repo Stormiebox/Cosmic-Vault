@@ -5,6 +5,13 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - Release Date TBD (Work In Progress)
+
+### Added
+- **Galactic News API:** Introduced the `cosmicvaultnews.lua` library and its companion server hub `cosmicvaultnews_server.lua`. 
+  - Exposes `CosmicVaultNews.publishArticle(article)` which allows any mod in the ecosystem to globally broadcast dynamic news events to all players.
+  - Features a built-in server buffer that automatically manages the latest 30 articles and handles client synchronization to support custom news UI tabs (like the one implemented in *Cosmic Chronicles*).
+
 ## [1.4.0] - 2026-05-31 - Synced with Cosmic Overhaul v4.0.0, Cosmic War v1.6.0 and Cosmic Chronicles v1.1.0 updates.
 
 ### Added

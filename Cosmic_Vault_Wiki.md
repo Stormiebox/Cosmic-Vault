@@ -54,7 +54,25 @@ Unlike feature-heavy gameplay mods, **Cosmic Vault** focuses exclusively on:
 
 ## Foundation Scope & Features
 
-### 1) Shared Configuration Baseline (MCM)
+### 1) Galactic News API (Broadcasting Hub)
+
+<details>
+<summary><b>Click to expand details</b></summary>
+
+**Primary files:**
+- `data/scripts/lib/cosmicvaultnews.lua`
+- `data/scripts/server/cosmicvaultnews_server.lua`
+
+**What it does:**
+Acts as the central nervous system for galactic broadcasting. Any mod in the Cosmic series can use this API to instantly publish dynamic news articles to the global server buffer. 
+
+**Key Methods:**
+- `CosmicVaultNews.publishArticle(article)`: Safely pipes a formatted article (title, category, content) into the server.
+- **Server Sync:** Automatically manages memory by holding the latest 30 articles and seamlessly broadcasting updates to all connected players for custom UI rendering (e.g., *Cosmic Chronicles'* Galactic News Board).
+
+</details>
+
+### 2) Shared Configuration Baseline (MCM)
 
 <details>
 <summary><b>Click to expand details</b></summary>
