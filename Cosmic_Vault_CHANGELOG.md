@@ -7,6 +7,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [1.5.0] - 2026-06-06
 ### Fixed
+- **Architecture Validation:** Validated `server/server.lua` architecture. Unlike `init.lua` bootstrappers, the Avorion engine treats `server.lua` as an implicitly attached entity script on the Server object, meaning the `initialize()` wrapper correctly and safely functions as intended to inject the global Vault News server.
+- **Global Event Bus:** Refactored `cosmicvaultnews_server.lua` to properly accept sync requests from player UI scripts across the server via Avorion's asynchronous `Server():registerCallback` and `Server():sendCallback` system, bypassing strict VM sandboxing limits.
 - **Compliance Fix:** Wrapped core injection files (init.lua) safely to prevent them from wiping out vanilla initialization scripts.
 
 ### Added

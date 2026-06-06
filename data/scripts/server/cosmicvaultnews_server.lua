@@ -8,7 +8,10 @@ local self = CosmicVaultNewsServer
 self.publishedNews = {} -- Array of news objects {title, content, category, timestamp}
 
 function CosmicVaultNewsServer.initialize()
-    -- On initialize, maybe load persistent news if needed
+    -- Register to listen for any player requesting a news sync
+    if onServer() then
+        Server():registerCallback("onCCNewsSyncRequest", "onSyncRequest")
+    end
 end
 
 -- Server function to publish a new article globally
@@ -27,20 +30,8 @@ function CosmicVaultNewsServer.publishArticle(article)
     broadcastInvokeClientFunction("receiveNewsUpdate", self.publishedNews)
 end
 
--- Client requests sync when they open the UI or log in
-function CosmicVaultNewsServer.sync()
-    if onServer() then
-        invokeClientFunction(Player(callingPlayer), "receiveNewsUpdate", self.publishedNews)
-        return
-    end
-    if onClient() then
-        invokeServerFunction("sync")
-    end
-end
-callable(CosmicVaultNewsServer, "sync")
-
--- Specific targeted sync requested by player scripts
-function CosmicVaultNewsServer.syncPlayer(playerIndex)
+-- Triggered via Server():sendCallback("onCCNewsSyncRequest", playerIndex)
+function CosmicVaultNewsServer.onSyncRequest(playerIndex)
     if not onServer() then return end
     local player = Player(playerIndex)
     if player then
