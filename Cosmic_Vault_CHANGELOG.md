@@ -6,11 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.5.0] - Release Date TBD (Work In Progress)
+### Fixed
+- **Compliance Fix:** Wrapped core injection files (init.lua) safely to prevent them from wiping out vanilla initialization scripts.
 
 ### Added
 - **Galactic News API:** Introduced the `cosmicvaultnews.lua` library and its companion server hub `cosmicvaultnews_server.lua`.
   - Exposes `CosmicVaultNews.publishArticle(article)` which allows any mod in the ecosystem to globally broadcast dynamic news events to all players.
   - Features a built-in server buffer that automatically manages the latest 30 articles and handles client synchronization to support custom news UI tabs (like the one implemented in *Cosmic Chronicles*).
+
+- **Cosmic UI Proportional Splitters:** Ported the core UI proportional splitter classes natively into the Vault (cosmicui_proportionalsplitter.lua), completely decoupling the Cosmic series from relying on external, unmaintained legacy UI libraries.
 
 - **Texture Folder Migration:** Added textures from `Cosmic War`, `Cosmic Overhaul` and `Cosmic Chronicles`. Cosmic Vault will now be the shared library for textures moving forward.
 
@@ -71,3 +75,5 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - Cosmic Vault is currently in foundation-expansion phase.
 - Future entries should document concrete shared library additions under `data/scripts/lib/` and any dependency contract changes used by dependent Cosmic mods.
+
+

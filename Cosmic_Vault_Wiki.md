@@ -72,7 +72,25 @@ Acts as the central nervous system for galactic broadcasting. Any mod in the Cos
 
 </details>
 
-### 2) Shared Configuration Baseline (MCM)
+
+### 2) Cosmic UI Proportional Splitters
+
+<details>
+<summary><b>Click to expand details</b></summary>
+
+**Primary files:**
+- data/scripts/lib/cosmicui_proportionalsplitter.lua
+
+**What it does:**
+Provides native UI layout tools that allow developers to design complex interfaces by mixing absolute pixel measurements with fluid percentage-based proportions. Completely removes the need for external legacy UI dependencies like AzimuthLib.
+
+**Key Methods:**
+- CosmicUIVerticalProportionalSplitter()
+- CosmicUIHorizontalProportionalSplitter()
+
+</details>
+
+### 3) Shared Configuration Baseline (MCM)
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -96,7 +114,7 @@ Provides a base configuration schema for shared Cosmic-level utility controls.
 A centralized configuration baseline helps dependent mods align behavior without duplicating per-mod boilerplate.
 </details>
 
-### 2) Shared Utility / Library Hub (Series Foundation)
+### 4) Shared Utility / Library Hub (Series Foundation)
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -117,7 +135,7 @@ A centralized configuration baseline helps dependent mods align behavior without
 Prevents the repeated reimplementation of near-identical helper code in each individual mod.
 </details>
 
-### 3) Shared Diagnostics Pattern
+### 5) Shared Diagnostics Pattern
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -137,7 +155,7 @@ Defines a common diagnostics convention for:
 Makes troubleshooting across mixed Cosmic mod stacks significantly easier and more uniform.
 </details>
 
-### 4) Shared Visual/Asset Layer
+### 6) Shared Visual/Asset Layer
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -157,7 +175,7 @@ Hosts reusable visual resources (such as icons and textures) used by multiple Co
 
 </details>
 
-### 5) Dependency Contract for Cosmic Series
+### 7) Dependency Contract for Cosmic Series
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -177,7 +195,7 @@ Acts as a formal dependency target that future Cosmic modules can safely referen
 Stabilizes cross-mod expectations and drastically reduces maintenance fragmentation over time.
 </details>
 
-### 6) Shared Server Data Contracts (Faction Index API)
+### 8) Shared Server Data Contracts (Faction Index API)
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -197,7 +215,7 @@ Provides universal, cached data payloads to the global `Server()` object to prev
 Prevents background scripts from repeatedly running expensive calculations (e.g., iterating through thousands of potential faction IDs) by providing a single, highly performant source of truth for all Cosmic mods.
 </details>
 
-### 7) Shared Dialogue API Contract
+### 9) Shared Dialogue API Contract
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -222,7 +240,7 @@ Provides a centralized registry for narrative mods (like **Cosmic Chronicles**) 
 Standardizes how narrative text is injected into the game. It allows multiple mods to contribute lore to the same ambient pools without overwriting each other, while ensuring dialogue strictly reacts to dynamic background simulations (like War Heat or Economy changes).
 </details>
 
-### 8) Shared Player Settings API
+### 10) Shared Player Settings API
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -333,3 +351,5 @@ This strict separation improves:
 - Migrate duplicate utility patterns out of dependent mods and directly into the Vault.
 
 **Cosmic Vault** is designed to become the stable utility backbone for the entire **Cosmic** series. Future progress heavily emphasizes robust shared libraries, cleaner cross-mod contracts, and reduced code duplication across all gameplay modules.
+
+

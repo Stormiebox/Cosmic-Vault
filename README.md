@@ -25,6 +25,7 @@ For complete architecture and integration details, see:
 ## Quick Highlights
 
 - Establishes common baseline patterns for cross-mod consistency.
+- Centralizes shared UI layout APIs (e.g., Cosmic UI Proportional Splitters) to completely decouple mods from legacy external libraries.
 - Features highly performant Server Data Contracts (like Faction Indexing and Contextual Dialogue).
 - Reduces duplicate helper code across Cosmic projects.
 - Intended dependency target for current and future Cosmic modules (Overhaul, War, Starfall, Chronicles).
@@ -55,3 +56,4 @@ Dependent mods should:
 
 - Cosmic Vault is infrastructure-first, not a direct gameplay overhaul.
 - See `CHANGELOG.md` for ongoing foundation expansion and shared-lib additions.
+
