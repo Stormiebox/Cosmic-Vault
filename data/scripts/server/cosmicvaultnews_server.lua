@@ -6,6 +6,7 @@ CosmicVaultNewsServer = {}
 local self = CosmicVaultNewsServer
 
 self.publishedNews = {} -- Array of news objects {title, content, category, timestamp}
+self.needsPlayerNotification = false
 
 function CosmicVaultNewsServer.initialize()
     -- Register to listen for any player requesting a news sync
@@ -28,12 +29,8 @@ function CosmicVaultNewsServer.publishArticle(article)
         table.remove(self.publishedNews)
     end
     
--- Broadcast the new article to all connected clients by pushing it to their UI scripts
-    for _, player in pairs({Server():getOnlinePlayers()}) do
-        print("[CosmicVaultNews] Attempting to notify online player " .. tostring(player.index))
-        -- We notify the Chronicle UI so it fetches the news safely on the next tick
-        player:invokeFunction("player/ui/cc_newsboard.lua", "onNewsPublished")
-    end
+    -- Flag that players need to be notified. We do this in updateServer to avoid re-entrant VM deadlocks!
+    self.needsPlayerNotification = true
 end
 
 -- Triggered via Server():sendCallback("onCCNewsSyncRequest", playerIndex)
@@ -76,4 +73,14 @@ end
 
 function initialize()
     CosmicVaultNewsServer.initialize()
+end
+
+function updateServer(timeStep)
+    if CosmicVaultNewsServer.needsPlayerNotification then
+        CosmicVaultNewsServer.needsPlayerNotification = false
+        for _, player in pairs({Server():getOnlinePlayers()}) do
+            -- print("[CosmicVaultNews] Attempting to notify online player " .. tostring(player.index))
+            player:invokeFunction("player/ui/cc_newsboard.lua", "onNewsPublished")
+        end
+    end
 end
