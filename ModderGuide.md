@@ -43,8 +43,9 @@ if onClient() then
 end
 ```
 
-### Architecture Safety (VM Deadlocks)
-Internally, the `CosmicVaultNews.publishArticle()` API decouples the incoming publication request from the outgoing client broadcast. Rather than executing an immediate synchronous `invokeClientFunction` (which causes `EXCEPTION_ACCESS_VIOLATION` VM deadlocks if the original stack was locked by another callback), it flags an internal `needsPlayerNotification` variable. The engine safely triggers the client broadcast dynamically during the next native `updateServer()` tick. Modders do not need to manage this decoupling; the Vault handles it transparently.
+### Architecture Safety (Global Event Bus & VM Deadlocks)
+Internally, the `CosmicVaultNews.publishArticle()` API securely routes all incoming articles through Avorion's native global event bus via `Server():sendCallback()`. This bypasses strict Lua VM sandbox limits and prevents missing API errors (such as attempting to call `invokeFunction` directly on the Server object). 
+Furthermore, it decouples the incoming publication request from the outgoing client broadcast. Rather than executing an immediate synchronous `invokeClientFunction` (which causes `EXCEPTION_ACCESS_VIOLATION` VM deadlocks if the original stack was locked by another callback), it flags an internal `needsPlayerNotification` variable. The engine safely triggers the client broadcast dynamically during the next native `updateServer()` tick. Modders do not need to manage this decoupling; the Vault handles it transparently.
 
 
 ## 3. Faction Index Registry

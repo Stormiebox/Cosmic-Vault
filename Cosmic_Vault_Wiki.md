@@ -67,7 +67,7 @@ Unlike feature-heavy gameplay mods, **Cosmic Vault** focuses exclusively on:
 Acts as the central nervous system for galactic broadcasting. Any mod in the Cosmic series can use this API to instantly publish dynamic news articles to the global server buffer. 
 
 **Key Methods:**
-- `CosmicVaultNews.publishArticle(article)`: Safely pipes a formatted article (title, category, content) into the server. If no author is provided, it automatically assigns one of 35 randomized reporter names to enhance immersion.
+- `CosmicVaultNews.publishArticle(article)`: Safely pipes a formatted article (title, category, content) into the server via the native `Server():sendCallback()` global event bus. If no author is provided, it automatically assigns one of 35 randomized reporter names to enhance immersion.
 - **Server Sync:** Automatically manages memory by holding the latest 30 articles and seamlessly broadcasting updates to all connected players for custom UI rendering (e.g., *Cosmic Chronicles'* Galactic News Board).
 - **Client Callbacks:** Broadcasts `onCosmicVaultNewsUpdated` directly to clients so custom UI boards can refresh in real-time.
 

@@ -11,6 +11,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Global Event Bus:** Refactored `cosmicvaultnews_server.lua` to properly accept sync requests from player UI scripts across the server via Avorion's asynchronous `Server():registerCallback` and `Server():sendCallback` system, bypassing strict VM sandboxing limits.
 - **Compliance Fix:** Wrapped core injection files (init.lua) safely to prevent them from wiping out vanilla initialization scripts.
 - **Re-entrant VM Deadlock:** Fixed a critical server crash (`EXCEPTION_ACCESS_VIOLATION`) that occurred when a player loaded into the galaxy. The `cosmicvaultnews_server.lua` broadcasting mechanism was decoupled from the synchronous callback chain using an `updateServer()` state flag (`needsPlayerNotification`), safely allowing the engine to broadcast news outside of locked Lua VMs.
+- **News Publishing API Crash Fix:** Fixed a silent API crash in the Cosmic Vault News library. Replaced an invalid `Server.invokeFunction` call with Avorion's native `Server():sendCallback()` event bus, ensuring external mod events (and Vanilla events) can successfully publish articles without silently terminating execution.
 
 ### Added
 - **Galactic News API:** Introduced the `cosmicvaultnews.lua` library and its companion server hub `cosmicvaultnews_server.lua`.

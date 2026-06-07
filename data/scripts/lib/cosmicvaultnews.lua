@@ -24,16 +24,15 @@ function CosmicVaultNews.publishArticle(article)
 
     local server = Server()
     if server then
-        local ok, err = pcall(server.invokeFunction, server, "server/cosmicvaultnews_server.lua", "publishArticle", article)
+        local ok, err = pcall(function() server:sendCallback("onCCNewsPublishArticle", article) end)
         if not ok and CosmicVaultDebug and CosmicVaultDebug.error then
-            CosmicVaultDebug.error("CosmicVaultNews", "Failed to invoke publishArticle: " .. tostring(err))
+            CosmicVaultDebug.error("CosmicVaultNews", "Failed to publish article via callback: " .. tostring(err))
         end
     end
 end
 
 -- Get all published news articles on the client
 function CosmicVaultNews.getPublishedNews()
-    local ok, ret = pcall(Server().invokeFunction, Server(), "server/cosmicvaultnews_server.lua", "getPublishedNews")
     -- Since getPublishedNews would be synchronous but client-server boundary doesn't allow returning values directly,
     -- the UI should instead rely on the `cosmicvaultnews_server.lua` sync state.
     -- Alternatively, the UI tab can just use global table injected by the server script.
