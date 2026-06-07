@@ -1,5 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("callable")
+include("randomext")
 
 -- namespace CosmicVaultNewsServer
 CosmicVaultNewsServer = {}
@@ -17,11 +18,20 @@ function CosmicVaultNewsServer.initialize()
     end
 end
 
+local reporters = {
+    "Jade", "Kaelen", "Lyra", "Dax", "Rylan", "Vex", "Elara", "Talon", "Nova", "Silas", 
+    "Zyx", "Corin", "Tali", "Jarek", "Reyna", "Orion", "Kass", "Vesper", "Thorne", "Anya", 
+    "Soren", "Kael", "Zander", "Nyx", "Kira"
+}
+
 -- Server function to publish a new article globally
 function CosmicVaultNewsServer.publishArticle(article)
     if not onServer() then return end
     print("[CosmicVaultNews] Publishing new article: " .. tostring(article.title))
     article.timestamp = Server().unpausedRuntime
+    if not article.author then
+        article.author = reporters[random():getInt(1, #reporters)]
+    end
     table.insert(self.publishedNews, 1, article) -- Insert at the beginning (newest first)
     
     -- Keep only the last 30 articles to prevent memory bloat
