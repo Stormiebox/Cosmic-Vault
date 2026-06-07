@@ -29,8 +29,10 @@ function CosmicVaultNewsServer.publishArticle(article)
     
 -- Broadcast the new article to all connected clients by pushing it to their UI scripts
     for _, player in pairs({Server():getOnlinePlayers()}) do
-        -- We trigger the Server side of the Chronicle UI, which then bridges it down to its own client
-        player:invokeFunction("player/ui/cc_newsboard.lua", "pushNewsSync", player.index, self.publishedNews)
+        if player:hasScript("player/ui/cc_newsboard.lua") then
+            -- We trigger the Server side of the Chronicle UI, which then bridges it down to its own client
+            player:invokeFunction("player/ui/cc_newsboard.lua", "pushNewsSync", player.index, self.publishedNews)
+        end
     end
 end
 
@@ -44,7 +46,7 @@ function CosmicVaultNewsServer.onSyncRequest(playerIndex)
     end
 
     local player = Player(playerIndex)
-    if player then
+    if player and player:hasScript("player/ui/cc_newsboard.lua") then
         player:invokeFunction("player/ui/cc_newsboard.lua", "pushNewsSync", playerIndex, self.publishedNews)
     end
 end
