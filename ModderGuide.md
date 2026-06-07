@@ -38,8 +38,8 @@ end
 ### Real-Time Client Synchronization
 The server broadcasts `onCosmicVaultNewsUpdated` locally to all connected clients. You can register for this callback in your UI script to refresh your displays seamlessly without requiring players to reopen the window.
 ```lua
-if Client() then
-    Client():registerCallback("onCosmicVaultNewsUpdated", "onNewsReceived")
+if onClient() then
+    Player():registerCallback("onCosmicVaultNewsUpdated", "onNewsReceived")
 end
 ```
 
