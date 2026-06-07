@@ -21,7 +21,8 @@ end
 local reporters = {
     "Jade", "Kaelen", "Lyra", "Dax", "Rylan", "Vex", "Elara", "Talon", "Nova", "Silas", 
     "Zyx", "Corin", "Tali", "Jarek", "Reyna", "Orion", "Kass", "Vesper", "Thorne", "Anya", 
-    "Soren", "Kael", "Zander", "Nyx", "Kira"
+    "Soren", "Kael", "Zander", "Nyx", "Kira",
+    "Vance", "Elena", "Torin", "Sera", "Ronan", "Mila", "Cade", "Lira", "Gael", "Tess"
 }
 
 -- Server function to publish a new article globally

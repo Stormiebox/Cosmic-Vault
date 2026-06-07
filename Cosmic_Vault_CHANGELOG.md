@@ -5,7 +5,7 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.0] - 2026-06-06
+## [1.5.0] - 2026-06-07
 ### Fixed
 - **Architecture Validation:** Validated `server/server.lua` architecture. Unlike `init.lua` bootstrappers, the Avorion engine treats `server.lua` as an implicitly attached entity script on the Server object, meaning the `initialize()` wrapper correctly and safely functions as intended to inject the global Vault News server.
 - **Global Event Bus:** Refactored `cosmicvaultnews_server.lua` to properly accept sync requests from player UI scripts across the server via Avorion's asynchronous `Server():registerCallback` and `Server():sendCallback` system, bypassing strict VM sandboxing limits.
@@ -16,6 +16,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Galactic News API:** Introduced the `cosmicvaultnews.lua` library and its companion server hub `cosmicvaultnews_server.lua`.
   - Exposes `CosmicVaultNews.publishArticle(article)` which allows any mod in the ecosystem to globally broadcast dynamic news events to all players.
   - Features a built-in server buffer that automatically manages the latest 30 articles and handles client synchronization to support custom news UI tabs (like the one implemented in *Cosmic Chronicles*).
+  - Includes a pool of 35 randomized reporter names (e.g. Jade, Vance, Nyx, Orion) to automatically author breaking news articles and enhance immersion.
 
 - **Cosmic UI Proportional Splitters:** Ported the core UI proportional splitter classes natively into the Vault (cosmicui_proportionalsplitter.lua), completely decoupling the Cosmic series from relying on external, unmaintained legacy UI libraries.
 
