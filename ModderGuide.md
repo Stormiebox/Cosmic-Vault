@@ -43,6 +43,9 @@ if onClient() then
 end
 ```
 
+### Architecture Safety (VM Deadlocks)
+Internally, the `CosmicVaultNews.publishArticle()` API decouples the incoming publication request from the outgoing client broadcast. Rather than executing an immediate synchronous `invokeClientFunction` (which causes `EXCEPTION_ACCESS_VIOLATION` VM deadlocks if the original stack was locked by another callback), it flags an internal `needsPlayerNotification` variable. The engine safely triggers the client broadcast dynamically during the next native `updateServer()` tick. Modders do not need to manage this decoupling; the Vault handles it transparently.
+
 
 ## 3. Faction Index Registry
 The `cosmicvaultfactionindex.lua` background script crawls the galaxy every 5 minutes and caches every generated faction into a highly performant `Server()` key-value store. This prevents expensive, laggy cross-sector queries.
