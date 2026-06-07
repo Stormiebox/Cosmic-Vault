@@ -30,9 +30,9 @@ function CosmicVaultNewsServer.publishArticle(article)
     
 -- Broadcast the new article to all connected clients by pushing it to their UI scripts
     for _, player in pairs({Server():getOnlinePlayers()}) do
-        print("[CosmicVaultNews] Attempting to push to online player " .. tostring(player.index))
-        -- We trigger the Server side of the Chronicle UI, which then bridges it down to its own client
-        player:invokeFunction("cc_newsboard.lua", "pushNewsSync", player.index, self.publishedNews)
+        print("[CosmicVaultNews] Attempting to notify online player " .. tostring(player.index))
+        -- We notify the Chronicle UI so it fetches the news safely on the next tick
+        player:invokeFunction("player/ui/cc_newsboard.lua", "onNewsPublished")
     end
 end
 
@@ -47,11 +47,10 @@ function CosmicVaultNewsServer.onSyncRequest(playerIndex)
         Server():sendCallback("onCCNewsRequestSeed")
     end
 
-    local player = Player(playerIndex)
-    if player then
-        print("[CosmicVaultNews] Invoking pushNewsSync on cc_newsboard.lua for player " .. tostring(playerIndex))
-        player:invokeFunction("cc_newsboard.lua", "pushNewsSync", playerIndex, self.publishedNews)
-    end
+    -- DO NOT push the news back here!
+    -- This callback is triggered synchronously by cc_newsboard.lua.
+    -- Calling invokeFunction back into cc_newsboard.lua creates a re-entrant VM deadlock and crashes the C++ engine!
+    -- cc_newsboard.lua will fetch the news itself after this callback returns.
 end
 
 -- Triggered via Server():sendCallback("onCCNewsPublishArticle", article)
@@ -65,6 +64,11 @@ function CosmicVaultNewsServer.secure()
         publishedNews = self.publishedNews
     }
 end
+
+function CosmicVaultNewsServer.getNews()
+    return self.publishedNews
+end
+
 
 function CosmicVaultNewsServer.restore(data)
     self.publishedNews = data.publishedNews or {}
