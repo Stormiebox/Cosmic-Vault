@@ -35,6 +35,15 @@ end
 ```
 *Note: The server automatically caps the buffer at the latest 30 articles.*
 
+### Real-Time Client Synchronization
+The server broadcasts `onCosmicVaultNewsUpdated` locally to all connected clients. You can register for this callback in your UI script to refresh your displays seamlessly without requiring players to reopen the window.
+```lua
+if Client() then
+    Client():registerCallback("onCosmicVaultNewsUpdated", "onNewsReceived")
+end
+```
+
+
 ## 3. Faction Index Registry
 The `cosmicvaultfactionindex.lua` background script crawls the galaxy every 5 minutes and caches every generated faction into a highly performant `Server()` key-value store. This prevents expensive, laggy cross-sector queries.
 

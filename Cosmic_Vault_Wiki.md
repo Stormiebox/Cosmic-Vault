@@ -69,6 +69,7 @@ Acts as the central nervous system for galactic broadcasting. Any mod in the Cos
 **Key Methods:**
 - `CosmicVaultNews.publishArticle(article)`: Safely pipes a formatted article (title, category, content) into the server.
 - **Server Sync:** Automatically manages memory by holding the latest 30 articles and seamlessly broadcasting updates to all connected players for custom UI rendering (e.g., *Cosmic Chronicles'* Galactic News Board).
+- **Client Callbacks:** Broadcasts `onCosmicVaultNewsUpdated` directly to clients so custom UI boards can refresh in real-time.
 
 </details>
 

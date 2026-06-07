@@ -43,5 +43,8 @@ end
 function CosmicVaultNewsServer.receiveNewsUpdate(newsArray)
     if not onClient() then return end
     self.publishedNews = newsArray
-    -- If a UI script is listening, it can grab the news from the API
+    -- Fire a client-side callback so any mod's UI can instantly update!
+    if Client() then
+        Client():sendCallback("onCosmicVaultNewsUpdated", newsArray)
+    end
 end

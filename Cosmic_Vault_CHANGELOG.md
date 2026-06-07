@@ -18,6 +18,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - **Cosmic UI Proportional Splitters:** Ported the core UI proportional splitter classes natively into the Vault (cosmicui_proportionalsplitter.lua), completely decoupling the Cosmic series from relying on external, unmaintained legacy UI libraries.
 
+  - Broadcasts the global client-side callback `onCosmicVaultNewsUpdated` whenever a new article drops, allowing any listening UI scripts to instantly synchronize and update their displays in real-time.
+
 - **Texture Folder Migration:** Added textures from `Cosmic War`, `Cosmic Overhaul` and `Cosmic Chronicles`. Cosmic Vault will now be the shared library for textures moving forward.
 
 ## [1.4.0] - 2026-05-31 - Synced with Cosmic Overhaul v4.0.0, Cosmic War v1.6.0 and Cosmic Chronicles v1.1.0 updates.
