@@ -16,7 +16,7 @@ meta =
     type = "mod",
 
     -- Description of your mod that will be displayed to players
-    description = "Main Cosmic series mod required by all other cosmic mods. Contains shared code and assets.",
+    description = "The foundational core and shared library powering the entire Cosmic Mod Series. Required dependency.",
 
     -- Insert all authors into this list
     authors = { "Stormbox" },
