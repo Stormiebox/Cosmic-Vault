@@ -13,6 +13,8 @@ CosmicVaultEconomy = CosmicVaultEconomy or {}
 
 function CosmicVaultEconomy.GetSupplyDemandInfo(x, y)
     local sector = Sector()
+    if not sector then return nil end
+    
     if sector:getCoordinates() == x and sector:getCoordinates() == y then
         -- We are in the sector, we can read directly
         local data = {}
@@ -47,7 +49,7 @@ function CosmicVaultEconomy.TriggerMarketEvent(goodName, x, y, radius, eventType
                 articleBody = string.format("A severe surplus around (%d:%d) has caused the value of %s to crash.", x, y, goodName)
             end
             
-            cvn.broadcast(articleTitle, articleBody, "Economy")
+            cvn.publishArticle({title=articleTitle, content=articleBody, category="Economy"})
         end
     end
     

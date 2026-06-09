@@ -51,9 +51,13 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
 
     if reputationReward and reputationReward > 0 then
         local sector = Sector()
-        local faction = Faction(sector:getValue("faction") or 0)
-        if faction then
-            player:changeRelations(faction.index, reputationReward)
+        if not sector then return end
+        local factionVal = sector:getValue("faction")
+        if factionVal then
+            local faction = Faction(factionVal)
+            if faction then
+                player:changeRelations(faction.index, reputationReward)
+            end
         end
     end
 

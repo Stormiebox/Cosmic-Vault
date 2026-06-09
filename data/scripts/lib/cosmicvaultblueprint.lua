@@ -30,7 +30,9 @@ function CosmicVaultBlueprint.spawnShip(factionId, xmlPlan, matrix, volume)
         plan:scale(math.pow(volume / plan.volume, 1 / 3))
     end
 
-    local ship = Sector():createShip(faction, "", plan, matrix or Matrix())
+    local sector = Sector()
+    if not sector then return nil end
+    local ship = sector:createShip(faction, "", plan, matrix or Matrix())
     
     -- Assign native crew and captain so the ship isn't a dead husk
     ShipUtility.addMinimumCrew(ship, 1.5)
@@ -63,7 +65,9 @@ function CosmicVaultBlueprint.spawnStation(factionId, xmlPlan, matrix, stationTy
     
     if not plan or plan.numBlocks == 0 then return nil end
 
-    local station = Sector():createStation(faction, plan, matrix or Matrix(), "")
+    local sector = Sector()
+    if not sector then return nil end
+    local station = sector:createStation(faction, plan, matrix or Matrix(), "")
     
     if stationType then
         station:addScriptOnce(stationType)

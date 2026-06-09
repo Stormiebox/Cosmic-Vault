@@ -18,7 +18,9 @@ function CosmicVaultEncounter.spawnAmbush(factionId, volume, numShips, spawnMatr
     local faction = Faction(factionId)
     if not faction then return {} end
 
-    local generator = SectorGenerator(Sector().seed, Sector():getCoordinates())
+    local sector = Sector()
+    if not sector then return {} end
+    local generator = SectorGenerator(sector.seed, sector:getCoordinates())
     local spawnedShips = {}
     
     local pos = spawnMatrix or MatrixLookUpPosition(-vec3(0, 1, 0), vec3(1, 0, 0), vec3(math.random(-500, 500), math.random(-500, 500), math.random(-500, 500)))

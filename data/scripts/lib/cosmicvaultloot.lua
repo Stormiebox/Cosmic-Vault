@@ -17,6 +17,7 @@ function CosmicVaultLoot.dropCustomLoot(entityId, lootType, payload, amount, own
     if not entity then return end
     
     local sector = Sector()
+    if not sector then return end
     local position = entity.translationf
     
     if lootType == "good" then
