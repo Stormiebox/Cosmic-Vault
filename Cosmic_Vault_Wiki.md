@@ -8,6 +8,31 @@ Welcome to the **Cosmic Vault** official wiki! This page contains the full, deta
 - Stay behavior-consistent.
 - Integrate faster with lower maintenance costs.
 
+
+### 11) Shared Modding APIs (Vanilla+)
+
+<details>
+<summary><b>Click to expand details</b></summary>
+
+**What it does:**
+A massive expansion introduced in v2.0.0, the Vault provides a complete suite of standalone APIs (Task Scheduling, Arsenal Generation, Entity Data Tagging, Cinematic UI, and Economy Hooks) designed explicitly to allow modders to create "Vanilla+" mechanics without ever having to use dangerous "hard overrides" on core Avorion scripts.
+
+**Included Libraries:**
+- `cosmicvaulttask.lua`: Lua Coroutine manager for running heavy operations over multiple server ticks without hanging the server.
+- `cosmicvaultdata.lua`: Natively store complex JSON tables and Entity Tags directly into the Avorion engine via `dkjson`.
+- `cosmicvaultui.lua`: Trigger highly immersive cinematic UI overlays, banners, and sounds on client screens effortlessly.
+- `cosmicvaultarsenal.lua`: Mathematical generator for spitting out perfectly balanced custom `Weapon` and `InventoryTurret` drops on the fly.
+- `cosmicvaulteconomy.lua`: Natively read market data and trigger economic Booms and Crashes that automatically link up to the Galactic News Network.
+- `cosmicvaultencounter.lua`: Inject custom ambushes, anomalies, or boss spawns safely when players enter sectors without touching `sectorspecifics.lua`.
+- `cosmicvaultmission.lua`: Streamlined creation and injection of custom missions into native Bulletin Boards without overriding station logic.
+- `cosmicvaultprogression.lua`: Standardized custom XP, levels, and skill-tree perks synced securely across client and server.
+- `cosmicvaultfleet.lua`: Safe command injection for pushing complex AI orders (patrol, escort, mine) without hard overriding `craftorders.lua`.
+- `cosmicvaultfaction.lua`: Natively apply temporary relationship traits (like "Aggressive" or "Isolationist") to dynamic AI factions.
+
+**Why it matters:**
+Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.
+</details>
+
 ---
 
 ## Table of Contents
@@ -262,6 +287,26 @@ Completely eliminates the need for fragile, file-based I/O operations (like lega
 </details>
 
 ---
+
+
+### 11) Shared Modding APIs (Vanilla+)
+
+<details>
+<summary><b>Click to expand details</b></summary>
+
+**What it does:**
+A massive expansion introduced in v2.0.0, the Vault provides a complete suite of standalone APIs (Task Scheduling, Arsenal Generation, Entity Data Tagging, Cinematic UI, and Economy Hooks) designed explicitly to allow modders to create "Vanilla+" mechanics without ever having to use dangerous "hard overrides" on core Avorion scripts.
+
+**Included Libraries:**
+- `cosmicvaulttask.lua`: Lua Coroutine manager for running heavy operations over multiple server ticks without hanging the server.
+- `cosmicvaultdata.lua`: Natively store complex JSON tables and Entity Tags directly into the Avorion engine via `dkjson`.
+- `cosmicvaultui.lua`: Trigger highly immersive cinematic UI overlays, banners, and sounds on client screens effortlessly.
+- `cosmicvaultarsenal.lua`: Mathematical generator for spitting out perfectly balanced custom `Weapon` and `InventoryTurret` drops on the fly.
+- `cosmicvaulteconomy.lua`: Natively read market data and trigger economic Booms and Crashes that automatically link up to the Galactic News Network.
+
+**Why it matters:**
+Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.
+</details>
 
 ## Integration Guidelines
 

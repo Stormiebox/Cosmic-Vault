@@ -93,3 +93,121 @@ function initialize(...)
     end
 end
 ```
+
+
+## 3. Cosmic Vault Task API
+The `cosmicvaulttask.lua` library provides an Async Task Scheduler. It allows modders to run intensive Lua operations across multiple server ticks using Coroutines, completely preventing massive TPS drops or server hangs.
+
+### Usage
+```lua
+local CosmicVaultTask = include("cosmicvaulttask")
+
+CosmicVaultTask.RunAsync("MyHeavyScan", function()
+    for i=1, 10000 do
+        -- Do heavy math
+        CosmicVaultTask.Yield() -- Pauses execution until the next Update tick
+    end
+end)
+```
+*(Note: To use this natively, you must call `CosmicVaultTask.Update(timeStep)` in your own server update loop.)*
+
+## 4. Cosmic Vault Data API
+The `cosmicvaultdata.lua` library provides a native way to store complex Lua tables onto Entities, and apply tags for fast grouping and querying, completely natively without overriding vanilla scripts. It uses `dkjson` for safe serialization.
+
+### Usage
+```lua
+local CosmicVaultData = include("cosmicvaultdata")
+
+-- Store a table on an entity
+CosmicVaultData.SetTable(entity, "MyCustomData", {isBoss = true, phase = 2})
+
+-- Retrieve it
+local data = CosmicVaultData.GetTable(entity, "MyCustomData")
+
+-- Tags
+CosmicVaultData.AddTag(entity, "VIP_Target")
+local targets = CosmicVaultData.GetEntitiesByTag(Sector(), "VIP_Target")
+```
+
+## 5. Cosmic Vault Arsenal API
+The `cosmicvaultarsenal.lua` library provides mathematical generators to spit out properly balanced, custom `Weapon`/`InventoryTurret` objects dynamically for loot drops, custom enemies, or missions.
+
+### Usage
+```lua
+local CosmicVaultArsenal = include("cosmicvaultarsenal")
+
+local turret = CosmicVaultArsenal.GenerateTurret({
+    rarity = Rarity(RarityType.Legendary),
+    weaponType = WeaponType.Bolter,
+    damage = 500,
+    color = ColorRGB(1, 0, 0)
+})
+```
+
+## 6. Cosmic Vault UI API (Cinematic)
+The `cosmicvaultui.lua` library allows modders to easily trigger cinematic screen overlays and banners for immersive events without writing custom UI renderers.
+
+### Usage
+```lua
+local CosmicVaultUI = include("cosmicvaultui")
+-- Triggers a 5-second red banner on the player's screen with a sound effect
+CosmicVaultUI.ShowCinematicBanner(Player(), "CRITICAL WARNING", ColorRGB(1, 0, 0), "data/sounds/siren.ogg", 5)
+```
+
+## 7. Cosmic Vault Economy API
+The `cosmicvaulteconomy.lua` library allows reading live market data and natively broadcasting economic events to the Galactic News.
+
+### Usage
+```lua
+local CosmicVaultEconomy = include("cosmicvaulteconomy")
+-- This will broadcast a massive market boom for Processors to the Galactic News Network
+CosmicVaultEconomy.TriggerMarketEvent("Processors", 150, -50, 10, "boom")
+```
+
+## 8. Cosmic Vault Dynamic Encounters API
+The `cosmicvaultencounter.lua` library helps inject custom ambushes or anomalies natively when a player enters a sector.
+
+### Usage
+```lua
+local CosmicVaultEncounter = include("cosmicvaultencounter")
+-- Spawns 3 aggressive Pirate ships at the player's location natively
+CosmicVaultEncounter.spawnAmbush(Faction().index, 5000, 3, nil, true)
+```
+
+## 9. Cosmic Vault Mission Injector API
+The `cosmicvaultmission.lua` library helps build and post standard bulletin boards natively.
+
+### Usage
+```lua
+local CosmicVaultMission = include("cosmicvaultmission")
+local bulletin = CosmicVaultMission.createBulletin("Bounty Target", "Kill the pirate lord", "Hard", "150,000 Cr", "data/scripts/player/missions/bounty.lua", {})
+```
+
+## 10. Cosmic Vault Progression API
+The `cosmicvaultprogression.lua` library wraps native custom XP, skills, and perks natively.
+
+### Usage
+```lua
+local CosmicVaultProgression = include("cosmicvaultprogression")
+-- Adds 50 XP to the player's 'combat' skill tree natively
+CosmicVaultProgression.addXP(playerIndex, 50, "combat")
+```
+
+## 11. Cosmic Vault Fleet Command API
+The `cosmicvaultfleet.lua` library provides a safe interface to issue vanilla AI orders without rewriting craftorders.lua.
+
+### Usage
+```lua
+local CosmicVaultFleet = include("cosmicvaultfleet")
+-- Clear orders and make a ship jump
+CosmicVaultFleet.orderJump(entityId, 15, -20)
+```
+
+## 12. Cosmic Vault Faction Traits API
+The `cosmicvaultfaction.lua` library natively manages temporary faction traits.
+
+### Usage
+```lua
+local CosmicVaultFaction = include("cosmicvaultfaction")
+CosmicVaultFaction.setTrait(factionIndex, "aggressive", true)
+```

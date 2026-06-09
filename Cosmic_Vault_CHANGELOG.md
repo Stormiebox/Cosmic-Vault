@@ -5,6 +5,19 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - Work In Progress - NO RELEASE DATE YET!
+### Added
+- **Major Modding APIs Expansion:** Introduced a suite of 5 new unified APIs to assist modders in creating powerful Vanilla+ experiences without needing to execute dangerous 'hard overrides' of core vanilla game files.
+- **Cosmic Vault Task API:** Added cosmicvaulttask.lua. Allows modders to run intensive operations (like scanning the galaxy) across multiple server ticks using Lua Coroutines, completely preventing massive TPS drops or server hangs.
+- **Cosmic Vault Data API:** Added cosmicvaultdata.lua. Provides universal Entity Tagging and JSON serialization, allowing complex nested tables to be easily stored and fetched directly on/from Avorion entities.
+- **Cosmic Vault Arsenal API:** Added cosmicvaultarsenal.lua. Provides a template-driven math generator that dynamically creates perfectly balanced InventoryTurret and Weapon objects for custom loot tables and enemy designs.
+- **Cosmic Vault Cinematic UI API:** Added cosmicvaultui.lua and cosmicvaultcinematic.lua. Provides native support for triggering immersive, stylized on-screen notification banners and popups with sound effects.
+- **Cosmic Vault Economy API:** Added cosmicvaulteconomy.lua. Provides native simulation hooks for injecting custom dynamic trade goods, and triggering market Booms or Crashes which automatically interface with the Galactic News Network.
+- **Cosmic Vault Dynamic Encounters API:** Added cosmicvaultencounter.lua. Safely uses `onPlayerEntered` callbacks to inject custom ambushes, anomalies, or bosses dynamically, perfectly preserving vanilla sector generation.
+- **Cosmic Vault Mission Injector API:** Added cosmicvaultmission.lua. Streamlines the creation of custom missions and natively injects them into Bulletin Boards without overriding station scripts.
+- **Cosmic Vault Progression API:** Added cosmicvaultprogression.lua. A unified framework for granting custom XP, skill trees, and perks, automatically syncing them natively between client and server.
+- **Cosmic Vault Fleet Command API:** Added cosmicvaultfleet.lua. A clean interface to safely push AI orders (patrol, escort, mine) without needing to rewrite `craftorders.lua`.
+- **Cosmic Vault Faction Traits API:** Added cosmicvaultfaction.lua. Natively applies temporary reputation traits (e.g. Aggressive, Isolationist) to AI factions to dynamically alter how they behave toward players.
 ## [1.5.0] - 2026-06-07
 ### Fixed
 - **Architecture Validation:** Validated `server/server.lua` architecture. Unlike `init.lua` bootstrappers, the Avorion engine treats `server.lua` as an implicitly attached entity script on the Server object, meaning the `initialize()` wrapper correctly and safely functions as intended to inject the global Vault News server.

@@ -28,6 +28,7 @@ For complete architecture and integration details, see:
 - Centralizes shared UI layout APIs (e.g., Cosmic UI Proportional Splitters) to completely decouple mods from legacy external libraries.
 - Includes the **Galactic News API** for broadcasting rich, real-time ecosystem updates to players.
 - Features highly performant Server Data Contracts (like Faction Indexing and Contextual Dialogue).
+- **Extensive Modding APIs**: Includes a powerful suite of 10 custom APIs (Task Scheduler, Arsenal Generator, Entity Data, Economy, Cinematic UI, Dynamic Encounters, Mission Injector, Progression, Fleet Command, and Faction Traits) to help modders create Vanilla+ experiences without hard overrides!
 - Reduces duplicate helper code across Cosmic projects.
 - Intended dependency target for current and future Cosmic modules (Overhaul, War, Starfall, Chronicles).
 
