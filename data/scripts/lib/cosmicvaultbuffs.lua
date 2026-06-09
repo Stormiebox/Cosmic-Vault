@@ -1,0 +1,36 @@
+package.path = package.path .. ";data/scripts/lib/?.lua"
+
+-- namespace CosmicVaultBuffs
+CosmicVaultBuffs = {}
+
+--- Applies a temporary stat buff or debuff natively to an entity
+-- @param entityId (string|Uuid) The target entity
+-- @param statName (string) The stat to modify (e.g. "Velocity", "Shield", "Damage")
+-- @param multiplier (number) The multiplier (e.g. 0.5 for half speed, 2.0 for double damage)
+-- @param durationSeconds (int) How long the buff should last
+function CosmicVaultBuffs.applyBuff(entityId, statName, multiplier, durationSeconds)
+    if not onServer() then return end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    -- We natively attach the cosmicbuff script to the entity.
+    -- The script will self-terminate when the duration expires.
+    entity:addScript("data/scripts/entity/cosmicbuff.lua", statName, multiplier, durationSeconds)
+end
+
+--- Removes all active Cosmic Buffs natively from an entity
+-- @param entityId (string|Uuid) The target entity
+function CosmicVaultBuffs.clearBuffs(entityId)
+    if not onServer() then return end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    -- Natively remove the script from the entity block
+    while entity:hasScript("data/scripts/entity/cosmicbuff.lua") do
+        entity:removeScript("data/scripts/entity/cosmicbuff.lua")
+    end
+end
+
+return CosmicVaultBuffs

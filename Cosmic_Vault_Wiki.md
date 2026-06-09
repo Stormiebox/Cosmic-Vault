@@ -28,6 +28,12 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultprogression.lua`: Standardized custom XP, levels, and skill-tree perks synced securely across client and server.
 - `cosmicvaultfleet.lua`: Safe command injection for pushing complex AI orders (patrol, escort, mine) without hard overriding `craftorders.lua`.
 - `cosmicvaultfaction.lua`: Natively apply temporary relationship traits (like "Aggressive" or "Isolationist") to dynamic AI factions.
+- `cosmicvaultgoods.lua`: Safely inject custom Trade Goods directly into the global economy without overwriting the hardcoded `goods.lua`.
+- `cosmicvaultloot.lua`: Hook into native destruction sequences to drop custom loot natively.
+- `cosmicvaultblueprint.lua`: Safely load and dynamically spawn custom XML ships, stations, and custom turrets with native AI and crew generation.
+- `cosmicvaultstation.lua`: Safely append custom dialogue or interaction tabs to vanilla stations cleanly.
+- `cosmicvaultevents.lua`: A server-safe timer for tracking galaxy-wide events (e.g. "Xsotan Invasions") that persist across server reboots.
+- `cosmicvaultbuffs.lua`: Safely inject temporary stat modifiers (Speed, Shields, Damage) directly onto ships via tiny, self-terminating scripts.
 
 **Why it matters:**
 Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.

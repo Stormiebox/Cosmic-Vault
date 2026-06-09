@@ -18,6 +18,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Cosmic Vault Progression API:** Added cosmicvaultprogression.lua. A unified framework for granting custom XP, skill trees, and perks, automatically syncing them natively between client and server.
 - **Cosmic Vault Fleet Command API:** Added cosmicvaultfleet.lua. A clean interface to safely push AI orders (patrol, escort, mine) without needing to rewrite `craftorders.lua`.
 - **Cosmic Vault Faction Traits API:** Added cosmicvaultfaction.lua. Natively applies temporary reputation traits (e.g. Aggressive, Isolationist) to AI factions to dynamically alter how they behave toward players.
+- **Cosmic Vault Custom Goods API:** Added cosmicvaultgoods.lua. Safely appends custom trade goods to the global economy without overriding `goods.lua`.
+- **Cosmic Vault Custom Loot API:** Added cosmicvaultloot.lua. Hooks into native destruction events to drop custom weapons, upgrades, and goods from enemies dynamically.
+- **Cosmic Vault Blueprint Spawner API:** Added cosmicvaultblueprint.lua. Allows modders to spawn custom XML ships, stations, and turrets dynamically with proper scaling and crew.
+- **Cosmic Vault Station Interaction API:** Added cosmicvaultstation.lua. Simplifies injecting custom UI tabs and interactions into vanilla stations safely.
+- **Cosmic Vault Global Events API:** Added cosmicvaultevents.lua. Wraps `Server():setValue()` to manage and sync galaxy-wide timed events natively across reboots.
+- **Cosmic Vault Buff & Debuff API:** Added cosmicvaultbuffs.lua & cosmicbuff.lua. Dynamically attaches self-terminating scripts to ships to securely alter their stats temporarily (e.g. Speed, Damage).
 ## [1.5.0] - 2026-06-07
 ### Fixed
 - **Architecture Validation:** Validated `server/server.lua` architecture. Unlike `init.lua` bootstrappers, the Avorion engine treats `server.lua` as an implicitly attached entity script on the Server object, meaning the `initialize()` wrapper correctly and safely functions as intended to inject the global Vault News server.

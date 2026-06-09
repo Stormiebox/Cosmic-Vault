@@ -211,3 +211,59 @@ The `cosmicvaultfaction.lua` library natively manages temporary faction traits.
 local CosmicVaultFaction = include("cosmicvaultfaction")
 CosmicVaultFaction.setTrait(factionIndex, "aggressive", true)
 ```
+
+## 13. Cosmic Vault Custom Goods API
+The `cosmicvaultgoods.lua` library natively injects custom trade goods.
+
+### Usage
+```lua
+local CosmicVaultGoods = include("cosmicvaultgoods")
+CosmicVaultGoods.registerGood({name = "Cosmic Matter", price = 50000, volume = 5.0, icon = "data/textures/icons/cosmic.png"})
+```
+
+## 14. Cosmic Vault Custom Loot API
+The `cosmicvaultloot.lua` library drops custom loot natively.
+
+### Usage
+```lua
+local CosmicVaultLoot = include("cosmicvaultloot")
+CosmicVaultLoot.dropCustomLoot(entityId, "good", "Cosmic Matter", 10)
+```
+
+## 15. Cosmic Vault Blueprint Spawner API
+The `cosmicvaultblueprint.lua` library spawns custom ships, stations, and turrets natively.
+
+### Usage
+```lua
+local CosmicVaultBlueprint = include("cosmicvaultblueprint")
+local ship = CosmicVaultBlueprint.spawnShip(factionId, "data/plans/boss.xml", Matrix(), 5000)
+local turret = CosmicVaultBlueprint.createTurretFromPlan("data/plans/custom_turret.xml", WeaponType.Laser)
+```
+
+## 16. Cosmic Vault Station Interaction API
+The `cosmicvaultstation.lua` library adds safe UI tabs to stations.
+
+### Usage
+```lua
+local CosmicVaultStation = include("cosmicvaultstation")
+CosmicVaultStation.injectInteraction("Talk to Mercenary", "Mercenary Guild", "onMercClicked")
+```
+
+## 17. Cosmic Vault Global Events API
+The `cosmicvaultevents.lua` library manages galaxy-wide timers natively.
+
+### Usage
+```lua
+local CosmicVaultEvents = include("cosmicvaultevents")
+CosmicVaultEvents.startEvent("xsotan_invasion", 3600) -- 1 hour event
+```
+
+## 18. Cosmic Vault Buff & Debuff API
+The `cosmicvaultbuffs.lua` library applies self-terminating buffs natively.
+
+### Usage
+```lua
+local CosmicVaultBuffs = include("cosmicvaultbuffs")
+-- Cuts ship speed in half for 30 seconds
+CosmicVaultBuffs.applyBuff(entityId, "Velocity", 0.5, 30)
+```
