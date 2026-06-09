@@ -52,7 +52,9 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
     if reputationReward and reputationReward > 0 then
         local sector = Sector()
         if not sector then return end
-        local factionVal = sector:getValue("faction")
+        
+        local x, y = sector:getCoordinates()
+        local factionVal = Galaxy():getControllingFaction(x, y)
         if factionVal then
             local faction = Faction(factionVal)
             if faction then

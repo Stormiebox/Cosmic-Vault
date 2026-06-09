@@ -39,7 +39,7 @@ function CosmicVaultFleet.orderEscort(entityId, targetId, clearPrevious)
     local target = Entity(targetId)
     if not entity or not target then return end
     
-    entity:invokeFunction("data/scripts/entity/orderchain.lua", "addEscortOrder", nil, target.factionIndex, target.name)
+    entity:invokeFunction("data/scripts/entity/orderchain.lua", "addEscortOrder", target.index.string, target.factionIndex, target.name)
     entity:invokeFunction("data/scripts/entity/orderchain.lua", "runOrders")
 end
 

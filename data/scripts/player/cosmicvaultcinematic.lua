@@ -43,7 +43,7 @@ function CosmicVaultCinematic.showPopup(title, message)
     end
     
     -- Using vanilla UI popup
-    displayChatMessage(title, 2, message)
+    displayChatMessage(message, title, 0)
 end
 
 function CosmicVaultCinematic.updateClient(timeStep)

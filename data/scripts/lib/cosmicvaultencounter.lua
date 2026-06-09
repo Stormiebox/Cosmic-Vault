@@ -53,7 +53,7 @@ function CosmicVaultEncounter.broadcastEncounterMessage(sender, message, isRadio
     if not sector then return end
     
     if isRadio then
-        sector:broadcastChatMessage(sender, ChatMessageType.Information, message)
+        sector:broadcastChatMessage(sender, ChatMessageType.Chatter, message)
     else
         sector:broadcastChatMessage(sender, ChatMessageType.Normal, message)
     end

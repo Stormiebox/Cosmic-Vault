@@ -15,7 +15,8 @@ function CosmicVaultEconomy.GetSupplyDemandInfo(x, y)
     local sector = Sector()
     if not sector then return nil end
     
-    if sector:getCoordinates() == x and sector:getCoordinates() == y then
+    local sx, sy = sector:getCoordinates()
+    if sx == x and sy == y then
         -- We are in the sector, we can read directly
         local data = {}
         local factories = {sector:getEntitiesByComponent(ComponentType.Factory)}
