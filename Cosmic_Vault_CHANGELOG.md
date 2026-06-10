@@ -5,6 +5,10 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] Missing Galaxy Map QoL
+### Added
+- **Missing Texture:** Added missing texture for Galaxy Map QoL
+
 ## [2.0.0] - Work In Progress - NO RELEASE DATE YET!
 ### Added
 - **Major Modding APIs Expansion:** Introduced a suite of 5 new unified APIs to assist modders in creating powerful Vanilla+ experiences without needing to execute dangerous 'hard overrides' of core vanilla game files.
