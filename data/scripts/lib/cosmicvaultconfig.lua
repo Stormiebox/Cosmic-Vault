@@ -1,10 +1,27 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local mcm = include("mcm")
-local config = mcm and mcm.bind("CosmicVault") or nil
+local ccm = include("ccm")
+local config = ccm and ccm.bind("CosmicVault") or nil
 
 -- namespace CosmicVaultConfig
 CosmicVaultConfig = CosmicVaultConfig or {}
+
+if ccm then
+    ccm.register("CosmicVault", {
+        pages = {
+            {
+                title = "Debugging & Framework",
+                options = {
+                    { key = "debugEnabled", type = "bool", title = "Enable Debug Logs", description = "Prints Cosmic Vault debug info to console.", default = false },
+                    { key = "diagnosticsEnabled", type = "bool", title = "Enable Diagnostics", description = "Runs periodic checks on Vault components.", default = true },
+                    { key = "diagnosticsInterval", type = "number", title = "Diagnostics Interval (s)", description = "Time between diagnostic checks.", default = 300, min = 10, max = 3600 },
+                    { key = "enableFrameworkStrictMode", type = "bool", title = "Strict Mode", description = "Enables strict bounds checking.", default = true },
+                    { key = "enableCompatLayer", type = "bool", title = "Compatibility Layer", description = "Improves compatibility with some third party mods.", default = true },
+                }
+            }
+        }
+    })
+end
 
 local defaults = {
     debugEnabled = false,
@@ -26,20 +43,23 @@ end
 
 local function readNumber(key, minV, maxV, fallback)
     if not config then return fallback end
-    local value = config.get(key)
+    local success, value = pcall(config.get, key)
+    if not success then return fallback end
     return clampNumber(value, minV, maxV, fallback)
 end
 
 local function readBool(key, fallback)
     if not config then return fallback end
-    local value = config.get(key)
+    local success, value = pcall(config.get, key)
+    if not success then return fallback end
     if type(value) ~= "boolean" then return fallback end
     return value
 end
 
 local function readString(key, fallback)
     if not config then return fallback end
-    local value = config.get(key)
+    local success, value = pcall(config.get, key)
+    if not success then return fallback end
     if type(value) ~= "string" then return fallback end
     if value == "" then return fallback end
     return value
