@@ -33,4 +33,23 @@ function CosmicVaultBuffs.clearBuffs(entityId)
     end
 end
 
+--- Sets the global Ascendancy Tier for a player or alliance natively
+-- @param factionIndex (int) The faction to modify
+-- @param tier (int) The tier level
+function CosmicVaultBuffs.setGlobalTier(factionIndex, tier)
+    if not onServer() then return end
+    local faction = Faction(factionIndex)
+    if not faction then return end
+    faction:setValue("cv_ascendancy_global_tier", tier)
+end
+
+--- Retrieves the current global Ascendancy Tier for a faction
+-- @param factionIndex (int) The faction to query
+-- @return int The current tier, or 0 if none
+function CosmicVaultBuffs.getGlobalTier(factionIndex)
+    local faction = Faction(factionIndex)
+    if not faction then return 0 end
+    return faction:getValue("cv_ascendancy_global_tier") or 0
+end
+
 return CosmicVaultBuffs

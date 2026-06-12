@@ -9,6 +9,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## v2.1.0 (CURRENT PROJECT VERSION - NO RELEASE DATE YET!)
 
+### Added
+- **Global Ascendancy Tier API**: Added `getGlobalTier` and `setGlobalTier` to `cosmicvaultbuffs.lua` to allow cross-sector tracking of global faction buffs (used heavily by Cosmic Ascendancy).
+
+### Changed
 - Fully integrated with the Cosmic Vault API framework.
 - Swept codebase for legacy callbacks and implemented safe pcall fallbacks.
 

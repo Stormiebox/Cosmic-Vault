@@ -262,11 +262,16 @@ CosmicVaultEvents.startEvent("xsotan_invasion", 3600) -- 1 hour event
 ```
 
 ## 20. Cosmic Vault Buff & Debuff API
-The `cosmicvaultbuffs.lua` library applies self-terminating buffs natively.
+The `cosmicvaultbuffs.lua` library applies self-terminating buffs natively, and allows tracking of global faction-wide buff tiers across sectors.
 
 ### Usage
 ```lua
 local CosmicVaultBuffs = include("cosmicvaultbuffs")
+
 -- Cuts ship speed in half for 30 seconds
 CosmicVaultBuffs.applyBuff(entityId, "Velocity", 0.5, 30)
+
+-- Set an empire-wide Ascension Tier buff level
+CosmicVaultBuffs.setGlobalTier(factionIndex, 5)
+local tier = CosmicVaultBuffs.getGlobalTier(factionIndex)
 ```
