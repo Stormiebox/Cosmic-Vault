@@ -5,12 +5,25 @@ All notable changes to **Cosmic Vault** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+--
+
+## v2.1.0 (CURRENT PROJECT VERSION - NO RELEASE DATE YET!)
+
+- Fully integrated with the Cosmic Vault API framework.
+- Swept codebase for legacy callbacks and implemented safe pcall fallbacks.
+
+### LEGACY LOGS BELOW - KEPT FOR HISTORICAL PURPOSES
+
 ## [2.0.1] Missing Galaxy Map QoL
+
 ### Added
+
 - **Missing Texture:** Added missing texture for Galaxy Map QoL
 
-## [2.0.0] - Work In Progress - NO RELEASE DATE YET!
+## [2.0.0]
+
 ### Added
+
 - **Major Modding APIs Expansion:** Introduced a suite of 5 new unified APIs to assist modders in creating powerful Vanilla+ experiences without needing to execute dangerous 'hard overrides' of core vanilla game files.
 - **Cosmic Vault Task API:** Added cosmicvaulttask.lua. Allows modders to run intensive operations (like scanning the galaxy) across multiple server ticks using Lua Coroutines, completely preventing massive TPS drops or server hangs.
 - **Cosmic Vault Data API:** Added cosmicvaultdata.lua. Provides universal Entity Tagging and JSON serialization, allowing complex nested tables to be easily stored and fetched directly on/from Avorion entities.
@@ -28,8 +41,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Cosmic Vault Station Interaction API:** Added cosmicvaultstation.lua. Simplifies injecting custom UI tabs and interactions into vanilla stations safely.
 - **Cosmic Vault Global Events API:** Added cosmicvaultevents.lua. Wraps `Server():setValue()` to manage and sync galaxy-wide timed events natively across reboots.
 - **Cosmic Vault Buff & Debuff API:** Added cosmicvaultbuffs.lua & cosmicbuff.lua. Dynamically attaches self-terminating scripts to ships to securely alter their stats temporarily (e.g. Speed, Damage).
+
 ## [1.5.0] - 2026-06-07
+
 ### Fixed
+
 - **Architecture Validation:** Validated `server/server.lua` architecture. Unlike `init.lua` bootstrappers, the Avorion engine treats `server.lua` as an implicitly attached entity script on the Server object, meaning the `initialize()` wrapper correctly and safely functions as intended to inject the global Vault News server.
 - **Global Event Bus:** Refactored `cosmicvaultnews_server.lua` to properly accept sync requests from player UI scripts across the server via Avorion's asynchronous `Server():registerCallback` and `Server():sendCallback` system, bypassing strict VM sandboxing limits.
 - **Compliance Fix:** Wrapped core injection files (init.lua) safely to prevent them from wiping out vanilla initialization scripts.
@@ -37,6 +53,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **News Publishing API Crash Fix:** Fixed a silent API crash in the Cosmic Vault News library. Replaced an invalid `Server.invokeFunction` call with Avorion's native `Server():sendCallback()` event bus, ensuring external mod events (and Vanilla events) can successfully publish articles without silently terminating execution.
 
 ### Added
+
 - **Galactic News API:** Introduced the `cosmicvaultnews.lua` library and its companion server hub `cosmicvaultnews_server.lua`.
   - Exposes `CosmicVaultNews.publishArticle(article)` which allows any mod in the ecosystem to globally broadcast dynamic news events to all players.
   - Features a built-in server buffer that automatically manages the latest 30 articles and handles client synchronization to support custom news UI tabs (like the one implemented in *Cosmic Chronicles*).
@@ -48,7 +65,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - **Texture Folder Migration:** Added textures from `Cosmic War`, `Cosmic Overhaul` and `Cosmic Chronicles`. Cosmic Vault will now be the shared library for textures moving forward.
 
-## [1.4.0] - 2026-05-31 - Synced with Cosmic Overhaul v4.0.0, Cosmic War v1.6.0 and Cosmic Chronicles v1.1.0 updates.
+## [1.4.0] - 2026-05-31 - Synced with Cosmic Overhaul v4.0.0, Cosmic War v1.6.0 and Cosmic Chronicles v1.1.0 updates
 
 ### Added
 
@@ -105,5 +122,3 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - Cosmic Vault is currently in foundation-expansion phase.
 - Future entries should document concrete shared library additions under `data/scripts/lib/` and any dependency contract changes used by dependent Cosmic mods.
-
-
