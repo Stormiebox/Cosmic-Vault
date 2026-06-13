@@ -23,7 +23,7 @@ function CosmicVaultEncounter.spawnAmbush(factionId, volume, numShips, spawnMatr
     local generator = SectorGenerator(sector.seed, sector:getCoordinates())
     local spawnedShips = {}
     
-    local pos = spawnMatrix or MatrixLookUpPosition(-vec3(0, 1, 0), vec3(1, 0, 0), vec3(math.random(-500, 500), math.random(-500, 500), math.random(-500, 500)))
+    local pos = spawnMatrix or MatrixLookUpPosition(-vec3(0, 1, 0), vec3(1, 0, 0), vec3(random():getInt(-500, 500), random():getInt(-500, 500), random():getInt(-500, 500)))
 
     for i = 1, numShips do
         local ship = ShipGenerator.createMilitaryShip(faction, pos, volume)
@@ -38,7 +38,7 @@ function CosmicVaultEncounter.spawnAmbush(factionId, volume, numShips, spawnMatr
             table.insert(spawnedShips, ship)
         end
         -- Stagger spawns slightly
-        pos.translation = pos.translation + vec3(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
+        pos.translation = pos.translation + vec3(random():getInt(-50, 50), random():getInt(-50, 50), random():getInt(-50, 50))
     end
 
     return spawnedShips
