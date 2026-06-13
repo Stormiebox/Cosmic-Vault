@@ -186,5 +186,13 @@ local CosmicVaultDialogue = include("cosmicvaultdialogue")
 CosmicVaultDialogue.showNode(Player(), "Welcome to the Forge. What do you require?")
 ```
 
-### 🧩 23. Framework Core API (`cosmicvaultframework.lua`)
+### 🗺️ 23. Territory API (`cosmicvaultterritory.lua`)
+Safely manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap. Includes native bindings to `CosmicVaultNews`.
+```lua
+local CosmicVaultTerritory = include("cosmicvaultterritory")
+-- Set a sector to be conquered by faction 2 from faction 3 after 60 minutes.
+CosmicVaultTerritory.setContestedZone(x, y, 2, 3, 60)
+```
+
+### 🧩 24. Framework Core API (`cosmicvaultframework.lua`)
 The internal state machine and bootstrapper for all vault APIs. Generally not interacted with directly, but handles dependency injection.

@@ -13,6 +13,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **UI Polish:** Faction names (like Xsotan) will no longer display raw translator comments (e.g., `/* faction name */`) inside Galactic News articles.
 
 ### Added
+- **Territory Expansion API**: Added `cosmicvaultterritory.lua` to allow background mathematical border shifting and station captures without overloading the server.
 - **Floating Combat Text & DoTs API**: Added `cosmicvaultcombat.lua` exposing `applyDoT` and native logic to render floating combat text for DOTs dynamically.
 - **Permanent Buffs API**: Added `applyPermanentFactor` to `cosmicvaultbuffs.lua` to dynamically scale boss shields/damage directly via script natively.
 
