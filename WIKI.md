@@ -1,4 +1,4 @@
-# Cosmic Vault - Detailed Features
+# ⚙️ Cosmic Vault - Detailed Features
 
 Welcome to the **Cosmic Vault** official wiki! This page contains the full, detailed documentation for the shared foundation layer of the **Cosmic** mod series.
 
@@ -41,7 +41,7 @@ Modders no longer need to destructively overwrite vanilla code (which causes hug
 
 ---
 
-## Table of Contents
+## 📑 Table of Contents
 
 - [Mod Identity & Purpose](#mod-identity--purpose)
 - [Core Design Principles](#core-design-principles)
@@ -53,7 +53,7 @@ Modders no longer need to destructively overwrite vanilla code (which causes hug
 
 ---
 
-## Mod Identity & Purpose
+## 🧬 Mod Identity & Purpose
 
 **Cosmic Vault** is an infrastructure-first module.
 
@@ -83,9 +83,9 @@ Unlike feature-heavy gameplay mods, **Cosmic Vault** focuses exclusively on:
 
 ---
 
-## Foundation Scope & Features
+## ⚙️ Foundation Scope & Features
 
-### 1) Galactic News API (Broadcasting Hub)
+### 📰 1) Galactic News API (Broadcasting Hub)
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -227,7 +227,7 @@ Acts as a formal dependency target that future Cosmic modules can safely referen
 Stabilizes cross-mod expectations and drastically reduces maintenance fragmentation over time.
 </details>
 
-### 8) Shared Server Data Contracts (Faction Index API)
+### 🌐 8) Shared Server Data Contracts (Faction Index API)
 
 <details>
 <summary><b>Click to expand details</b></summary>
@@ -314,9 +314,9 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.
 </details>
 
-## Integration Guidelines
+## 🔗 Integration Guidelines
 
-### Integration Contract (For Dependent Mods)
+### 🔗 Integration Contract (For Dependent Mods)
 
 When integrating with **Cosmic Vault**, dependent mods should generally follow these steps:
 
@@ -329,7 +329,7 @@ When integrating with **Cosmic Vault**, dependent mods should generally follow t
 3. Follow Vault's debug prefix and diagnostics conventions.
 4. Keep fallback behaviors safe if optional helpers are absent during transitional phases.
 
-### Example Integration Pattern (High-Level)
+### 🔗 Example Integration Pattern (High-Level)
 
 A dependent mod can adopt this approach for safe integration:
 
@@ -342,9 +342,9 @@ A dependent mod can adopt this approach for safe integration:
 
 ---
 
-## Ecosystem & Architecture
+## ⚙️ Ecosystem & Architecture
 
-### Architecture Position in Cosmic Series
+### 🏗️ Architecture Position in Cosmic Series
 
 Think of **Cosmic Vault** as the structural base:
 
@@ -357,7 +357,7 @@ This strict separation improves:
 - Onboarding speed for new modules.
 - Cross-mod compatibility and reliability.
 
-### Compatibility & Safety Notes
+### 🛡️ Compatibility & Safety Notes
 
 - **Cosmic Vault** is strictly an additive foundation, not a hard gameplay override system.
 - Shared helper interfaces will remain conservative and backward-aware.
@@ -365,9 +365,9 @@ This strict separation improves:
 
 ---
 
-## Installation & Troubleshooting
+## 🛠️ Installation & Troubleshooting
 
-### Installation
+### 🛠️ Installation
 
 1. Place folder in:
    - **Windows:** `%AppData%\Avorion\mods\`
@@ -375,7 +375,7 @@ This strict separation improves:
 2. Enable **Cosmic Vault** in **Settings -> Mods**.
 3. Restart Avorion when prompted.
 
-### Troubleshooting Checklist
+### 🛠️ Troubleshooting Checklist
 
 - [ ] Confirm **Cosmic Vault** is enabled in your mod load order.
 - [ ] Confirm dependent mod dependency declarations match.
@@ -385,7 +385,7 @@ This strict separation improves:
 
 ---
 
-## Development Status
+## 📈 Development Status
 
 **Lifecycle Status:** Foundational bootstrap + expansion phase.
 
@@ -407,7 +407,27 @@ This strict separation improves:
 
 
 
-## Latest Additions & Integrations
+## 🔗 Latest Additions & Integrations
 
 - **Floating Combat Text & DoTs API**: Added `cosmicvaultcombat.lua` exposing `applyDoT` and native logic to render floating combat text for DOTs dynamically.
 - **Permanent Buffs API**: Added `applyPermanentFactor` to `cosmicvaultbuffs.lua` to dynamically scale boss shields/damage directly via script natively.
+
+
+---
+
+## 🔗 Cosmic Series Integration & Audit 3.0 Updates
+<details>
+<summary><b>Click to expand</b></summary>
+
+During the Cosmic Series Final QA Audit (v3.0+), several massive backend systems were standardized across all mods:
+
+### 📖 Cosmic Codex Integration
+All deep lore, stat blocks, and dynamic recipes have been fully integrated into the in-game **Cosmic Codex**. You no longer need to tab out of the game to read these features; they will natively update and unlock inside your Codex UI as you progress!
+
+### 🔒 Network Safety & Anti-Cheat
+- **Math.Random Fix:** We systematically replaced all unstable Lua `math.random` calls with Avorion's deterministic `random():getInt()` generation sequence. This guarantees 100% synchronization on Multiplayer Dedicated Servers and prevents cascading desyncs during massive fleet spawns.
+- **Callable Validation:** UI and background scripts have been fully hardened. Malicious clients can no longer spoof "free" remote calls; the server actively verifies execution contexts before processing any requests, sealing multiple Arbitrary Code Execution (ACE) vulnerabilities.
+
+### 🛠️ Vanilla Bug Fixes
+- **Scout Mission Fix:** We patched a massive, long-standing vanilla bug where Scout Missions would completely skip and ignore Faction Headquarters sectors because the native dialogue trees were missing the template definition.
+</details>
