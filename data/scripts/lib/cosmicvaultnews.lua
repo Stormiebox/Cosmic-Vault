@@ -22,6 +22,10 @@ function CosmicVaultNews.publishArticle(article)
         return
     end
 
+    -- Clean Avorion translation hints (e.g. /* faction name */) from the title and content
+    article.title = string.gsub(article.title, "%s*/%*.-%*/%s*", "")
+    article.content = string.gsub(article.content, "%s*/%*.-%*/%s*", "")
+
     local server = Server()
     if server then
         local ok, err = pcall(function() server:sendCallback("onCCNewsPublishArticle", article) end)
