@@ -46,6 +46,18 @@ function CosmicVaultCinematic.showPopup(title, message)
     displayChatMessage(message, title, 0)
 end
 
+function CosmicVaultCinematic.showFloatingText(entityId, text, cInfo)
+    if onServer() then return end
+    -- Fallback to combat log since Avorion lacks 3D text renderer from Lua
+    local color = ColorRGB(cInfo.r, cInfo.g, cInfo.b)
+    
+    local entity = Entity(entityId)
+    local name = entity and entity.translatedTitle or "Unknown Entity"
+    
+    -- We can use a message type 3 for floating text style output in the middle of screen
+    displayChatMessage(string.format("[%s] %s", name, text), "", 3)
+end
+
 function CosmicVaultCinematic.updateClient(timeStep)
     if bannerActive then
         bannerTimer = bannerTimer - timeStep
