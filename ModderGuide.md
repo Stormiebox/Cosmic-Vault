@@ -275,3 +275,9 @@ CosmicVaultBuffs.applyBuff(entityId, "Velocity", 0.5, 30)
 CosmicVaultBuffs.setGlobalTier(factionIndex, 5)
 local tier = CosmicVaultBuffs.getGlobalTier(factionIndex)
 ```
+
+
+## Latest Additions & Integrations
+
+- **Floating Combat Text & DoTs API**: Added `cosmicvaultcombat.lua` exposing `applyDoT` and native logic to render floating combat text for DOTs dynamically.
+- **Permanent Buffs API**: Added `applyPermanentFactor` to `cosmicvaultbuffs.lua` to dynamically scale boss shields/damage directly via script natively.

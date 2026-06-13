@@ -19,6 +19,19 @@ function CosmicVaultBuffs.applyBuff(entityId, statName, multiplier, durationSeco
     entity:addScript("data/scripts/entity/cosmicbuff.lua", statName, multiplier, durationSeconds)
 end
 
+--- Applies a permanent stat multiplier factor natively to an entity
+-- @param entityId (string|Uuid) The target entity
+-- @param statName (int) The StatsBonuses Enum value (e.g. StatsBonuses.ShieldDurability)
+-- @param factor (number) The base factor (e.g. 5.0 for +500% increase)
+function CosmicVaultBuffs.applyPermanentFactor(entityId, statName, factor)
+    if not onServer() then return end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    entity:addMultiplyableFactor(statName, factor)
+end
+
 --- Removes all active Cosmic Buffs natively from an entity
 -- @param entityId (string|Uuid) The target entity
 function CosmicVaultBuffs.clearBuffs(entityId)

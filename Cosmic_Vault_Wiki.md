@@ -405,3 +405,9 @@ This strict separation improves:
 **Cosmic Vault** is designed to become the stable utility backbone for the entire **Cosmic** series. Future progress heavily emphasizes robust shared libraries, cleaner cross-mod contracts, and reduced code duplication across all gameplay modules.
 
 
+
+
+## Latest Additions & Integrations
+
+- **Floating Combat Text & DoTs API**: Added `cosmicvaultcombat.lua` exposing `applyDoT` and native logic to render floating combat text for DOTs dynamically.
+- **Permanent Buffs API**: Added `applyPermanentFactor` to `cosmicvaultbuffs.lua` to dynamically scale boss shields/damage directly via script natively.
