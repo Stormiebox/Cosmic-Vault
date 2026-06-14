@@ -24,6 +24,11 @@ end
     @param fallback (any): The default value to return if the setting is not found.
     @return (any): The stored value or the fallback.
 ]]
+--- Gets a player setting
+-- @param player (Player) The player
+-- @param key (string) The setting key
+-- @param default (any) Default value
+-- @return (any) The setting value
 function CosmicVaultPlayerSettings.get(player, modId, key, fallback)
     if not valid(player) then return fallback end
 
@@ -45,6 +50,10 @@ end
     @param key (string): The setting key.
     @param value (any): The value to store. Must be a type supported by player:setValue().
 ]]
+--- Sets a player setting
+-- @param player (Player) The player
+-- @param key (string) The setting key
+-- @param val (any) The value to set
 function CosmicVaultPlayerSettings.set(player, modId, key, value)
     if not valid(player) then return end
 

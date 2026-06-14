@@ -11,6 +11,11 @@ CosmicVaultUI = CosmicVaultUI or {}
     Requires the player to have "data/scripts/player/cosmicvaultcinematic.lua" attached.
 ]]
 
+--- Shows a cinematic banner to a player
+-- @param player (Player) The player
+-- @param title (string) The banner title
+-- @param subtitle (string) The subtitle
+-- @param color (Color) Text color
 function CosmicVaultUI.ShowCinematicBanner(player, text, color, soundPath, duration)
     if not valid(player) then return false end
     if not player:hasScript("cosmicvaultcinematic.lua") then
@@ -27,6 +32,10 @@ function CosmicVaultUI.ShowCinematicBanner(player, text, color, soundPath, durat
     return true
 end
 
+--- Shows a popup dialogue to a player
+-- @param player (Player) The player
+-- @param text (string) The popup text
+-- @param title (string) The popup title
 function CosmicVaultUI.ShowPopup(player, title, message)
     if not valid(player) then return false end
     if not player:hasScript("cosmicvaultcinematic.lua") then
@@ -36,6 +45,10 @@ function CosmicVaultUI.ShowPopup(player, title, message)
     player:invokeFunction("cosmicvaultcinematic.lua", "showPopup", title, message)
     return true
 end
+--- Displays floating text at an entity's location
+-- @param entity (Entity) The target entity
+-- @param text (string) The text to display
+-- @param color (Color) The text color
 function CosmicVaultUI.displayFloatingText(player, entityId, text, color)
     if not valid(player) then return false end
     if not player:hasScript("cosmicvaultcinematic.lua") then

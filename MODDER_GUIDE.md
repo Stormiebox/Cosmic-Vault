@@ -79,11 +79,22 @@ local CosmicVaultArsenal = include("cosmicvaultarsenal")
 local turret = CosmicVaultArsenal.GenerateTurret({rarity = Rarity(RarityType.Legendary), weaponType = WeaponType.Bolter, damage = 500})
 ```
 
-### 💹 8. Economy API (`cosmicvaulteconomy.lua`)
-Reads live market data and natively broadcasts economic events.
+### 💹 8. Economy API (`cosmicvaulteconomy.lua` & `cosmicvaultgoods.lua`)
+Reads live market data, natively broadcasts economic events, and injects custom trade goods into the 5 global vanilla economy arrays dynamically!
 ```lua
+local CosmicVaultGoods = include("cosmicvaultgoods")
 local CosmicVaultEconomy = include("cosmicvaulteconomy")
+
+-- Register custom goods securely
+CosmicVaultGoods.registerGood({
+    name = "Contraband", price = 50000, size = 2.5, illegal = true
+})
+
+-- Trigger events
 CosmicVaultEconomy.TriggerMarketEvent("Processors", 150, -50, 10, "boom")
+
+-- Register dynamic price fluctuations
+CosmicVaultEconomy.registerPriceHook("Contraband", "mymod.lua", "onCalculateContrabandPrice")
 ```
 
 ### 🏴‍☠️ 9. Encounter API (`cosmicvaultencounter.lua`)

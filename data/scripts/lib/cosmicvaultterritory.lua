@@ -7,6 +7,8 @@ local CosmicVaultTerritory = {}
 
 if onServer() then
 
+--- Gets all active contested zones
+-- @return (table) Contested zones list
     function CosmicVaultTerritory.getContestedZones()
         local server = Server()
         local zones = server:getValue("CosmicVault_ContestedZones")
@@ -17,7 +19,13 @@ if onServer() then
         return zones
     end
 
+--- Sets the contested state of a zone
+-- @param x (number) X coordinate
+-- @param y (number) Y coordinate
+-- @param state (boolean) Contested state
+-- @param attackers (table) Attacking faction info
     function CosmicVaultTerritory.setContestedZone(x, y, invadingFactionIndex, defendingFactionIndex, durationMinutes)
+    if not x or not y then return end
         local zones = CosmicVaultTerritory.getContestedZones()
         local key = x .. "_" .. y
         
@@ -33,7 +41,12 @@ if onServer() then
         print("[Cosmic Vault] Sector " .. x .. ":" .. y .. " is now Contested!")
     end
 
+--- Resolves a siege outcome
+-- @param x (number) X coordinate
+-- @param y (number) Y coordinate
+-- @param winner (string) The winning faction name
     function CosmicVaultTerritory.resolveSiege(x, y, newFactionIndex)
+    if not x or not y or not newFactionIndex then return end
         local zones = CosmicVaultTerritory.getContestedZones()
         local key = x .. "_" .. y
         
@@ -63,6 +76,8 @@ if onServer() then
         print("[Cosmic Vault] Sector " .. x .. ":" .. y .. " conquered by faction " .. tostring(newFactionIndex))
     end
 
+--- Server update loop for territory control
+-- @param timeStep (number) The time step
     function CosmicVaultTerritory.updateServer(timeStep)
         local zones = CosmicVaultTerritory.getContestedZones()
         local currentTime = Server().unpausedRuntime

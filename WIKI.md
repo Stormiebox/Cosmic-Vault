@@ -22,13 +22,13 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultdata.lua`: Natively store complex JSON tables and Entity Tags directly into the Avorion engine via `dkjson`.
 - `cosmicvaultui.lua`: Trigger highly immersive cinematic UI overlays, banners, and sounds on client screens effortlessly.
 - `cosmicvaultarsenal.lua`: Mathematical generator for spitting out perfectly balanced custom `Weapon` and `InventoryTurret` drops on the fly.
-- `cosmicvaulteconomy.lua`: Natively read market data and trigger economic Booms and Crashes that automatically link up to the Galactic News Network.
+- `cosmicvaulteconomy.lua`: Natively read market data, trigger economic Booms and Crashes, and hook custom dynamic price multipliers securely across the entire galaxy.
 - `cosmicvaultencounter.lua`: Inject custom ambushes, anomalies, or boss spawns safely when players enter sectors without touching `sectorspecifics.lua`.
 - `cosmicvaultmission.lua`: Streamlined creation and injection of custom missions into native Bulletin Boards without overriding station logic.
 - `cosmicvaultprogression.lua`: Standardized custom XP, levels, and skill-tree perks synced securely across client and server.
 - `cosmicvaultfleet.lua`: Safe command injection for pushing complex AI orders (patrol, escort, mine) without hard overriding `craftorders.lua`.
 - `cosmicvaultfaction.lua`: Natively apply temporary relationship traits (like "Aggressive" or "Isolationist") to dynamic AI factions.
-- `cosmicvaultgoods.lua`: Safely inject custom Trade Goods directly into the global economy without overwriting the hardcoded `goods.lua`.
+- `cosmicvaultgoods.lua`: Safely inject custom Trade Goods (with properties like illegal, dangerous) directly into the 5 global economy arrays without overwriting the hardcoded `goods.lua`.
 - `cosmicvaultloot.lua`: Hook into native destruction sequences to drop custom loot natively.
 - `cosmicvaultblueprint.lua`: Safely load and dynamically spawn custom XML ships, stations, and custom turrets with native AI and crew generation.
 - `cosmicvaultstation.lua`: Safely append custom dialogue or interaction tabs to vanilla stations cleanly.

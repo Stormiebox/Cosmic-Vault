@@ -10,6 +10,7 @@ Cosmic Vault acts as the central spine for all other Cosmic mods. It provides sh
 <summary><b>Click to expand features</b></summary>
 
 - **Cosmic Codex API:** Universal in-game encyclopedia injection framework.
+- **Custom Economy Engine:** Natively inject trade goods and dynamic price fluctuations without overriding vanilla background scripts.
 - **Async Task Scheduler:** Prevents server hitching by distributing heavy script loads across multiple ticks.
 - **Unified UI System:** Hooks into the player's main window seamlessly without conflicting with other mods.
 - **Security Layer:** Validates server callbacks to prevent exploitative remote code execution.

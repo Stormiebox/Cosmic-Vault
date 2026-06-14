@@ -12,6 +12,9 @@ local _tasks = {}
     preventing massive TPS drops or server hangs.
 ]]
 
+--- Runs a coroutine task asynchronously
+-- @param taskName (string) Unique task name
+-- @param func (function) The coroutine function
 function CosmicVaultTask.RunAsync(taskName, taskFunc, ...)
     if type(taskFunc) ~= "function" then
         if CosmicVaultDebug then CosmicVaultDebug.error("CosmicVault-Task", "taskFunc must be a function") end
@@ -40,10 +43,14 @@ function CosmicVaultTask.RunAsync(taskName, taskFunc, ...)
     return true
 end
 
+--- Yields the current task for a specific duration
+-- @param duration (number) Yield duration in seconds
 function CosmicVaultTask.Yield()
     coroutine.yield()
 end
 
+--- Updates all running tasks (Should be called in an update loop)
+-- @param timeStep (number) The time step
 function CosmicVaultTask.Update(timeStep)
     for name, task in pairs(_tasks) do
         if coroutine.status(task.co) == "dead" then
@@ -61,7 +68,10 @@ function CosmicVaultTask.Update(timeStep)
     end
 end
 
+--- Cancels a running task
+-- @param taskName (string) The task name
 function CosmicVaultTask.CancelTask(taskName)
+    if not taskName then return end
     if _tasks[taskName] then
         _tasks[taskName] = nil
         return true
@@ -69,6 +79,8 @@ function CosmicVaultTask.CancelTask(taskName)
     return false
 end
 
+--- Gets all running tasks
+-- @return (table) List of running tasks
 function CosmicVaultTask.GetRunningTasks()
     local active = {}
     for name, _ in pairs(_tasks) do

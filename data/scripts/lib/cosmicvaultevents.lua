@@ -32,6 +32,7 @@ end
 -- @param eventName (string) The unique name of the event
 -- @return boolean
 function CosmicVaultEvents.isEventActive(eventName)
+    if not eventName then return false end
     local server = Server()
     local key = VAULT_PREFIX .. eventName
     local endTime = server:getValue(key)
@@ -54,6 +55,7 @@ end
 -- @param eventName (string) The unique name of the event
 -- @return int Seconds remaining, or 0 if inactive
 function CosmicVaultEvents.getEventTimeRemaining(eventName)
+    if not eventName then return 0 end
     local server = Server()
     local key = VAULT_PREFIX .. eventName
     local endTime = server:getValue(key)

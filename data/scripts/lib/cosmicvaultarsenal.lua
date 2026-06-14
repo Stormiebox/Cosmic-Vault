@@ -12,7 +12,11 @@ CosmicVaultArsenal = CosmicVaultArsenal or {}
     objects dynamically for loot drops, custom enemies, or missions.
 ]]
 
+--- Generates a custom turret based on a configuration table
+-- @param config (table) Turret generation parameters
+-- @return (TurretTemplate) The generated turret
 function CosmicVaultArsenal.GenerateTurret(config)
+    if type(config) ~= 'table' then return end
     --[[
         config table structure:
         {
@@ -61,7 +65,12 @@ function CosmicVaultArsenal.GenerateTurret(config)
     return turret
 end
 
+--- Spawns a turret drop in the sector
+-- @param x (number) X coordinate
+-- @param y (number) Y coordinate
+-- @param template (TurretTemplate) The turret template
 function CosmicVaultArsenal.SpawnLootTurret(sector, x, y, z, config)
+    if not x or not y or not template then return end
     local turret = CosmicVaultArsenal.GenerateTurret(config)
     sector:dropTurret(vec3(x, y, z), nil, nil, turret)
     return turret

@@ -80,6 +80,12 @@ local function build()
     return out
 end
 
+--- Retrieves a configuration value
+-- @param key (string) The config key
+-- @param default (any) Default value if not found
+-- @return (any) The config value
 function CosmicVaultConfig.get()
     return build()
 end
+
+return CosmicVaultConfig

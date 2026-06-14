@@ -45,3 +45,5 @@ function CosmicVaultNews.getPublishedNews()
     -- In Avorion, if we include the server script file directly on the client, it might not have the state.
     -- We'll let the UI tab do a custom request or read from a known global.
 end
+
+return CosmicVaultNews
