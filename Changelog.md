@@ -16,5 +16,6 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Global Ascendancy Tier API:** Added `getGlobalTier` and `setGlobalTier` to `cosmicvaultbuffs.lua` to allow cross-sector tracking of global faction buffs (used heavily by Cosmic Ascendancy).
 
 ### 🐛 Bug Fixes & Optimization
+- **Cosmic Config Menu:** Fixed an issue where configuration options (checkboxes, sliders) were invisible when selecting a category due to an incorrect `Rect` initialization.
 - **UI Polish:** Faction names (like Xsotan) will no longer display raw translator comments (e.g., `/* faction name */`) inside Galactic News articles.
 - **Multiplayer Desyncs:** Replaced `math.random` with the deterministic engine `random():getInt()` inside `cosmicvaultencounter.lua` to prevent massive physics and coordinate desyncs when spawning ambushes in multiplayer.

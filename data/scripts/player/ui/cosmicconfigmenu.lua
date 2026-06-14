@@ -45,6 +45,13 @@ end
 function CosmicConfigMenu.fillTree()
     self.tree:clear()
     self.elements = {}
+    
+    pcall(include, "cosmicoverhaulconfig")
+    pcall(include, "cosmicwarconfig")
+    pcall(include, "cosmicchroniclesconfig")
+    pcall(include, "cosmicstarfallconfig")
+    pcall(include, "cosmicvaultconfig")
+
     local registries = ccm.getAllRegistries()
     
     for namespace, reg in pairs(registries) do
@@ -57,8 +64,9 @@ function CosmicConfigMenu.fillTree()
     end
 end
 
-function CosmicConfigMenu.onEntrySelected(index)
+function CosmicConfigMenu.onEntrySelected(index, value)
     self.tree.selectedIndex = index
+    self.selectedValue = value
     self.refreshUI()
 end
 
@@ -70,7 +78,7 @@ function CosmicConfigMenu.refreshUI()
     local selected = self.tree.selectedIndex
     if not selected then return end
     
-    local nodeValue = self.tree:getNodeValue(selected)
+    local nodeValue = self.selectedValue
     if not nodeValue then return end
     
     local parts = string.split(nodeValue, "::")
@@ -85,10 +93,10 @@ function CosmicConfigMenu.refreshUI()
     local page = reg.pages[pageIndex]
     local binding = ccm.bind(namespace)
     
-    local lister = UIVerticalLister(Rect(self.container.size), 10, 0)
+    local lister = UIVerticalLister(Rect(vec2(0, 0), self.container.size), 10, 0)
     
     for _, opt in ipairs(page.options) do
-        local rect = lister:placeCenter(Rect(self.container.size.x, 30))
+        local rect = lister:placeCenter(vec2(self.container.size.x, 30))
         local split = UIVerticalSplitter(rect, 10, 0, 0.5)
         
         local label = self.container:createLabel(split.left, opt.title, 14)
