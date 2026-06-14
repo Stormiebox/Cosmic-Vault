@@ -66,7 +66,6 @@ function CosmicConfigMenu.fillTree()
     
     pcall(include, "cosmicoverhaulconfig")
     pcall(include, "cosmicwarconfig")
-    pcall(include, "cosmicchroniclesconfig")
     pcall(include, "cosmicvaultconfig")
 
     local registries = ccm.getAllRegistries()
@@ -120,7 +119,11 @@ function CosmicConfigMenu.refreshUI()
         local split = UIVerticalSplitter(rect, 10, 0, 0.5)
         
         local label = self.container:createLabel(split.left, opt.title, 14)
-        label.tooltip = opt.description
+        local desc = opt.description or ""
+        if opt.min and opt.max then
+            desc = desc .. string.format("\n\n(Min: %s, Max: %s)", tostring(opt.min), tostring(opt.max))
+        end
+        label.tooltip = desc
         
         local currentValue = nil
         if self.serverData then
@@ -133,9 +136,18 @@ function CosmicConfigMenu.refreshUI()
             cb.checked = currentValue
             self.elements[opt.key] = { ui = cb, type = opt.type, namespace = namespace }
         elseif opt.type == "number" then
-            local tb = self.container:createTextBox(split.right, "onValueChanged")
-            tb.text = tostring(currentValue)
-            self.elements[opt.key] = { ui = tb, type = opt.type, namespace = namespace, min = opt.min, max = opt.max }
+            if opt.min and opt.max then
+                local steps = math.ceil(opt.max - opt.min)
+                if steps > 200 then steps = 200 end
+                if steps <= 0 then steps = 1 end
+                local slider = self.container:createSlider(split.right, opt.min, opt.max, steps, "", "onValueChanged")
+                slider:setValueNoCallback(currentValue)
+                self.elements[opt.key] = { ui = slider, type = "slider", namespace = namespace }
+            else
+                local tb = self.container:createTextBox(split.right, "onValueChanged")
+                tb.text = tostring(currentValue)
+                self.elements[opt.key] = { ui = tb, type = "number", namespace = namespace, min = opt.min, max = opt.max }
+            end
         end
     end
 end
@@ -151,6 +163,8 @@ function CosmicConfigMenu.onApplyPressed()
         local val
         if data.type == "bool" then
             val = data.ui.checked
+        elseif data.type == "slider" then
+            val = data.ui.value
         elseif data.type == "number" then
             val = tonumber(data.ui.text)
             if val then
