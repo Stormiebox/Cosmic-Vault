@@ -100,6 +100,15 @@ local CosmicVaultMission = include("cosmicvaultmission")
 local bulletin = CosmicVaultMission.createBulletin("Bounty Target", "Kill the pirate lord", "Hard", "150,000 Cr", "script.lua", {})
 ```
 
+### ⚖️ 11. Dynamic Scaling API (`cosmicvaultscaling.lua`)
+Scans a sector to mathematically calculate the total combined Volume and Omicron (firepower) of all defending ships and stations. Useful for scaling spawned events to match player or AI fortress strength perfectly.
+```lua
+local CosmicVaultScaling = include("cosmicvaultscaling")
+local stats = CosmicVaultScaling.calculateSectorDefenderStrength(enemyFactionIndex)
+local params = CosmicVaultScaling.calculateInvaderSpawnParams(stats, baseShipVolume, 1.0) -- Scale to 100% of defenders
+```
+```
+
 ### 📈 11. Progression API (`cosmicvaultprogression.lua`)
 Wraps native custom XP, skills, and perks.
 ```lua

@@ -47,6 +47,16 @@ if onServer() then
         local galaxy = Galaxy()
         galaxy:loadSector(x, y)
         
+        local currentSector = Sector()
+        if currentSector then
+            local cx, cy = currentSector:getCoordinates()
+            if cx == x and cy == y then
+                for _, player in pairs({currentSector:getPlayers()}) do
+                    player:invokeFunction("cw_battlefieldhud.lua", "triggerSiegeSuccess")
+                end
+            end
+        end
+        
         -- To actually flip the stations, we must run a small script inside the sector once it loads.
         -- We will invoke a background task to flip it.
         galaxy:invokeFunction("data/scripts/galaxy/server.lua", "flipSectorTerritory", x, y, newFactionIndex)
