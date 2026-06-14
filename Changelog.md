@@ -7,7 +7,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
-## v2.1.0 (CURRENT PROJECT VERSION - NO RELEASE DATE YET!)
+## v3.0.0 (CURRENT PROJECT VERSION - NO RELEASE DATE YET!)
 
 ### ✨ Added
 - **Codex 3-Level Hierarchy:** Updated the Cosmic Codex UI to support a dynamic 3-level depth (`Category -> Chapter -> Article`) for superior data organization.

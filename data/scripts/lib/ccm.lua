@@ -24,12 +24,14 @@ function CCM.bind(namespace)
     local binding = {}
 
     function binding.get(key)
-        local sv = Server()
-        if sv then
-            local dbKey = "ccm_" .. namespace .. "_" .. key
-            local val = sv:getValue(dbKey)
-            if val ~= nil then
-                return val
+        if onServer() then
+            local sv = Server()
+            if sv then
+                local dbKey = "ccm_" .. namespace .. "_" .. key
+                local val = sv:getValue(dbKey)
+                if val ~= nil then
+                    return val
+                end
             end
         end
         

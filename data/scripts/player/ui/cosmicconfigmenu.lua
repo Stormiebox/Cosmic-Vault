@@ -40,6 +40,24 @@ end
 
 function CosmicConfigMenu.onShow()
     self.fillTree()
+    
+    local keysToRequest = {}
+    for namespace, reg in pairs(ccm.getAllRegistries()) do
+        if reg.pages then
+            for _, page in ipairs(reg.pages) do
+                for _, opt in ipairs(page.options) do
+                    table.insert(keysToRequest, {namespace = namespace, key = opt.key})
+                end
+            end
+        end
+    end
+    
+    invokeServerFunction("requestCCMSync", keysToRequest)
+end
+
+function CosmicConfigMenu.receiveCCMSync(data)
+    self.serverData = data
+    self.refreshUI()
 end
 
 function CosmicConfigMenu.fillTree()
@@ -49,7 +67,6 @@ function CosmicConfigMenu.fillTree()
     pcall(include, "cosmicoverhaulconfig")
     pcall(include, "cosmicwarconfig")
     pcall(include, "cosmicchroniclesconfig")
-    pcall(include, "cosmicstarfallconfig")
     pcall(include, "cosmicvaultconfig")
 
     local registries = ccm.getAllRegistries()
@@ -105,7 +122,10 @@ function CosmicConfigMenu.refreshUI()
         local label = self.container:createLabel(split.left, opt.title, 14)
         label.tooltip = opt.description
         
-        local currentValue = binding.get(opt.key)
+        local currentValue = nil
+        if self.serverData then
+            currentValue = self.serverData[namespace .. "_" .. opt.key]
+        end
         if currentValue == nil then currentValue = opt.default end
         
         if opt.type == "bool" then
@@ -167,3 +187,18 @@ function CosmicConfigMenu.syncCCMValue(namespace, key, value)
     end
 end
 callable(CosmicConfigMenu, "syncCCMValue")
+
+function CosmicConfigMenu.requestCCMSync(keys)
+    local s = Server()
+    local data = {}
+    if type(keys) == "table" then
+        for _, item in ipairs(keys) do
+            if type(item) == "table" and item.namespace and item.key then
+                local val = s:getValue("ccm_" .. item.namespace .. "_" .. item.key)
+                data[item.namespace .. "_" .. item.key] = val
+            end
+        end
+    end
+    invokeClientFunction(Player(callingPlayer), "receiveCCMSync", data)
+end
+callable(CosmicConfigMenu, "requestCCMSync")
