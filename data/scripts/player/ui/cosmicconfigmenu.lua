@@ -54,19 +54,22 @@ function CosmicConfigMenu.fillTree()
 
     local registries = ccm.getAllRegistries()
     
+    self.treeValues = {}
     for namespace, reg in pairs(registries) do
         local modIndex = self.tree:add(nil, namespace, "onEntrySelected", false, namespace)
+        self.treeValues[modIndex] = namespace
         if reg.pages then
             for i, page in ipairs(reg.pages) do
-                self.tree:add(modIndex, page.title, "onEntrySelected", true, namespace .. "::" .. i)
+                local pageIndex = self.tree:add(modIndex, page.title, "onEntrySelected", true, namespace .. "::" .. i)
+                self.treeValues[pageIndex] = namespace .. "::" .. i
             end
         end
     end
 end
 
-function CosmicConfigMenu.onEntrySelected(index, value)
+function CosmicConfigMenu.onEntrySelected(index)
     self.tree.selectedIndex = index
-    self.selectedValue = value
+    self.selectedValue = self.treeValues[index]
     self.refreshUI()
 end
 

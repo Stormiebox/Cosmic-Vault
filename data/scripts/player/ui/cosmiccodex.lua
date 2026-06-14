@@ -12,6 +12,7 @@ local self = CosmicCodex
 if onClient() then
 
 self.categories = {}
+self.chapters = {}
 self.articles = {}
 self.categoryCount = 0
 
@@ -21,6 +22,8 @@ self.titleLabel = nil
 self.picture = nil
 self.textField = nil
 self.originalRect = nil
+self.textRectOriginal = nil
+self.fullTextRect = nil
 
 function CosmicCodex.initialize()
     self.tab = PlayerWindow():createTab("Cosmic Codex"%_t, "data/textures/icons/CosmicCodexTab.png", "Cosmic Codex"%_t)
@@ -50,6 +53,9 @@ function CosmicCodex.initialize()
     self.picture = self.tab:createPicture(self.originalRect, "")
     self.picture.isIcon = false -- Prevents it from coloring black like icons
     
+    self.textRectOriginal = textRect
+    self.fullTextRect = hsplit.bottom
+    
     self.backgroundBox = self.tab:createFrame(textRect)
 
     local text = "Welcome to the \\c(0d0)Cosmic Codex\\c()!\n\nThis is the central repository for all knowledge regarding the Cosmic Mod Series.\nSelect a category on the left to begin."%_t
@@ -71,7 +77,9 @@ end
 function CosmicCodex.fillTree()
     self.tree:clear()
     self.tree:setLevelStyle(0, 30, 18)
+    self.tree:setLevelStyle(1, 25, 16)
     self.categories = {}
+    self.chapters = {}
     self.articles = {}
     self.categoryCount = 0
 
@@ -89,9 +97,19 @@ function CosmicCodex.addCategory(id, title, iconPath)
     self.categoryCount = self.categoryCount + 1
 end
 
-function CosmicCodex.addArticle(categoryId, id, title, text, picturePath)
+function CosmicCodex.addChapter(categoryId, id, title)
     local cat = self.categories[categoryId]
     if not cat then return end
+    if self.chapters[id] then return end
+    local chapterIndex = self.tree:add(cat.index, title, "onEntrySelected", false, id)
+    self.chapters[id] = { index = chapterIndex, title = title, categoryId = categoryId }
+end
+
+function CosmicCodex.addArticle(chapterId, id, title, text, picturePath)
+    local chapter = self.chapters[chapterId]
+    -- Fallback for backwards compatibility
+    if not chapter then chapter = self.categories[chapterId] end
+    if not chapter then return end
     
     local searchText = string.lower(string.trim(self.searchTextBox.text))
     if searchText ~= "" then
@@ -100,16 +118,20 @@ function CosmicCodex.addArticle(categoryId, id, title, text, picturePath)
         end
     end
 
-    local articleIndex = self.tree:add(cat.index, title, "onEntrySelected", true, id)
-    self.articles[articleIndex] = { title = title, text = text, picture = picturePath, categoryId = categoryId }
+    local articleIndex = self.tree:add(chapter.index, title, "onEntrySelected", true, id)
+    self.articles[articleIndex] = { title = title, text = text, picture = picturePath, chapterId = chapterId }
 end
 
 function addCategory(id, title, iconPath)
     CosmicCodex.addCategory(id, title, iconPath)
 end
 
-function addArticle(categoryId, id, title, text, picturePath)
-    CosmicCodex.addArticle(categoryId, id, title, text, picturePath)
+function addChapter(categoryId, id, title)
+    CosmicCodex.addChapter(categoryId, id, title)
+end
+
+function addArticle(chapterId, id, title, text, picturePath)
+    CosmicCodex.addArticle(chapterId, id, title, text, picturePath)
 end
 
 function CosmicCodex.onEntrySelected(index)
@@ -126,8 +148,12 @@ function CosmicCodex.refreshUI()
             self.picture.picture = article.picture
             self.picture.rect = Rect(self.originalRect.lower + self.tab.lower, self.originalRect.upper + self.tab.lower)
             self.picture:show()
+            self.textField.rect = Rect(self.textRectOriginal.lower + self.tab.lower, self.textRectOriginal.upper + self.tab.lower)
+            self.backgroundBox.rect = self.textField.rect
         else
             self.picture:hide()
+            self.textField.rect = Rect(self.fullTextRect.lower + self.tab.lower, self.fullTextRect.upper + self.tab.lower)
+            self.backgroundBox.rect = self.textField.rect
         end
         self.textField:show()
         self.backgroundBox:show()
@@ -138,6 +164,8 @@ function CosmicCodex.refreshUI()
         self.picture:fitIntoRect()
         self.picture:show()
         self.textField.text = "Welcome to the \\c(0d0)Cosmic Codex\\c()!\n\nThis is the central repository for all knowledge regarding the Cosmic Mod Series.\nSelect a category on the left to begin."%_t
+        self.textField.rect = Rect(self.textRectOriginal.lower + self.tab.lower, self.textRectOriginal.upper + self.tab.lower)
+        self.backgroundBox.rect = self.textField.rect
         self.textField:show()
         self.backgroundBox:show()
     end
