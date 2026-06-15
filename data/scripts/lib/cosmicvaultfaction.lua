@@ -5,6 +5,28 @@ CosmicVaultFaction = {}
 
 local VAULT_PREFIX = "cosmic_trait_"
 
+-- Ensure a global registry exists for the UI to consume across different script contexts in the same VM
+if not _G.CosmicVaultRegisteredTraits then
+    _G.CosmicVaultRegisteredTraits = {}
+end
+
+--- Registers a new custom faction trait for the vanilla UI
+-- @param traitId (string) The unique internal ID of the trait (e.g. "industrial")
+-- @param traitName (string) The display name in the UI (e.g. "Industrial")
+-- @param descriptions (table) Array of strings acting as tooltips (e.g. {"Produces more goods", "Aggressively defends miners"})
+function CosmicVaultFaction.registerCustomTrait(traitId, traitName, descriptions)
+    _G.CosmicVaultRegisteredTraits[traitId] = {
+        name = traitName,
+        descriptions = descriptions or {}
+    }
+end
+
+--- Retrieves the registry of custom traits
+-- @return table Dictionary of registered traits
+function CosmicVaultFaction.getCustomTraits()
+    return _G.CosmicVaultRegisteredTraits
+end
+
 --- Safely adds a temporary or permanent trait to a faction
 -- @param factionIndex (int) The index of the faction
 -- @param traitName (string) The name of the trait (e.g. "aggressive", "isolationist")

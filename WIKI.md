@@ -27,7 +27,7 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultmission.lua`: Streamlined creation and injection of custom missions into native Bulletin Boards without overriding station logic.
 - `cosmicvaultprogression.lua`: Standardized custom XP, levels, and skill-tree perks synced securely across client and server.
 - `cosmicvaultfleet.lua`: Safe command injection for pushing complex AI orders (patrol, escort, mine) without hard overriding `craftorders.lua`.
-- `cosmicvaultfaction.lua`: Natively apply temporary relationship traits (like "Aggressive" or "Isolationist") to dynamic AI factions.
+- `cosmicvaultfaction.lua`: A revolutionary API to bypass Avorion's hardcoded UI and inject Custom Faction Traits natively into the diplomacy window!
 - `cosmicvaultgoods.lua`: Safely inject custom Trade Goods (with properties like illegal, dangerous) directly into the 5 global economy arrays without overwriting the hardcoded `goods.lua`.
 - `cosmicvaultloot.lua`: Hook into native destruction sequences to drop custom loot natively.
 - `cosmicvaultblueprint.lua`: Safely load and dynamically spawn custom XML ships, stations, and custom turrets with native AI and crew generation.

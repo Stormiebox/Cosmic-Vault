@@ -10,6 +10,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ## v3.0.0 (CURRENT PROJECT VERSION - NO RELEASE DATE YET!)
 
 ### ✨ Added
+- **Custom Faction Traits API**: Added `cosmicvaultfaction.lua` exposing `registerCustomTrait`, `getTrait`, and `setTrait`. This allows modders to easily inject custom faction traits that render beautifully in the native Avorion diplomacy UI!
 - **Subspace Weather API**: A universal, globally persistent API (`cosmicvaultweather.lua`) allowing any mod to seamlessly generate and clear localized weather hazards.
 - **Weather UI Integration**: Native HUD indicators (`cv_weather_ui.lua`) that dynamically render active debuff icons and severe weather warnings for players inside hazard zones.
 - `CosmicVaultEconomy` API to track faction resource starvation.

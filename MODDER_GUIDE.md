@@ -38,12 +38,32 @@ if onServer() then
 end
 ```
 
-### 🗃️ 3. Faction Index Registry (`cosmicvaultfaction.lua`)
-A background cache of every generated faction in the galaxy, saving you from expensive cross-sector queries.
+### 🗃️ 3. Faction API & Custom Traits (`cosmicvaultfaction.lua`)
+A robust background cache of generated factions, and a revolutionary API to bypass Avorion's hardcoded UI and inject **Custom Faction Traits** natively into the diplomacy window!
+
+**Retrieving all factions:**
 ```lua
 local function getRegisteredFactions()
     return loadstring(Server():getValue("CV_Faction_Index"))()
 end
+```
+
+**Registering Custom Traits (Must be executed on the Client!):**
+```lua
+local cvf = include("cosmicvaultfaction")
+cvf.registerCustomTrait(
+    "industrial", 
+    "Industrial", 
+    {
+        "Focuses heavily on resource production and trade.",
+        "Defends mining operations aggressively."
+    }
+)
+```
+
+**Applying the trait to a Faction (Server-side):**
+```lua
+cvf.setTrait(faction.index, "industrial", 1.0)
 ```
 
 ### 🖥️ 4. Cosmic UI Components (`cosmicvaultui.lua`)
