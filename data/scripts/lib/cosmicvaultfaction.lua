@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 -- namespace CosmicVaultFaction
-CosmicVaultFaction = {}
+local CosmicVaultFaction = {}
 
 local VAULT_PREFIX = "cosmic_trait_"
 
