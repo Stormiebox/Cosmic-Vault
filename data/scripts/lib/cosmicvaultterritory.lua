@@ -97,6 +97,81 @@ if onServer() then
         end
     end
 
+--- Expands a faction's territory into an uncharted or empty sector natively
+-- @param x (number) X coordinate
+-- @param y (number) Y coordinate
+-- @param factionIndex (number) The faction index expanding (or nil if pirate generation)
+-- @param isPirate (boolean) If true, generates a pirate outpost instead
+    function CosmicVaultTerritory.expandToSector(x, y, factionIndex, isPirate)
+        if not x or not y then return end
+        local galaxy = Galaxy()
+        local sector = galaxy:loadSector(x, y)
+        if not sector then return end
+        
+        local faction
+        if factionIndex then
+            faction = Faction(factionIndex)
+        end
+        
+        if isPirate then
+            local PirateGenerator = include("pirategenerator")
+            local level = Balancing_GetPirateLevel(x, y)
+            faction = galaxy:getPirateFaction(level)
+            
+            if not faction then 
+                galaxy:tryUnloadSector(x, y)
+                return 
+            end
+            
+            local SectorGenerator = include("sectorgenerator")
+            local generator = SectorGenerator(x, y)
+            
+            local station
+            if math.random() < 0.5 then
+                station = generator:createStation(faction, "data/scripts/entity/merchants/smugglersmarket.lua")
+                station.title = "Smuggler's Hideout"
+            else
+                station = generator:createStation(faction, "data/scripts/entity/merchants/shipyard.lua")
+                station.title = "Pirate Shipyard"
+            end
+            
+            print("[Cosmic Vault] Pirates expanded to " .. x .. ":" .. y)
+            galaxy:tryUnloadSector(x, y)
+        else
+            if not faction then 
+                galaxy:tryUnloadSector(x, y)
+                return 
+            end
+            
+            local SectorGenerator = include("sectorgenerator")
+            local generator = SectorGenerator(x, y)
+            
+            local types = {
+                "data/scripts/entity/merchants/militaryoutpost.lua",
+                "data/scripts/entity/merchants/resourcedepot.lua",
+                "data/scripts/entity/merchants/tradingpost.lua",
+                "data/scripts/entity/merchants/researchstation.lua"
+            }
+            local script = types[math.random(1, #types)]
+            
+            generator:createStation(faction, script)
+            
+            print("[Cosmic Vault] Faction " .. faction.name .. " expanded to " .. x .. ":" .. y)
+            
+            local CosmicVaultNews = include("cosmicvaultnews")
+            if CosmicVaultNews and CosmicVaultNews.publishArticle then
+                CosmicVaultNews.publishArticle({
+                    title = "Galactic Borders Shift",
+                    content = "The " .. faction.name .. " has officially expanded their sovereign territory, claiming the uncharted sector [\\s(" .. x .. ":" .. y .. ")]. New stations are already operational as the faction establishes its presence.",
+                    category = "Politics",
+                    author = "Cosmic Chronicles"
+                })
+            end
+            
+            galaxy:tryUnloadSector(x, y)
+        end
+    end
+
 end
 
 return CosmicVaultTerritory

@@ -207,11 +207,15 @@ CosmicVaultDialogue.showNode(Player(), "Welcome to the Forge. What do you requir
 ```
 
 ### 🗺️ 23. Territory API (`cosmicvaultterritory.lua`)
-Safely manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap. Includes native bindings to `CosmicVaultNews`.
+Safely manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap. Includes native bindings to `CosmicVaultNews` and functions for background faction generation.
 ```lua
 local CosmicVaultTerritory = include("cosmicvaultterritory")
+
 -- Set a sector to be conquered by faction 2 from faction 3 after 60 minutes.
 CosmicVaultTerritory.setContestedZone(x, y, 2, 3, 60)
+
+-- Dynamically generate a new outpost or pirate base in empty space without crashing the server.
+CosmicVaultTerritory.expandToSector(x, y, factionIndex, isPirate)
 ```
 
 ### 🧩 24. Framework Core API (`cosmicvaultframework.lua`)
@@ -220,7 +224,7 @@ The internal state machine and bootstrapper for all vault APIs. Generally not in
 
 ---
 
-### 🎮 22. Mod Configuration Menu (CCM) Keybind API (`ccm.lua` & `ccm_keycodes.lua`)
+### 🎮 25. Mod Configuration Menu (CCM) Keybind API (`ccm.lua` & `ccm_keycodes.lua`)
 Provides a native, user-configurable keybind framework fully integrated into the UI.
 ```lua
 local cvcfg = ccm.bind("CosmicVault")
@@ -230,7 +234,17 @@ end
 ```
 You can register keybinds dynamically by using `type = "keybind"` in your `ccm.register` options array!
 
-### Economy API
-- `cosmicvaulteconomy.lua`: Exposes `addFamineScore(factionIndex, amount)` and `getFamineLevel(factionIndex)` to track faction starvation.
-### Anomalies API
-- `cosmicvaultanomalies.lua`: Exposes `spawnAnomaly(x, y, anomalyType)` for generating permanent POIs.
+### 🌾 26. Economy Famine API (`cosmicvaulteconomy.lua`)
+Exposes `addFamineScore` and `getFamineLevel` to track faction starvation, creating dynamic resource shortages and inflation across an entire empire's territory.
+```lua
+local CosmicVaultEconomy = include("cosmicvaulteconomy")
+CosmicVaultEconomy.addFamineScore(factionIndex, 500)
+local severity = CosmicVaultEconomy.getFamineLevel(factionIndex)
+```
+
+### 🌌 27. Anomalies API (`cosmicvaultanomalies.lua`)
+Exposes logic for generating permanent, interactive points of interest natively.
+```lua
+local CosmicVaultAnomalies = include("cosmicvaultanomalies")
+CosmicVaultAnomalies.spawnAnomaly(x, y, "Void_Rupture")
+```
