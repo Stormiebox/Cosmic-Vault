@@ -172,7 +172,7 @@ function CosmicCodex.refreshUI()
 end
 
 function CosmicCodex.onPostRenderHud(state, timeStep)
-    local cv_success, ccm = pcall(include, "ccm")
+    local cv_success, ccm = true, include("ccm")
     if cv_success and ccm then
         local cvcfg = ccm.bind("CosmicVault")
         if cvcfg.isKeyComboDown("hotkeyCodex") then

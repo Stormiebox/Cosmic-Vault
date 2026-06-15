@@ -19,6 +19,7 @@ Cosmic Vault acts as the central spine for all other Cosmic mods. It provides sh
 ## ⚙️ Requirements
 - Avorion v2.0+
 - Dependencies: **None**
+- This mod is the core foundation for **all** cosmic series mods.
 
 ## 🚀 Installation
 1. Place the folder in:
@@ -29,3 +30,4 @@ Cosmic Vault acts as the central spine for all other Cosmic mods. It provides sh
 
 ## 📚 Documentation
 For detailed mechanics, guides, and lore, please refer to the in-game **Cosmic Codex**, or check the included `WIKI.md` and `PLAYER_GUIDE.md` files.
+ Now featuring a global Famine Economy tracker and Anomalies API.

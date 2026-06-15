@@ -10,6 +10,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ## v3.0.0 (CURRENT PROJECT VERSION - NO RELEASE DATE YET!)
 
 ### ✨ Added
+- **Subspace Weather API**: A universal, globally persistent API (`cosmicvaultweather.lua`) allowing any mod to seamlessly generate and clear localized weather hazards.
+- **Weather UI Integration**: Native HUD indicators (`cv_weather_ui.lua`) that dynamically render active debuff icons and severe weather warnings for players inside hazard zones.
+- `CosmicVaultEconomy` API to track faction resource starvation.
+- `CosmicVaultAnomalies` API to spawn persistent interactive POIs.
 - **CCM Keybind API:** Integrated complete hotkey capture suite (`ccm_keycodes.lua`) with modifier (Ctrl/Alt/Shift) support directly into the config framework.
 - **3-Column HUD Layout:** Revamped Cosmic Config Menu with a cleaner Label | Control | Reset UI ratio.
 - **Config Reset Buttons:** Added dedicated `anticlockwise-rotation` reset buttons with tooltips to immediately revert settings to defaults.
@@ -36,3 +40,5 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Cosmic Config Menu:** Fixed an issue where configuration options (checkboxes, sliders) were invisible when selecting a category due to an incorrect `Rect` initialization.
 - **UI Polish:** Faction names (like Xsotan) will no longer display raw translator comments (e.g., `/* faction name */`) inside Galactic News articles.
 - **Multiplayer Desyncs:** Replaced `math.random` with the deterministic engine `random():getInt()` inside `cosmicvaultencounter.lua` to prevent massive physics and coordinate desyncs when spawning ambushes in multiplayer.
+- Removed `pcall` soft-dependencies. Core 5 mods are now hard requirements for each other.
+- Adjusted `DarkMatterFog` debuff to ignore Eclipse ships.

@@ -5,4 +5,5 @@ function initialize(...)
     print("[CosmicVault] server.lua initialized! Attaching cosmicvaultnews_server.lua")
     Galaxy():addScriptOnce("server/cosmicvaultnews_server.lua")
     Galaxy():addScriptOnce("server/cosmicvaultterritory_server.lua")
+    Galaxy():addScriptOnce("server/cosmicvaultweather_server.lua")
 end

@@ -439,3 +439,9 @@ All deep lore, stat blocks, and dynamic recipes have been fully integrated into 
 As of v3.0.0, the Cosmic Vault introduces a fully standalone, 3-column UI Mod Configuration Menu (CCM). Modders can effortlessly expose their settings and keybinds to players.
 - **Dynamic Hotkeys:** Fully supports modifier keys (CTRL, ALT, SHIFT).
 - **Reset Functionality:** Every single configuration option natively receives an `anticlockwise-rotation` reset button to instantly restore schema defaults.
+
+## Faction Economy
+Cosmic Vault now tracks faction 'Famine Scores'. If factions lose territory, they suffer extreme economic and military penalties.
+
+## Sector Anomalies
+Vault can generate interactable permanent POIs like Precursor Wrecks and Spatial Rifts.

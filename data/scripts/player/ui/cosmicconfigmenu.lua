@@ -72,9 +72,9 @@ function CosmicConfigMenu.fillTree()
     self.tree:clear()
     self.elements = {}
     
-    pcall(include, "cosmicoverhaulconfig")
-    pcall(include, "cosmicwarconfig")
-    pcall(include, "cosmicvaultconfig")
+    include("cosmicoverhaulconfig")
+    include("cosmicwarconfig")
+    include("cosmicvaultconfig")
 
     local registries = ccm.getAllRegistries()
     

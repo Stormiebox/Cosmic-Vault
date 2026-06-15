@@ -229,3 +229,8 @@ if cvcfg.isKeyComboDown("hotkeyCodex") then
 end
 ```
 You can register keybinds dynamically by using `type = "keybind"` in your `ccm.register` options array!
+
+### Economy API
+- `cosmicvaulteconomy.lua`: Exposes `addFamineScore(factionIndex, amount)` and `getFamineLevel(factionIndex)` to track faction starvation.
+### Anomalies API
+- `cosmicvaultanomalies.lua`: Exposes `spawnAnomaly(x, y, anomalyType)` for generating permanent POIs.
