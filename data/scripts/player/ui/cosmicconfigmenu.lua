@@ -17,6 +17,11 @@ self.container = nil
 self.elements = {}
 self.applyBtn = nil
 
+self.captureMode = false
+self.captureTarget = nil
+self.captureTimeLeft = 0
+self.captureIgnore = {}
+
 function CosmicConfigMenu.initialize()
     self.tab = PlayerWindow():createTab("CCM"%_t, "data/textures/icons/CosmicConfigTab.png", "Cosmic Config"%_t)
     self.tab.onShowFunction = "onShow"
@@ -36,6 +41,9 @@ function CosmicConfigMenu.initialize()
     
     self.applyBtn = self.tab:createButton(bottomSplit.bottom, "Apply Changes"%_t, "onApplyPressed")
     self.applyBtn.active = false
+
+    Player():registerCallback("onPostRenderHud", "onPostRenderHud")
+    Player():registerCallback("onGalaxyMapUpdate", "onGalaxyMapUpdate")
 end
 
 function CosmicConfigMenu.onShow()
@@ -116,9 +124,15 @@ function CosmicConfigMenu.refreshUI()
     
     for _, opt in ipairs(page.options) do
         local rect = lister:placeCenter(vec2(self.container.size.x, 30))
-        local split = UIVerticalSplitter(rect, 10, 0, 0.5)
         
-        local label = self.container:createLabel(split.left, opt.title, 14)
+        -- 3 column layout: Label (40%), Control (50%), Reset Button (10%)
+        local split1 = UIVerticalSplitter(rect, 10, 0, 0.4)
+        local leftPart = split1.left
+        local split2 = UIVerticalSplitter(split1.right, 10, 0, 0.9)
+        local rightPart = split2.left
+        local resetPart = split2.right
+        
+        local label = self.container:createLabel(leftPart, opt.title, 14)
         local desc = opt.description or ""
         if opt.min and opt.max then
             desc = desc .. string.format("\n\n(Min: %s, Max: %s)", tostring(opt.min), tostring(opt.max))
@@ -132,28 +146,58 @@ function CosmicConfigMenu.refreshUI()
         if currentValue == nil then currentValue = opt.default end
         
         if opt.type == "bool" then
-            local cb = self.container:createCheckBox(split.right, "", "onValueChanged")
+            local cb = self.container:createCheckBox(rightPart, "", "onValueChanged")
             cb.checked = currentValue
-            self.elements[opt.key] = { ui = cb, type = opt.type, namespace = namespace }
+            self.elements[opt.key] = { ui = cb, type = opt.type, namespace = namespace, default = opt.default }
         elseif opt.type == "number" then
             if opt.min and opt.max then
                 local steps = math.ceil(opt.max - opt.min)
                 if steps > 200 then steps = 200 end
                 if steps <= 0 then steps = 1 end
-                local slider = self.container:createSlider(split.right, opt.min, opt.max, steps, "", "onValueChanged")
+                local slider = self.container:createSlider(rightPart, opt.min, opt.max, steps, "", "onValueChanged")
                 slider:setValueNoCallback(currentValue)
-                self.elements[opt.key] = { ui = slider, type = "slider", namespace = namespace }
+                self.elements[opt.key] = { ui = slider, type = "slider", namespace = namespace, min = opt.min, max = opt.max, default = opt.default }
             else
-                local tb = self.container:createTextBox(split.right, "onValueChanged")
+                local tb = self.container:createTextBox(rightPart, "onValueChanged")
                 tb.text = tostring(currentValue)
-                self.elements[opt.key] = { ui = tb, type = "number", namespace = namespace, min = opt.min, max = opt.max }
+                self.elements[opt.key] = { ui = tb, type = "number", namespace = namespace, min = opt.min, max = opt.max, default = opt.default }
             end
+        elseif opt.type == "keybind" then
+            if type(currentValue) ~= "number" then currentValue = ccm.keys.UNBOUND end
+            local btn = self.container:createButton(rightPart, ccm.keys.nameForCombo(currentValue), "onKeybindPressed")
+            self.elements[opt.key] = { ui = btn, type = "keybind", namespace = namespace, default = opt.default, packed = currentValue, key = opt.key }
         end
+        
+        local resetBtn = self.container:createButton(resetPart, "", "onResetOption")
+        resetBtn.icon = "data/textures/icons/anticlockwise-rotation.png"
+        resetBtn.tooltip = "Reset to Default"%_t
+        self.elements[opt.key].resetBtn = resetBtn
     end
 end
 
 function CosmicConfigMenu.onValueChanged()
     self.applyBtn.active = true
+end
+
+function CosmicConfigMenu.onResetOption(btn)
+    for key, data in pairs(self.elements) do
+        if data.resetBtn and data.resetBtn.index == btn.index then
+            if data.type == "bool" then
+                data.ui:setCheckedNoCallback(data.default)
+            elseif data.type == "slider" then
+                data.ui:setValueNoCallback(data.default)
+            elseif data.type == "number" then
+                data.ui.text = tostring(data.default)
+            elseif data.type == "keybind" then
+                local def = data.default
+                if type(def) ~= "number" then def = ccm.keys.UNBOUND end
+                data.packed = def
+                data.ui.caption = ccm.keys.nameForCombo(def)
+            end
+            self.onValueChanged()
+            break
+        end
+    end
 end
 
 function CosmicConfigMenu.onApplyPressed()
@@ -173,6 +217,8 @@ function CosmicConfigMenu.onApplyPressed()
             else
                 val = nil
             end
+        elseif data.type == "keybind" then
+            val = data.packed
         end
         
         if val ~= nil then
@@ -182,6 +228,124 @@ function CosmicConfigMenu.onApplyPressed()
     
     self.applyBtn.active = false
     Player():sendChatMessage("", 0, "Settings applied successfully.")
+end
+
+-- Keybind capture logic
+function CosmicConfigMenu.onKeybindPressed(btn)
+    for key, data in pairs(self.elements) do
+        if data.type == "keybind" and data.ui.index == btn.index then
+            self.startCapture(data)
+            break
+        end
+    end
+end
+
+function CosmicConfigMenu.startCapture(elementData)
+    if not elementData then return end
+    self.captureMode = true
+    self.captureTarget = elementData
+    self.captureTimeLeft = 8.0
+    self.captureIgnore = {}
+
+    local kb = Keyboard()
+    for _, sc in ipairs(ccm.keys.captureCandidates()) do
+        if kb:keyPressed(sc) then self.captureIgnore[sc] = true end
+    end
+
+    elementData.ui.caption = "Press a key... (Esc to cancel)"%_t
+end
+
+function CosmicConfigMenu.commitCapture(packed)
+    if self.captureTarget then
+        self.captureTarget.packed = packed
+        self.captureTarget.ui.caption = ccm.keys.nameForCombo(packed)
+        self.onValueChanged()
+    end
+    self.captureMode = false
+    self.captureTarget = nil
+end
+
+function CosmicConfigMenu.cancelCapture()
+    if self.captureTarget then
+        self.captureTarget.ui.caption = ccm.keys.nameForCombo(self.captureTarget.packed)
+    end
+    self.captureMode = false
+    self.captureTarget = nil
+end
+
+function CosmicConfigMenu.runCaptureTick(timeStep)
+    self.captureTimeLeft = self.captureTimeLeft - (timeStep or 0.016)
+    if self.captureTimeLeft <= 0 then self.cancelCapture(); return end
+
+    local kb = Keyboard()
+    if kb:keyDown(41) then self.cancelCapture(); return end -- Escape
+
+    for sc in pairs(self.captureIgnore) do
+        if not kb:keyPressed(sc) then self.captureIgnore[sc] = nil end
+    end
+
+    for _, sc in ipairs(ccm.keys.captureCandidates()) do
+        if not self.captureIgnore[sc] and kb:keyDown(sc) then
+            local packed = sc
+            local lctrl  = kb:keyPressed(ccm.keys.SC_LCTRL)
+            local rctrl  = kb:keyPressed(ccm.keys.SC_RCTRL)
+            local lshift = kb:keyPressed(ccm.keys.SC_LSHIFT)
+            local rshift = kb:keyPressed(ccm.keys.SC_RSHIFT)
+            local lalt   = kb:keyPressed(ccm.keys.SC_LALT)
+            local ralt   = kb:keyPressed(ccm.keys.SC_RALT)
+
+            if not lctrl and not rctrl and kb.controlPressed then
+                lctrl = true
+            end
+
+            if lctrl  then packed = packed + ccm.keys.LCTRL  end
+            if rctrl  then packed = packed + ccm.keys.RCTRL  end
+            if lshift then packed = packed + ccm.keys.LSHIFT end
+            if rshift then packed = packed + ccm.keys.RSHIFT end
+            if lalt   then packed = packed + ccm.keys.LALT   end
+            if ralt   then packed = packed + ccm.keys.RALT   end
+
+            self.commitCapture(packed)
+            return
+        end
+    end
+end
+
+function CosmicConfigMenu.handleRightClickClear()
+    if not self.tab or not self.tab.visible then return end
+    if not Mouse():mousePressed(MouseButton.Right) then return end
+
+    for _, entry in pairs(self.elements) do
+        if entry.type == "keybind" and entry.ui:isMouseOverAndUnobscured() then
+            entry.packed = ccm.keys.UNBOUND
+            entry.ui.caption = ccm.keys.nameForCombo(ccm.keys.UNBOUND)
+            self.onValueChanged()
+        end
+    end
+end
+
+function CosmicConfigMenu.onPostRenderHud(state, timeStep)
+    if self.captureMode then
+        self.runCaptureTick(timeStep)
+    end
+    self.handleRightClickClear()
+
+    local cvcfg = ccm.bind("CosmicVault")
+    if cvcfg.isKeyComboDown("hotkeyConfigMenu") then
+        local pw = PlayerWindow()
+        if pw and self.tab then
+            pw:show()
+            if pw.selectTab then
+                pw:selectTab(self.tab)
+            elseif pw.activateTab then
+                pw:activateTab(self.tab)
+            end
+        end
+    end
+end
+
+function CosmicConfigMenu.onGalaxyMapUpdate(timeStep)
+    self.onPostRenderHud(0, timeStep)
 end
 
 end -- onClient()

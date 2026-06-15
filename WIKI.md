@@ -431,3 +431,11 @@ All deep lore, stat blocks, and dynamic recipes have been fully integrated into 
 ### 🛠️ Vanilla Bug Fixes
 - **Scout Mission Fix:** We patched a massive, long-standing vanilla bug where Scout Missions would completely skip and ignore Faction Headquarters sectors because the native dialogue trees were missing the template definition.
 </details>
+
+
+---
+
+### Cosmic Configuration Menu (CCM) & Keybinds
+As of v3.0.0, the Cosmic Vault introduces a fully standalone, 3-column UI Mod Configuration Menu (CCM). Modders can effortlessly expose their settings and keybinds to players.
+- **Dynamic Hotkeys:** Fully supports modifier keys (CTRL, ALT, SHIFT).
+- **Reset Functionality:** Every single configuration option natively receives an `anticlockwise-rotation` reset button to instantly restore schema defaults.

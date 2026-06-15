@@ -171,4 +171,22 @@ function CosmicCodex.refreshUI()
     end
 end
 
+function CosmicCodex.onPostRenderHud(state, timeStep)
+    local cv_success, ccm = pcall(include, "ccm")
+    if cv_success and ccm then
+        local cvcfg = ccm.bind("CosmicVault")
+        if cvcfg.isKeyComboDown("hotkeyCodex") then
+            local pw = PlayerWindow()
+            if pw and self.tab then
+                pw:show()
+                if pw.selectTab then
+                    pw:selectTab(self.tab)
+                elseif pw.activateTab then
+                    pw:activateTab(self.tab)
+                end
+            end
+        end
+    end
+end
+
 end -- onClient

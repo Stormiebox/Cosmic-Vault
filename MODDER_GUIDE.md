@@ -216,3 +216,16 @@ CosmicVaultTerritory.setContestedZone(x, y, 2, 3, 60)
 
 ### 🧩 24. Framework Core API (`cosmicvaultframework.lua`)
 The internal state machine and bootstrapper for all vault APIs. Generally not interacted with directly, but handles dependency injection.
+
+
+---
+
+### 🎮 22. Mod Configuration Menu (CCM) Keybind API (`ccm.lua` & `ccm_keycodes.lua`)
+Provides a native, user-configurable keybind framework fully integrated into the UI.
+```lua
+local cvcfg = ccm.bind("CosmicVault")
+if cvcfg.isKeyComboDown("hotkeyCodex") then
+    -- Execute action when ALT+P (default) is pressed
+end
+```
+You can register keybinds dynamically by using `type = "keybind"` in your `ccm.register` options array!
