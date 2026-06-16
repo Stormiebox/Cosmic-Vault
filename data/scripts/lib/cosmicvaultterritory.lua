@@ -28,7 +28,7 @@ if onServer() then
     if not x or not y then return end
         local zones = CosmicVaultTerritory.getContestedZones()
         local key = x .. "_" .. y
-        
+
         zones[key] = {
             x = x,
             y = y,
@@ -36,7 +36,7 @@ if onServer() then
             defender = defendingFactionIndex,
             endTime = Server().unpausedRuntime + (durationMinutes * 60)
         }
-        
+
         Server():setValue("CosmicVault_ContestedZones", zones)
         print("[Cosmic Vault] Sector " .. x .. ":" .. y .. " is now Contested!")
     end
@@ -49,7 +49,7 @@ if onServer() then
     if not x or not y or not newFactionIndex then return end
         local zones = CosmicVaultTerritory.getContestedZones()
         local key = x .. "_" .. y
-        
+
         if zones[key] then
             zones[key] = nil
             Server():setValue("CosmicVault_ContestedZones", zones)
@@ -59,7 +59,7 @@ if onServer() then
         -- This uses the engine's native influence calculation safely.
         local galaxy = Galaxy()
         galaxy:loadSector(x, y)
-        
+
         local currentSector = Sector()
         if currentSector then
             local cx, cy = currentSector:getCoordinates()
@@ -69,7 +69,7 @@ if onServer() then
                 end
             end
         end
-        
+
         -- To actually flip the stations, we must run a small script inside the sector once it loads.
         -- We will invoke a background task to flip it.
         galaxy:invokeFunction("data/scripts/galaxy/server.lua", "flipSectorTerritory", x, y, newFactionIndex)
@@ -90,7 +90,7 @@ if onServer() then
                 changed = true
             end
         end
-        
+
         if changed then
             -- Note: Server():setValue is automatically saved, but calling it forces a sync if necessary.
             Server():setValue("CosmicVault_ContestedZones", zones)
@@ -107,25 +107,25 @@ if onServer() then
         local galaxy = Galaxy()
         local sector = galaxy:loadSector(x, y)
         if not sector then return end
-        
+
         local faction
         if factionIndex then
             faction = Faction(factionIndex)
         end
-        
+
         if isPirate then
             local PirateGenerator = include("pirategenerator")
             local level = Balancing_GetPirateLevel(x, y)
             faction = galaxy:getPirateFaction(level)
-            
-            if not faction then 
+
+            if not faction then
                 galaxy:tryUnloadSector(x, y)
-                return 
+                return
             end
-            
+
             local SectorGenerator = include("sectorgenerator")
             local generator = SectorGenerator(x, y)
-            
+
             local station
             if math.random() < 0.5 then
                 station = generator:createStation(faction, "data/scripts/entity/merchants/smugglersmarket.lua")
@@ -134,18 +134,18 @@ if onServer() then
                 station = generator:createStation(faction, "data/scripts/entity/merchants/shipyard.lua")
                 station.title = "Pirate Shipyard"
             end
-            
+
             print("[Cosmic Vault] Pirates expanded to " .. x .. ":" .. y)
             galaxy:tryUnloadSector(x, y)
         else
-            if not faction then 
+            if not faction then
                 galaxy:tryUnloadSector(x, y)
-                return 
+                return
             end
-            
+
             local SectorGenerator = include("sectorgenerator")
             local generator = SectorGenerator(x, y)
-            
+
             local types = {
                 "data/scripts/entity/merchants/militaryoutpost.lua",
                 "data/scripts/entity/merchants/resourcedepot.lua",
@@ -153,11 +153,11 @@ if onServer() then
                 "data/scripts/entity/merchants/researchstation.lua"
             }
             local script = types[math.random(1, #types)]
-            
+
             generator:createStation(faction, script)
-            
+
             print("[Cosmic Vault] Faction " .. faction.name .. " expanded to " .. x .. ":" .. y)
-            
+
             local CosmicVaultNews = include("cosmicvaultnews")
             if CosmicVaultNews and CosmicVaultNews.publishArticle then
                 CosmicVaultNews.publishArticle({
@@ -167,11 +167,16 @@ if onServer() then
                     author = "Cosmic Chronicles"
                 })
             end
-            
+
             galaxy:tryUnloadSector(x, y)
         end
     end
 
 end
+
+function updateServer(...)
+    if CosmicVaultTerritory.updateServer then return CosmicVaultTerritory.updateServer(...) end
+end
+
 
 return CosmicVaultTerritory

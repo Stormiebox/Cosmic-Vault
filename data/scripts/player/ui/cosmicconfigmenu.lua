@@ -27,18 +27,18 @@ function CosmicConfigMenu.initialize()
     self.tab.onShowFunction = "onShow"
 
     local hsplit = UIHorizontalSplitter(Rect(self.tab.size), 10, 0, 0.1)
-    
+
     local titleLabel = self.tab:createLabel(hsplit.top, "Cosmic Configuration Menu"%_t, 24)
     titleLabel.centered = true
-    
+
     local vsplit = UIVerticalSplitter(hsplit.bottom, 10, 0, 0.3)
-    
+
     self.tree = self.tab:createTree(vsplit.left)
-    
+
     local bottomSplit = UIHorizontalSplitter(vsplit.right, 10, 0, 0.9)
-    
+
     self.container = self.tab:createScrollFrame(bottomSplit.top)
-    
+
     self.applyBtn = self.tab:createButton(bottomSplit.bottom, "Apply Changes"%_t, "onApplyPressed")
     self.applyBtn.active = false
 
@@ -48,7 +48,7 @@ end
 
 function CosmicConfigMenu.onShow()
     self.fillTree()
-    
+
     local keysToRequest = {}
     for namespace, reg in pairs(ccm.getAllRegistries()) do
         if reg.pages then
@@ -59,7 +59,7 @@ function CosmicConfigMenu.onShow()
             end
         end
     end
-    
+
     invokeServerFunction("requestCCMSync", keysToRequest)
 end
 
@@ -71,13 +71,13 @@ end
 function CosmicConfigMenu.fillTree()
     self.tree:clear()
     self.elements = {}
-    
+
     include("cosmicoverhaulconfig")
     include("cosmicwarconfig")
     include("cosmicvaultconfig")
 
     local registries = ccm.getAllRegistries()
-    
+
     self.treeValues = {}
     for namespace, reg in pairs(registries) do
         local modIndex = self.tree:add(nil, namespace, "onEntrySelected", false, namespace)
@@ -101,50 +101,50 @@ function CosmicConfigMenu.refreshUI()
     self.container:clear()
     self.elements = {}
     self.applyBtn.active = false
-    
+
     local selected = self.tree.selectedIndex
     if not selected then return end
-    
+
     local nodeValue = self.selectedValue
     if not nodeValue then return end
-    
+
     local parts = string.split(nodeValue, "::")
     if #parts ~= 2 then return end
-    
+
     local namespace = parts[1]
     local pageIndex = tonumber(parts[2])
-    
+
     local reg = ccm.getRegistry(namespace)
     if not reg or not reg.pages or not reg.pages[pageIndex] then return end
-    
+
     local page = reg.pages[pageIndex]
     local binding = ccm.bind(namespace)
-    
+
     local lister = UIVerticalLister(Rect(vec2(0, 0), self.container.size), 10, 0)
-    
+
     for _, opt in ipairs(page.options) do
         local rect = lister:placeCenter(vec2(self.container.size.x, 30))
-        
+
         -- 3 column layout: Label (40%), Control (50%), Reset Button (10%)
         local split1 = UIVerticalSplitter(rect, 10, 0, 0.4)
         local leftPart = split1.left
         local split2 = UIVerticalSplitter(split1.right, 10, 0, 0.9)
         local rightPart = split2.left
         local resetPart = split2.right
-        
+
         local label = self.container:createLabel(leftPart, opt.title, 14)
         local desc = opt.description or ""
         if opt.min and opt.max then
             desc = desc .. string.format("\n\n(Min: %s, Max: %s)", tostring(opt.min), tostring(opt.max))
         end
         label.tooltip = desc
-        
+
         local currentValue = nil
         if self.serverData then
             currentValue = self.serverData[namespace .. "_" .. opt.key]
         end
         if currentValue == nil then currentValue = opt.default end
-        
+
         if opt.type == "bool" then
             local cb = self.container:createCheckBox(rightPart, "", "onValueChanged")
             cb.checked = currentValue
@@ -167,7 +167,7 @@ function CosmicConfigMenu.refreshUI()
             local btn = self.container:createButton(rightPart, ccm.keys.nameForCombo(currentValue), "onKeybindPressed")
             self.elements[opt.key] = { ui = btn, type = "keybind", namespace = namespace, default = opt.default, packed = currentValue, key = opt.key }
         end
-        
+
         local resetBtn = self.container:createButton(resetPart, "", "onResetOption")
         resetBtn.icon = "data/textures/icons/anticlockwise-rotation.png"
         resetBtn.tooltip = "Reset to Default"%_t
@@ -202,7 +202,7 @@ end
 
 function CosmicConfigMenu.onApplyPressed()
     if not self.applyBtn.active then return end
-    
+
     for key, data in pairs(self.elements) do
         local val
         if data.type == "bool" then
@@ -220,12 +220,12 @@ function CosmicConfigMenu.onApplyPressed()
         elseif data.type == "keybind" then
             val = data.packed
         end
-        
+
         if val ~= nil then
             invokeServerFunction("syncCCMValue", data.namespace, key, val)
         end
     end
-    
+
     self.applyBtn.active = false
     Player():sendChatMessage("", 0, "Settings applied successfully.")
 end
@@ -359,7 +359,7 @@ function CosmicConfigMenu.syncCCMValue(namespace, key, value)
             admin = s:hasAdminPrivileges(p)
         end
     end
-    
+
     if admin then
         Server():setValue("ccm_" .. namespace .. "_" .. key, value)
     end
@@ -380,3 +380,8 @@ function CosmicConfigMenu.requestCCMSync(keys)
     invokeClientFunction(Player(callingPlayer), "receiveCCMSync", data)
 end
 callable(CosmicConfigMenu, "requestCCMSync")
+
+
+function initialize(...)
+    if CosmicConfigMenu.initialize then return CosmicConfigMenu.initialize(...) end
+end

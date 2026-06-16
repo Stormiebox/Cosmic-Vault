@@ -19,9 +19,9 @@ end
 function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
     local sector = Sector()
     local cx, cy = sector:getCoordinates()
-    
+
     if cx ~= x or cy ~= y then return end -- Failsafe
-    
+
     local stations = {sector:getEntitiesByType(EntityType.Station)}
     for _, station in pairs(stations) do
         -- Only flip stations that are owned by AI factions
@@ -32,9 +32,9 @@ function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
     end
     local sectorName = "\\s(" .. x .. ":" .. y .. ")"
     local factionName = Faction(newFactionIndex) and Faction(newFactionIndex).name or "an Unknown Faction"
-    
+
     print("[Cosmic Vault] Flipped stations in " .. x .. ":" .. y .. " to faction " .. tostring(newFactionIndex))
-    
+
     local CosmicVaultNews = include("cosmicvaultnews")
     if CosmicVaultNews and CosmicVaultNews.publishArticle then
         CosmicVaultNews.publishArticle({
@@ -43,4 +43,12 @@ function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
             category = "War"
         })
     end
+end
+
+
+function getUpdateInterval(...)
+    if CosmicVaultTerritoryServer.getUpdateInterval then return CosmicVaultTerritoryServer.getUpdateInterval(...) end
+end
+function updateServer(...)
+    if CosmicVaultTerritoryServer.updateServer then return CosmicVaultTerritoryServer.updateServer(...) end
 end

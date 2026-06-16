@@ -19,8 +19,8 @@ function CosmicVaultNewsServer.initialize()
 end
 
 local reporters = {
-    "Jade", "Kaelen", "Lyra", "Dax", "Rylan", "Vex", "Elara", "Talon", "Nova", "Silas", 
-    "Zyx", "Corin", "Tali", "Jarek", "Reyna", "Orion", "Kass", "Vesper", "Thorne", "Anya", 
+    "Jade", "Kaelen", "Lyra", "Dax", "Rylan", "Vex", "Elara", "Talon", "Nova", "Silas",
+    "Zyx", "Corin", "Tali", "Jarek", "Reyna", "Orion", "Kass", "Vesper", "Thorne", "Anya",
     "Soren", "Kael", "Zander", "Nyx", "Kira",
     "Vance", "Elena", "Torin", "Sera", "Ronan", "Mila", "Cade", "Lira", "Gael", "Tess"
 }
@@ -34,12 +34,12 @@ function CosmicVaultNewsServer.publishArticle(article)
         article.author = reporters[random():getInt(1, #reporters)]
     end
     table.insert(self.publishedNews, 1, article) -- Insert at the beginning (newest first)
-    
+
     -- Keep only the last 30 articles to prevent memory bloat
     if #self.publishedNews > 30 then
         table.remove(self.publishedNews)
     end
-    
+
     -- Flag that players need to be notified. We do this in updateServer to avoid re-entrant VM deadlocks!
     self.needsPlayerNotification = true
 end
@@ -48,7 +48,7 @@ end
 function CosmicVaultNewsServer.onSyncRequest(playerIndex)
     if not onServer() then return end
     print("[CosmicVaultNews] Received sync request via callback from player " .. tostring(playerIndex))
-    
+
     -- Self-healing: If the server just started and has no news, ask mods to generate some
     if #self.publishedNews == 0 then
         print("[CosmicVaultNews] News is empty, requesting seed...")
@@ -98,4 +98,12 @@ function updateServer(timeStep)
             player:invokeFunction("player/ui/cc_newsboard.lua", "onNewsPublished")
         end
     end
+end
+
+
+function secure(...)
+    if CosmicVaultNewsServer.secure then return CosmicVaultNewsServer.secure(...) end
+end
+function restore(...)
+    if CosmicVaultNewsServer.restore then return CosmicVaultNewsServer.restore(...) end
 end

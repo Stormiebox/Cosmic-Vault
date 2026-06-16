@@ -149,19 +149,19 @@ function EconomyUpdater.getSupplyDemandPriceChange(good, ownSupplyType)
     end
 
     local factor = self.map:supplyToPriceChange(sum) or 0
-    
+
     -- COSMIC VAULT CUSTOM ECONOMY ENGINE HOOK
     if onServer() then
         local key = "CVE_PriceHook_" .. good:gsub("%s+", "_")
         local hooksStr = Server():getValue(key)
-        
+
         if hooksStr then
             for hook in string.gmatch(hooksStr, "([^|]+)") do
                 local scriptName, functionName = string.match(hook, "([^:]+)::([^:]+)")
                 if scriptName and functionName then
-                    -- First try invoking the hook on the Sector 
+                    -- First try invoking the hook on the Sector
                     local ok, extraFactor = Sector():invokeFunction(scriptName, functionName, good, factor)
-                    
+
                     if ok == 0 and type(extraFactor) == "number" then
                         factor = factor * extraFactor
                     else
@@ -175,6 +175,20 @@ function EconomyUpdater.getSupplyDemandPriceChange(good, ownSupplyType)
             end
         end
     end
-    
+
     return factor
+end
+
+
+function getUpdateInterval(...)
+    if EconomyUpdater.getUpdateInterval then return EconomyUpdater.getUpdateInterval(...) end
+end
+function initialize(...)
+    if EconomyUpdater.initialize then return EconomyUpdater.initialize(...) end
+end
+function updateClient(...)
+    if EconomyUpdater.updateClient then return EconomyUpdater.updateClient(...) end
+end
+function updateServer(...)
+    if EconomyUpdater.updateServer then return EconomyUpdater.updateServer(...) end
 end

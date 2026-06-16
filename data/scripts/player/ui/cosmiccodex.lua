@@ -38,7 +38,7 @@ function CosmicCodex.initialize()
     self.searchTextBox.backgroundText = "Search"%_t
 
     self.tree = self.tab:createTree(lhsplit.bottom)
-    
+
     local hsplit = UIHorizontalSplitter(vsplit.right, 30, 0, 0.5)
     hsplit.topSize = 20
 
@@ -52,10 +52,10 @@ function CosmicCodex.initialize()
     self.originalRect = hsplit2.top
     self.picture = self.tab:createPicture(self.originalRect, "")
     self.picture.isIcon = false -- Prevents it from coloring black like icons
-    
+
     self.textRectOriginal = textRect
     self.fullTextRect = hsplit.bottom
-    
+
     self.backgroundBox = self.tab:createFrame(textRect)
 
     local text = "Welcome to the \\c(0d0)Cosmic Codex\\c()!\n\nThis is the central repository for all knowledge regarding the Cosmic Mod Series.\nSelect a category on the left to begin."%_t
@@ -110,7 +110,7 @@ function CosmicCodex.addArticle(chapterId, id, title, text, picturePath)
     -- Fallback for backwards compatibility
     if not chapter then chapter = self.categories[chapterId] end
     if not chapter then return end
-    
+
     local searchText = string.lower(string.trim(self.searchTextBox.text))
     if searchText ~= "" then
         if not string.match(string.lower(title), searchText) and not string.match(string.lower(text), searchText) then
@@ -190,3 +190,8 @@ function CosmicCodex.onPostRenderHud(state, timeStep)
 end
 
 end -- onClient
+
+
+function initialize(...)
+    if CosmicCodex.initialize then return CosmicCodex.initialize(...) end
+end

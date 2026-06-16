@@ -4,7 +4,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 local CosmicVaultWeather = {}
 
 -- This is a universal API that other mods can require.
--- Example: local cv_weather = require("cosmicvaultweather")
+-- Example: local cv_weather = include("cosmicvaultweather")
 -- cv_weather.triggerStorm(x, y, "IonStorm", 14400) -- 4 hours
 
 function CosmicVaultWeather.triggerStorm(x, y, stormType, duration)

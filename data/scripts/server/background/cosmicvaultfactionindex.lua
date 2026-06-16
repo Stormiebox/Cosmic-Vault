@@ -74,3 +74,14 @@ function CosmicVaultFactionIndex.update(timeStep)
     server:setValue("factions_ready", true)
     server:setValue("factions_count", #finalIndices)
 end
+
+
+function initialize(...)
+    if CosmicVaultFactionIndex.initialize then return CosmicVaultFactionIndex.initialize(...) end
+end
+function getUpdateInterval(...)
+    if CosmicVaultFactionIndex.getUpdateInterval then return CosmicVaultFactionIndex.getUpdateInterval(...) end
+end
+function update(...)
+    if CosmicVaultFactionIndex.update then return CosmicVaultFactionIndex.update(...) end
+end
