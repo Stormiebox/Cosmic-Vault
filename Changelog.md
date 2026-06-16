@@ -7,7 +7,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
-## v3.0.0 (CURRENT PROJECT VERSION - NO RELEASE DATE YET!)
+## v3.0.0 UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
 ### ✨ Added
 - **Custom Faction Traits API**: Added `cosmicvaultfaction.lua` exposing `registerCustomTrait`, `getTrait`, and `setTrait`. This allows modders to easily inject custom faction traits that render beautifully in the native Avorion diplomacy UI!
@@ -15,6 +15,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Weather UI Integration**: Native HUD indicators (`cv_weather_ui.lua`) that dynamically render active debuff icons and severe weather warnings for players inside hazard zones.
 - `CosmicVaultEconomy` API to track faction resource starvation.
 - `CosmicVaultAnomalies` API to spawn persistent interactive POIs.
+- **News Broadcaster Interval**: Injected `getUpdateInterval()` into `cosmicvaultnews_server.lua` to ensure the server updates the news queue reliably every second without lagging.
 - **CCM Keybind API:** Integrated complete hotkey capture suite (`ccm_keycodes.lua`) with modifier (Ctrl/Alt/Shift) support directly into the config framework.
 - **3-Column HUD Layout:** Revamped Cosmic Config Menu with a cleaner Label | Control | Reset UI ratio.
 - **Config Reset Buttons:** Added dedicated `anticlockwise-rotation` reset buttons with tooltips to immediately revert settings to defaults.
@@ -44,3 +45,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Multiplayer Desyncs:** Replaced `math.random` with the deterministic engine `random():getInt()` inside `cosmicvaultencounter.lua` to prevent massive physics and coordinate desyncs when spawning ambushes in multiplayer.
 - Removed `pcall` soft-dependencies. Core 5 mods are now hard requirements for each other.
 - Adjusted `DarkMatterFog` debuff to ignore Eclipse ships.
+- **Invalid API Sweeps**: Scrubbed `StatsBonuses.ShieldCapacity` from `cosmicbuff.lua` and replaced it with the native engine `StatsBonuses.ShieldDurability`.

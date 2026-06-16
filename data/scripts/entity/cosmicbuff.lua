@@ -35,7 +35,7 @@ function onBaseMultiplierCalculated(entity, statModifier)
     if targetStat == "Velocity" then
         statModifier:modifyBaseMultiplier(StatsBonuses.Velocity, statMultiplier)
     elseif targetStat == "Shield" then
-        statModifier:modifyBaseMultiplier(StatsBonuses.ShieldCapacity, statMultiplier)
+        statModifier:modifyBaseMultiplier(StatsBonuses.ShieldDurability, statMultiplier)
     elseif targetStat == "Damage" then
         statModifier:modifyBaseMultiplier(StatsBonuses.ArmedTurrets, statMultiplier) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
     elseif targetStat == "Acceleration" then
