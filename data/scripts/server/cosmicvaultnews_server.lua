@@ -82,6 +82,10 @@ function CosmicVaultNewsServer.restore(data)
     self.publishedNews = data.publishedNews or {}
 end
 
+function getUpdateInterval()
+    return 1.0
+end
+
 function initialize()
     CosmicVaultNewsServer.initialize()
 end
