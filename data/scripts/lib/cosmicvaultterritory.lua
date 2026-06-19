@@ -126,8 +126,9 @@ if onServer() then
             local SectorGenerator = include("sectorgenerator")
             local generator = SectorGenerator(x, y)
 
+            local random = random()
             local station
-            if math.random() < 0.5 then
+            if random:getFloat() < 0.5 then
                 station = generator:createStation(faction, "data/scripts/entity/merchants/smugglersmarket.lua")
                 station.title = "Smuggler's Hideout"
             else
@@ -152,7 +153,7 @@ if onServer() then
                 "data/scripts/entity/merchants/tradingpost.lua",
                 "data/scripts/entity/merchants/researchstation.lua"
             }
-            local script = types[math.random(1, #types)]
+            local script = types[random():getInt(1, #types)]
 
             generator:createStation(faction, script)
 
@@ -172,6 +173,10 @@ if onServer() then
         end
     end
 
+end
+
+function getUpdateInterval(...)
+    return 1.0
 end
 
 function updateServer(...)

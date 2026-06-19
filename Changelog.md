@@ -30,6 +30,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Global Ascendancy Tier API:** Added `getGlobalTier` and `setGlobalTier` to `cosmicvaultbuffs.lua` to allow cross-sector tracking of global faction buffs (used heavily by Cosmic Ascendancy).
 
 ### 🛠️ Improved & Upgraded
+- **Improved**: Added comprehensive auto-generated docstrings for all API functions.
+- **Improved**: Centered the title in the `Cosmic Codex` UI.
+- **Improved**: Enabled text-wrapping in the `Cosmic Config Menu` labels to prevent overlap.
+- **Improved**: Upgraded success notifications in Config Menu to use proper `ChatMessageType.Information` overlay.
 - **Codex UI:** Resizing logic gracefully handles missing images without text overlapping.
 - **API Quality Audit:** Conducted a massive static analysis and quality upgrade across all 28 Cosmic Vault core library files.
 - **LDoc Standardization:** Injected comprehensive LDoc style docstrings across all exposed library functions (`cosmicvaultarsenal.lua`, `cosmicvaultui.lua`, etc.) to enhance modder readability.
@@ -37,6 +41,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Namespace Fixes:** Fixed critical bugs in `cosmicvaultconfig.lua`, `cosmicvaultdebug.lua`, `cosmicvaultframework.lua`, and `cosmicvaultnews.lua` where the script failed to `return` its namespace at the end of the file.
 
 ### 🐛 Bug Fixes & Optimization
+- **Fixed**: Added systematic strict validation checks (`if not arg then return end`) across 13 core Vault APIs for maximum stability.
 - **Fixed:** `cosmicdot.lua` `inflictDamage` signature error which passed a float as the damage source enum.
 - **Fixed:** `cosmicvaultloot.lua` passed a raw table instead of a `TradingGood` object to `dropCargo`, preventing custom loot drops from functioning properly.
 - **Keybind Reliability:** Fully integrated robust user-defined keybind injection.

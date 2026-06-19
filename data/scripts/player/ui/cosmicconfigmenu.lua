@@ -133,6 +133,7 @@ function CosmicConfigMenu.refreshUI()
         local resetPart = split2.right
 
         local label = self.container:createLabel(leftPart, opt.title, 14)
+        label.wordWrap = true
         local desc = opt.description or ""
         if opt.min and opt.max then
             desc = desc .. string.format("\n\n(Min: %s, Max: %s)", tostring(opt.min), tostring(opt.max))
@@ -227,7 +228,7 @@ function CosmicConfigMenu.onApplyPressed()
     end
 
     self.applyBtn.active = false
-    Player():sendChatMessage("", 0, "Settings applied successfully.")
+    Player():sendChatMessage("Cosmic Config"%_t, 3, "Settings applied successfully."%_t)
 end
 
 -- Keybind capture logic

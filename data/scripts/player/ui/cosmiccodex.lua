@@ -48,6 +48,7 @@ function CosmicCodex.initialize()
     local textRect = hsplit2.bottom
 
     self.titleLabel = self.tab:createLabel(titleRect, "Cosmic Codex"%_t, 30)
+    self.titleLabel.centered = true
 
     self.originalRect = hsplit2.top
     self.picture = self.tab:createPicture(self.originalRect, "")

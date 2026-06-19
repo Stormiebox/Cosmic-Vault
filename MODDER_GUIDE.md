@@ -17,6 +17,14 @@ Welcome to the **Cosmic Vault API Guide**! This document provides technical inst
 > **Callable Security Exploits**
 > Any UI function triggered via `invokeServerFunction` must be explicitly registered using `callable()` in the server script. Missing this will not only break your UI in multiplayer, but failing to validate the incoming arguments can allow malicious clients to execute arbitrary remote code (ACE vulnerabilities).
 
+> [!TIP]
+> **API Argument Validation & Docstrings**
+> All Cosmic Vault API functions now require strict argument validation (`if not arg then return end`). When calling them, ensure you pass all required parameters as detailed by the generated docstrings in each API file.
+
+> [!TIP]
+> **Event Loop Throttling**
+> When writing background simulation scripts (e.g., `updateServer` loops), **always** define `getUpdateInterval()` to throttle execution (e.g. `return 5.0`). Running logic every single frame (0s interval) should be strictly reserved for rendering UI fading or precise physical tracking.
+
 ---
 
 ## 📑 The API Library
