@@ -55,10 +55,10 @@ function updateServer(timeStep)
             -- Deal 2% max shield damage per 5-sec tick
             local maxShield = entity.shieldMax or 0
             if maxShield > 0 then
-                entity:inflictDamage(maxShield * 0.02, 0, DamageSource.Environment, entity.translationf)
+                entity:inflictDamage(maxShield * 0.02, 0, DamageSource.Collision, entity.translationf)
             else
                 local maxHull = entity.maxDurability or 0
-                entity:inflictDamage(maxHull * 0.005, 0, DamageSource.Environment, entity.translationf)
+                entity:inflictDamage(maxHull * 0.005, 0, DamageSource.Collision, entity.translationf)
             end
             
             ::continue::

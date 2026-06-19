@@ -172,8 +172,8 @@ function CosmicCodex.refreshUI()
 end
 
 function CosmicCodex.onPostRenderHud(state, timeStep)
-    local cv_success, ccm = true, include("ccm")
-    if cv_success and ccm then
+    local ccm = include("ccm")
+    if ccm then
         local cvcfg = ccm.bind("CosmicVault")
         if cvcfg.isKeyComboDown("hotkeyCodex") then
             local pw = PlayerWindow()

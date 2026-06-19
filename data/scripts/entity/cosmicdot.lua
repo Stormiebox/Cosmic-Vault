@@ -44,7 +44,7 @@ function tickDoT()
     local src = entity.id
     if sourceId then src = sourceId end
     
-    entity:inflictDamage(damagePerTick, damagePerTick, 0, src) -- Using inflictDamage(amount, damageSource, damageType, sourceEntity)
+    entity:inflictDamage(damagePerTick, 0, 0, src) -- Using inflictDamage(amount, damageSource, damageType, sourceEntity)
     
     ticksRemaining = ticksRemaining - 1
     

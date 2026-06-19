@@ -107,3 +107,12 @@ end
 function restore(...)
     if CosmicVaultNewsServer.restore then return CosmicVaultNewsServer.restore(...) end
 end
+
+
+-- Global Event Callbacks
+function onSyncRequest(...)
+    if CosmicVaultNewsServer.onSyncRequest then return CosmicVaultNewsServer.onSyncRequest(...) end
+end
+function onPublishArticle(...)
+    if CosmicVaultNewsServer.onPublishArticle then return CosmicVaultNewsServer.onPublishArticle(...) end
+end

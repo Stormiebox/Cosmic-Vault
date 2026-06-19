@@ -23,7 +23,7 @@ function CosmicVaultLoot.dropCustomLoot(entityId, lootType, payload, amount, own
     if lootType == "good" then
         local g = goods[payload]
         if g then
-            sector:dropCargo(position, owner or 0, owner or 0, g, amount or 1, 0)
+            sector:dropCargo(position, owner or 0, owner or 0, g:good(), amount or 1, 0)
         end
     elseif lootType == "weapon" or lootType == "turret" then
         -- payload must be an InventoryTurret or Weapon object

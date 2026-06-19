@@ -192,3 +192,9 @@ end
 function updateServer(...)
     if EconomyUpdater.updateServer then return EconomyUpdater.updateServer(...) end
 end
+
+
+-- Global Event Callbacks
+function onEntityCreated(...)
+    if EconomyUpdater.onEntityCreated then return EconomyUpdater.onEntityCreated(...) end
+end

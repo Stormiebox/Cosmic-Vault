@@ -1,7 +1,7 @@
 -- Cosmic Vault: Diplomacy UI Wrapper
 -- This script seamlessly injects custom faction traits into the vanilla diplomacy UI without breaking compatibility.
 
-local cvf_success, cvf = pcall(include, "cosmicvaultfaction")
+local cvf = include("cosmicvaultfaction")
 if not cvf_success then cvf = nil end
 
 local cv_old_updateFactionInformation = Diplomacy.updateFactionInformation

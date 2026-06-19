@@ -385,3 +385,12 @@ callable(CosmicConfigMenu, "requestCCMSync")
 function initialize(...)
     if CosmicConfigMenu.initialize then return CosmicConfigMenu.initialize(...) end
 end
+
+
+-- Global Event Callbacks
+function onPostRenderHud(...)
+    if CosmicConfigMenu.onPostRenderHud then return CosmicConfigMenu.onPostRenderHud(...) end
+end
+function onGalaxyMapUpdate(...)
+    if CosmicConfigMenu.onGalaxyMapUpdate then return CosmicConfigMenu.onGalaxyMapUpdate(...) end
+end

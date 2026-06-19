@@ -123,6 +123,3 @@ end
 function restore(...)
     if CosmicVaultWeatherServer.restore then return CosmicVaultWeatherServer.restore(...) end
 end
-
-
-return CosmicVaultWeatherServer

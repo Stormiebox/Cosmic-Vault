@@ -98,3 +98,9 @@ end
 function updateClient(...)
     if CosmicVaultCinematic.updateClient then return CosmicVaultCinematic.updateClient(...) end
 end
+
+
+-- Global Event Callbacks
+function onPreRenderHud(...)
+    if CosmicVaultCinematic.onPreRenderHud then return CosmicVaultCinematic.onPreRenderHud(...) end
+end
