@@ -7,19 +7,17 @@ local config = ccm and ccm.bind("CosmicVault") or nil
 CosmicVaultConfig = CosmicVaultConfig or {}
 
 if ccm then
-    ccm.register({
-        id = "CosmicVault",
-        name = "Cosmic Vault",
+    ccm.register("CosmicVault", {
         pages = {
             {
-                name = "UI & Keybinds",
+                title = "UI & Keybinds",
                 options = {
                     { key = "hotkeyCodex", type = "keybind", title = "Open Cosmic Codex", description = "Hotkey to quickly open the Cosmic Codex tab.", default = ccm.keys and ccm.keys.combo(ccm.keys.KEY_P, ccm.keys.LALT) or 25 },
                     { key = "hotkeyConfigMenu", type = "keybind", title = "Open Config Menu", description = "Hotkey to quickly open the Cosmic Config Menu.", default = ccm.keys and ccm.keys.combo(ccm.keys.KEY_O, ccm.keys.LALT) or 24 },
                 }
             },
             {
-                name = "Debugging & Framework",
+                title = "Debugging & Framework",
                 options = {
                     { key = "debugEnabled", type = "bool", title = "Enable Debug Logs", description = "Prints Cosmic Vault debug info to console.", default = false },
                     { key = "diagnosticsEnabled", type = "bool", title = "Enable Diagnostics", description = "Runs periodic checks on Vault components.", default = true },

@@ -75,6 +75,7 @@ function CosmicConfigMenu.fillTree()
     include("cosmicoverhaulconfig")
     include("cosmicwarconfig")
     include("cosmicvaultconfig")
+    include("cosmicascendancyconfig")
 
     local registries = ccm.getAllRegistries()
 
