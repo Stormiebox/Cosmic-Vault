@@ -85,3 +85,5 @@ end
 function update(...)
     if CosmicVaultFactionIndex.update then return CosmicVaultFactionIndex.update(...) end
 end
+
+return CosmicVaultFactionIndex

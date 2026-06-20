@@ -52,3 +52,5 @@ end
 function updateServer(...)
     if CosmicVaultTerritoryServer.updateServer then return CosmicVaultTerritoryServer.updateServer(...) end
 end
+
+return CosmicVaultTerritoryServer

@@ -1,5 +1,4 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
-include("galaxy")
 include("randomext")
 local SectorGenerator = include("sectorgenerator")
 local ShipGenerator = include("shipgenerator")

@@ -116,3 +116,5 @@ end
 function onPublishArticle(...)
     if CosmicVaultNewsServer.onPublishArticle then return CosmicVaultNewsServer.onPublishArticle(...) end
 end
+
+return CosmicVaultNewsServer

@@ -104,3 +104,5 @@ end
 function onPreRenderHud(...)
     if CosmicVaultCinematic.onPreRenderHud then return CosmicVaultCinematic.onPreRenderHud(...) end
 end
+
+return CosmicVaultCinematic

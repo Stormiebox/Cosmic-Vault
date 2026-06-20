@@ -196,3 +196,5 @@ end -- onClient
 function initialize(...)
     if CosmicCodex.initialize then return CosmicCodex.initialize(...) end
 end
+
+return CosmicCodex

@@ -134,7 +134,7 @@ function CosmicConfigMenu.refreshUI()
         local resetPart = split2.right
 
         local label = self.container:createLabel(leftPart, opt.title, 14)
-        label.wordWrap = true
+        label.wordBreak = true
         local desc = opt.description or ""
         if opt.min and opt.max then
             desc = desc .. string.format("\n\n(Min: %s, Max: %s)", tostring(opt.min), tostring(opt.max))
@@ -396,3 +396,5 @@ end
 function onGalaxyMapUpdate(...)
     if CosmicConfigMenu.onGalaxyMapUpdate then return CosmicConfigMenu.onGalaxyMapUpdate(...) end
 end
+
+return CosmicConfigMenu
