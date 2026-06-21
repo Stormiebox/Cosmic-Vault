@@ -64,7 +64,13 @@ function CosmicConfigMenu.onShow()
 end
 
 function CosmicConfigMenu.receiveCCMSync(data)
-    self.serverData = data
+    if not self.serverData then self.serverData = {} end
+    if type(data) == "table" then
+        for k, v in pairs(data) do
+            self.serverData[k] = v
+        end
+    end
+    ccm.setClientCache(self.serverData)
     self.refreshUI()
 end
 
@@ -205,6 +211,7 @@ end
 function CosmicConfigMenu.onApplyPressed()
     if not self.applyBtn.active then return end
 
+    local settingsBatch = {}
     for key, data in pairs(self.elements) do
         local val
         if data.type == "bool" then
@@ -224,9 +231,11 @@ function CosmicConfigMenu.onApplyPressed()
         end
 
         if val ~= nil then
-            invokeServerFunction("syncCCMValue", data.namespace, key, val)
+            settingsBatch[data.namespace .. "_" .. key] = val
         end
     end
+
+    invokeServerFunction("syncCCMSettings", settingsBatch)
 
     self.applyBtn.active = false
     Player():sendChatMessage("Cosmic Config"%_t, 3, "Settings applied successfully."%_t)
@@ -352,7 +361,7 @@ end
 
 end -- onClient()
 
-function CosmicConfigMenu.syncCCMValue(namespace, key, value)
+function CosmicConfigMenu.syncCCMSettings(settingsBatch)
     local admin = false
     local p = nil
     if callingPlayer then
@@ -363,13 +372,22 @@ function CosmicConfigMenu.syncCCMValue(namespace, key, value)
         end
     end
 
-    if admin then
-        Server():setValue("ccm_" .. namespace .. "_" .. key, value)
+    if admin and type(settingsBatch) == "table" then
+        local s = Server()
+        local sanitizedBatch = {}
+        for k, v in pairs(settingsBatch) do
+            if type(v) == "boolean" or type(v) == "number" or type(v) == "string" then
+                s:setValue("ccm_" .. k, v)
+                sanitizedBatch[k] = v
+            end
+        end
+        invokeClientFunction(Player(callingPlayer), "receiveCCMSync", sanitizedBatch)
     elseif p then
         p:sendChatMessage("Server", 1, "You must be a Server Administrator to modify Cosmic Config values."%_t)
     end
 end
-callable(CosmicConfigMenu, "syncCCMValue")
+_G.syncCCMSettings = CosmicConfigMenu.syncCCMSettings
+callable(nil, "syncCCMSettings")
 
 function CosmicConfigMenu.requestCCMSync(keys)
     local s = Server()
@@ -384,7 +402,8 @@ function CosmicConfigMenu.requestCCMSync(keys)
     end
     invokeClientFunction(Player(callingPlayer), "receiveCCMSync", data)
 end
-callable(CosmicConfigMenu, "requestCCMSync")
+_G.requestCCMSync = CosmicConfigMenu.requestCCMSync
+callable(nil, "requestCCMSync")
 
 
 function initialize(...)
