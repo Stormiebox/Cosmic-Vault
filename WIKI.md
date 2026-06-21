@@ -97,7 +97,7 @@ Unlike feature-heavy gameplay mods, **Cosmic Vault** focuses exclusively on:
 - `data/scripts/server/cosmicvaultnews_server.lua`
 
 **What it does:**
-Acts as the central nervous system for galactic broadcasting. Any mod in the Cosmic series can use this API to instantly publish dynamic news articles to the global server buffer. 
+Acts as the central nervous system for galactic broadcasting. Any mod in the Cosmic series can use this API to instantly publish dynamic news articles to the global server buffer.
 
 **Key Methods:**
 - `CosmicVaultNews.publishArticle(article)`: Safely pipes a formatted article (title, category, content) into the server via the native `Server():sendCallback()` global event bus. If no author is provided, it automatically assigns one of 35 randomized reporter names to enhance immersion.
@@ -427,11 +427,15 @@ During the Cosmic Series Final QA Audit (v3.0+), several massive backend systems
 All deep lore, stat blocks, and dynamic recipes have been fully integrated into the in-game **Cosmic Codex**. You no longer need to tab out of the game to read these features; they will natively update and unlock inside your Codex UI as you progress!
 
 ### 🔒 Network Safety & Anti-Cheat
-- **Math.Random Fix:** We systematically replaced all unstable Lua `math.random` calls with Avorion's deterministic `random():getInt()` generation sequence. This guarantees 100% synchronization on Multiplayer Dedicated Servers and prevents cascading desyncs during massive fleet spawns.
+- **Math.Random Fix:** I've systematically replaced all unstable Lua `math.random` calls with Avorion's deterministic `random():getInt()` generation sequence. This guarantees 100% synchronization on Multiplayer Dedicated Servers and prevents cascading desyncs during massive fleet spawns.
 - **Callable Validation:** UI and background scripts have been fully hardened. Malicious clients can no longer spoof "free" remote calls; the server actively verifies execution contexts before processing any requests, sealing multiple Arbitrary Code Execution (ACE) vulnerabilities.
 
 ### 🛠️ Vanilla Bug Fixes
-- **Scout Mission Fix:** We patched a massive, long-standing vanilla bug where Scout Missions would completely skip and ignore Faction Headquarters sectors because the native dialogue trees were missing the template definition.
+- **Scout Mission Fix:** I've patched a massive, long-standing vanilla bug where Scout Missions would completely skip and ignore Faction Headquarters sectors because the native dialogue trees were missing the template definition.
+
+### 🛑 C++ Native Engine Safety
+- **Strict API Compliance:** I've ran mass-audit over hundreds of Lua scripts using .py scripts to hunt down incorrectly used Avorion API Indexes where the Lua codebase attempted to call non-existent methods on native C++ userdata objects (e.g., `Entity`, `Galaxy`, `Player`).
+- **Crash Prevention:** Over a dozen critical `attempt to index` bugs were patched out of the wild. Faction borders are now properly respected organically (instead of via force-sets), distance checks use the exact 3D bounding-box math, and stat/entity biases strictly use the native C++ `addMultiplyableBias` and `addBaseMultiplier` terminology.
 </details>
 
 
