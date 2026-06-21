@@ -284,3 +284,21 @@ Exposes logic for generating permanent, interactive points of interest natively.
 local CosmicVaultAnomalies = include("cosmicvaultanomalies")
 CosmicVaultAnomalies.spawnAnomaly(x, y, "Void_Rupture")
 ```
+
+## 10. Library Development Best Practices & Rogue Globals
+When building modular APIs or extending Cosmic Vault, you may create library files (`data/scripts/lib/*.lua`) that other scripts can `include()`. You **MUST** ensure that these library files do not define global Avorion engine callbacks (such as `function updateServer(...)` or `function getUpdateInterval(...)`).
+
+Because of how Avorion's Virtual File System operates, when a script calls `include("yourlibrary")`, any global functions defined in that library are injected directly into the calling script's Lua VM. If the calling script also has an `updateServer()` loop, the library's update loop will overwrite it, causing impossible-to-debug logic failures.
+
+**Correct Library Structure:**
+```lua
+local MyCustomLib = {}
+
+function MyCustomLib.doSomething()
+    -- Logic here
+end
+
+return MyCustomLib
+```
+
+Never append global VM hooks at the bottom of these files!

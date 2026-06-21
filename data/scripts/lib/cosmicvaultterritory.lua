@@ -175,13 +175,4 @@ if onServer() then
 
 end
 
-function getUpdateInterval(...)
-    return 1.0
-end
-
-function updateServer(...)
-    if CosmicVaultTerritory.updateServer then return CosmicVaultTerritory.updateServer(...) end
-end
-
-
 return CosmicVaultTerritory
