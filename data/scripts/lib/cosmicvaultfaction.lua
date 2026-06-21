@@ -65,7 +65,7 @@ function CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
     local current = f1:getRelations(factionIndex2) or 0
     local newRelation = math.max(-100000, math.min(100000, current + delta))
     
-    f1:setRelations(factionIndex2, newRelation)
+    Galaxy():setFactionRelations(f1, Faction(factionIndex2), newRelation)
 end
 
 return CosmicVaultFaction

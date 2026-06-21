@@ -354,8 +354,9 @@ end -- onClient()
 
 function CosmicConfigMenu.syncCCMValue(namespace, key, value)
     local admin = false
+    local p = nil
     if callingPlayer then
-        local p = Player(callingPlayer)
+        p = Player(callingPlayer)
         if p and p.index then
             local s = Server()
             admin = s:hasAdminPrivileges(p)
@@ -364,6 +365,8 @@ function CosmicConfigMenu.syncCCMValue(namespace, key, value)
 
     if admin then
         Server():setValue("ccm_" .. namespace .. "_" .. key, value)
+    elseif p then
+        p:sendChatMessage("Server", 1, "You must be a Server Administrator to modify Cosmic Config values."%_t)
     end
 end
 callable(CosmicConfigMenu, "syncCCMValue")

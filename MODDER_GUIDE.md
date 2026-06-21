@@ -25,6 +25,14 @@ Welcome to the **Cosmic Vault API Guide**! This document provides technical inst
 > **Event Loop Throttling**
 > When writing background simulation scripts (e.g., `updateServer` loops), **always** define `getUpdateInterval()` to throttle execution (e.g. `return 5.0`). Running logic every single frame (0s interval) should be strictly reserved for rendering UI fading or precise physical tracking.
 
+> [!WARNING]
+> **Common Native API Errors**
+> Be highly cautious of incorrectly used API method names when using native C++ userdata objects.
+> - **Relations:** `Faction` and `Player` userdata objects do NOT have a `setRelations()` or `changeRelations()` method. You must use the global `Galaxy():setFactionRelations()` and `Galaxy():changeFactionRelations()`.
+> - **Stats & Entities:** Use `statModifier:addBaseMultiplier()` (not `modifyBaseMultiplier`). Use `entity:addMultiplyableBias()` (not `addMultiplyableFactor`).
+> - **Sectors:** `Galaxy()` does NOT have a `setFaction()` or `tryUnloadSector()` method. Sector borders are natively controlled by the stations inside them.
+> - **Blueprints:** `BlockPlan` does NOT have `plan:fromString()`. Use the global `LoadPlanFromString()`.
+> Stormbox: This is from my personal findings and debugging often.
 ---
 
 ## 📑 The API Library
@@ -60,8 +68,8 @@ end
 ```lua
 local cvf = include("cosmicvaultfaction")
 cvf.registerCustomTrait(
-    "industrial", 
-    "Industrial", 
+    "industrial",
+    "Industrial",
     {
         "Focuses heavily on resource production and trade.",
         "Defends mining operations aggressively."

@@ -119,7 +119,7 @@ if onServer() then
             faction = galaxy:getPirateFaction(level)
 
             if not faction then
-                galaxy:tryUnloadSector(x, y)
+                -- galaxy:tryUnloadSector(x, y) -- Removed: Unloading is handled by the engine
                 return
             end
 
@@ -137,10 +137,10 @@ if onServer() then
             end
 
             print("[Cosmic Vault] Pirates expanded to " .. x .. ":" .. y)
-            galaxy:tryUnloadSector(x, y)
+            -- galaxy:tryUnloadSector(x, y) -- Removed: Unloading is handled by the engine
         else
             if not faction then
-                galaxy:tryUnloadSector(x, y)
+                -- galaxy:tryUnloadSector(x, y) -- Removed: Unloading is handled by the engine
                 return
             end
 
@@ -169,7 +169,7 @@ if onServer() then
                 })
             end
 
-            galaxy:tryUnloadSector(x, y)
+            -- galaxy:tryUnloadSector(x, y) -- Removed: Unloading is handled by the engine
         end
     end
 

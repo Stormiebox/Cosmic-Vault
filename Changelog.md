@@ -41,6 +41,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Namespace Fixes:** Fixed critical bugs in `cosmicvaultconfig.lua`, `cosmicvaultdebug.lua`, `cosmicvaultframework.lua`, and `cosmicvaultnews.lua` where the script failed to `return` its namespace at the end of the file.
 
 ### 🐛 Bug Fixes & Optimization
+
+- **Fixed**: Fixed multiple Avorion API Indexes across various scripts that could cause C++ attempt to index or attempt to call engine crashes.
+  - Corrected stat modifier functions (e.g. modifyBaseMultiplier -> addBaseMultiplier).
+  - Corrected entity bias functions (e.g. addMultiplyableFactor -> addMultiplyableBias).
+  - Replaced invalid faction relation setters with the correct global Galaxy() alternatives.
+  - Removed native calls to non-existent functions (e.g. updateStaticAttributes, tryUnloadSector).
+  - Corrected distance checks and serialization methods to match vanilla C++ bindings.
 - **Fixed**: Added systematic strict validation checks (`if not arg then return end`) across 13 core Vault APIs for maximum stability.
 - **Fixed:** `cosmicdot.lua` `inflictDamage` signature error which passed a float as the damage source enum.
 - **Fixed:** `cosmicvaultloot.lua` passed a raw table instead of a `TradingGood` object to `dropCargo`, preventing custom loot drops from functioning properly.

@@ -58,7 +58,7 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
         if factionVal then
             local faction = Faction(factionVal)
             if faction then
-                player:changeRelations(faction.index, reputationReward)
+                Galaxy():changeFactionRelations(Faction(player.index), Faction(faction.index), reputationReward)
             end
         end
     end

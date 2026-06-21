@@ -60,7 +60,7 @@ function CosmicVaultArsenal.GenerateTurret(config)
     turret.crew = ArmedObject.getEstimatedCrew(turret)
     
     -- Re-evaluate to lock in stats
-    turret:updateStaticAttributes()
+    -- turret:updateStaticAttributes() -- Removed: Hallucinated method
 
     return turret
 end

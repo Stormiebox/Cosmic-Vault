@@ -78,10 +78,10 @@ function CCM.bind(namespace)
         end
         
         if onClient() then
-            local player = Player()
-            if player then
+            local server = Server()
+            if server then
                 local dbKey = "ccm_" .. namespace .. "_" .. key
-                local val = player:getValue(dbKey)
+                local val = server:getValue(dbKey)
                 if val ~= nil then
                     return val
                 end
@@ -110,7 +110,7 @@ function CCM.bind(namespace)
         if c.scancode <= 0 then return false end
         local kb = Keyboard()
         if not modifiersMatch(c, kb, mode) then return false end
-        return kb:keyDown(c.scancode)
+        return kb:keyPressed(c.scancode)
     end
 
     function binding.isKeyComboHeld(key, mode)
@@ -121,7 +121,7 @@ function CCM.bind(namespace)
         if c.scancode <= 0 then return false end
         local kb = Keyboard()
         if not modifiersMatch(c, kb, mode) then return false end
-        return kb:keyPressed(c.scancode)
+        return kb:keyDown(c.scancode)
     end
 
     bindings[namespace] = binding

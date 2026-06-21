@@ -33,14 +33,14 @@ end
 -- Hook into Avorion's native stat calculation engine
 function onBaseMultiplierCalculated(entity, statModifier)
     if targetStat == "Velocity" then
-        statModifier:modifyBaseMultiplier(StatsBonuses.Velocity, statMultiplier)
+        statModifier:addBaseMultiplier(StatsBonuses.Velocity, statMultiplier)
     elseif targetStat == "Shield" then
-        statModifier:modifyBaseMultiplier(StatsBonuses.ShieldDurability, statMultiplier)
+        statModifier:addBaseMultiplier(StatsBonuses.ShieldDurability, statMultiplier)
     elseif targetStat == "Damage" then
-        statModifier:modifyBaseMultiplier(StatsBonuses.ArmedTurrets, statMultiplier) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
+        statModifier:addBaseMultiplier(StatsBonuses.ArmedTurrets, statMultiplier) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
     elseif targetStat == "Acceleration" then
-        statModifier:modifyBaseMultiplier(StatsBonuses.Acceleration, statMultiplier)
+        statModifier:addBaseMultiplier(StatsBonuses.Acceleration, statMultiplier)
     elseif targetStat == "HyperspaceCooldown" then
-        statModifier:modifyBaseMultiplier(StatsBonuses.HyperspaceCooldown, statMultiplier)
+        statModifier:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, statMultiplier)
     end
 end

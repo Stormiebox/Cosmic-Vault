@@ -29,7 +29,7 @@ function CosmicVaultBuffs.applyPermanentFactor(entityId, statName, factor)
     local entity = Entity(entityId)
     if not entity then return end
     
-    entity:addMultiplyableFactor(statName, factor)
+    entity:addMultiplyableBias(statName, factor)
 end
 
 --- Removes all active Cosmic Buffs natively from an entity

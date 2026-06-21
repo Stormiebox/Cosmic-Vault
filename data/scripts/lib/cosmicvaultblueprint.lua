@@ -18,7 +18,7 @@ function CosmicVaultBlueprint.spawnShip(factionId, xmlPlan, matrix, volume)
     if not faction then return end
     
     local plan = BlockPlan()
-    local success = pcall(function() plan:fromString(xmlPlan) end)
+    local success = pcall(function() LoadPlanFromString(xmlPlan) end)
     if not success or plan.numBlocks == 0 then
         -- Try loading as a file path if string parsing failed or was empty
         pcall(function() plan = LoadPlanFromFile(xmlPlan) end)
@@ -58,7 +58,7 @@ function CosmicVaultBlueprint.spawnStation(factionId, xmlPlan, matrix, stationTy
     if not faction then return end
     
     local plan = BlockPlan()
-    local success = pcall(function() plan:fromString(xmlPlan) end)
+    local success = pcall(function() LoadPlanFromString(xmlPlan) end)
     if not success or plan.numBlocks == 0 then
         pcall(function() plan = LoadPlanFromFile(xmlPlan) end)
     end
@@ -88,7 +88,7 @@ end
 -- @return InventoryTurret The generated custom turret item
 function CosmicVaultBlueprint.createTurretFromPlan(xmlPlan, weaponType, rarity, material)
     local plan = BlockPlan()
-    local success = pcall(function() plan:fromString(xmlPlan) end)
+    local success = pcall(function() LoadPlanFromString(xmlPlan) end)
     if not success or plan.numBlocks == 0 then return nil end
     
     local turret = InventoryTurret()
