@@ -15,26 +15,32 @@ function CosmicVaultTerritoryServer.updateServer(timeStep)
     end
 end
 
+function CosmicVaultTerritoryServer.initialize()
+    if onServer() then
+        Server():registerCallback("onPlayerLogIn", "onPlayerLogIn")
+    end
+end
+
+function CosmicVaultTerritoryServer.onPlayerLogIn(playerIndex)
+    local player = Player(playerIndex)
+    if player then
+        player:addScriptOnce("data/scripts/player/cv_territory_injector_persistent.lua")
+    end
+end
+
 -- This function is called by the API when a sector is briefly loaded to flip its stations
 function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
-    local sector = Sector()
-    local cx, cy = sector:getCoordinates()
+    -- Queue the territory flip for the next time a player enters the sector
+    local pending = Server():getValue("CosmicVault_PendingFlips") or {}
+    local key = x .. "_" .. y
+    pending[key] = newFactionIndex
+    Server():setValue("CosmicVault_PendingFlips", pending)
 
-    if cx ~= x or cy ~= y then return end -- Failsafe
-
-    local stations = {sector:getEntitiesByType(EntityType.Station)}
-    for _, station in pairs(stations) do
-        -- Only flip stations that are owned by AI factions
-        local currentFaction = Faction(station.factionIndex)
-        if currentFaction and currentFaction.isAIFaction then
-            station.factionIndex = newFactionIndex
-        end
-    end
     local sectorName = "\\s(" .. x .. ":" .. y .. ")"
     local factionName = Faction(newFactionIndex) and Faction(newFactionIndex).name or "an Unknown Faction"
-
-    print("[Cosmic Vault] Flipped stations in " .. x .. ":" .. y .. " to faction " .. tostring(newFactionIndex))
-
+    
+    print("[Cosmic Vault] Queued territory flip in " .. x .. ":" .. y .. " to faction " .. tostring(newFactionIndex))
+    
     local CosmicVaultNews = include("cosmicvaultnews")
     if CosmicVaultNews and CosmicVaultNews.publishArticle then
         CosmicVaultNews.publishArticle({
@@ -46,6 +52,12 @@ function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
 end
 
 
+function initialize(...)
+    if CosmicVaultTerritoryServer.initialize then return CosmicVaultTerritoryServer.initialize(...) end
+end
+function onPlayerLogIn(...)
+    if CosmicVaultTerritoryServer.onPlayerLogIn then return CosmicVaultTerritoryServer.onPlayerLogIn(...) end
+end
 function getUpdateInterval(...)
     if CosmicVaultTerritoryServer.getUpdateInterval then return CosmicVaultTerritoryServer.getUpdateInterval(...) end
 end

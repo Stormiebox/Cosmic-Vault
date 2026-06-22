@@ -244,6 +244,10 @@ CosmicVaultDialogue.showNode(Player(), "Welcome to the Forge. What do you requir
 
 ### 🗺️ 23. Territory API (`cosmicvaultterritory.lua`)
 Safely manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap. Includes native bindings to `CosmicVaultNews` and functions for background faction generation.
+
+> [!NOTE]
+> **Station Flip Queue:** Due to engine limits in Avorion 2.0+, stations in unloaded offline sectors cannot be physically flipped. The Territory API safely bypasses this by placing territory conquests into a global deferred queue. The actual station ownership transfer executes instantaneously the next time any player loads into that sector natively.
+
 ```lua
 local CosmicVaultTerritory = include("cosmicvaultterritory")
 
