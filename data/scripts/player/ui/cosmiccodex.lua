@@ -26,6 +26,7 @@ self.textRectOriginal = nil
 self.fullTextRect = nil
 
 function CosmicCodex.initialize()
+    Player():registerCallback("onPostRenderHud", "onPostRenderHud")
     self.tab = PlayerWindow():createTab("Cosmic Codex"%_t, "data/textures/icons/CosmicCodexTab.png", "Cosmic Codex"%_t)
     self.tab.onShowFunction = "onShow"
 
