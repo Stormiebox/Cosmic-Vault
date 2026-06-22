@@ -42,6 +42,25 @@ function CosmicConfigMenu.initialize()
     self.applyBtn = self.tab:createButton(bottomSplit.bottom, "Apply Changes"%_t, "onApplyPressed")
     self.applyBtn.active = false
 
+    -- Load configuration registries silently
+    pcall(include, "cosmicoverhaulconfig")
+    pcall(include, "cosmicwarconfig")
+    pcall(include, "cosmicvaultconfig")
+    pcall(include, "cosmicascendancyconfig")
+
+    -- Request initial sync for keybindings and cached settings
+    local keysToRequest = {}
+    for namespace, reg in pairs(ccm.getAllRegistries()) do
+        if reg.pages then
+            for _, page in ipairs(reg.pages) do
+                for _, opt in ipairs(page.options) do
+                    table.insert(keysToRequest, {namespace = namespace, key = opt.key})
+                end
+            end
+        end
+    end
+    invokeServerFunction("requestCCMSync", keysToRequest)
+
     Player():registerCallback("onPostRenderHud", "onPostRenderHud")
     Player():registerCallback("onGalaxyMapUpdate", "onGalaxyMapUpdate")
 end
@@ -78,10 +97,10 @@ function CosmicConfigMenu.fillTree()
     self.tree:clear()
     self.elements = {}
 
-    include("cosmicoverhaulconfig")
-    include("cosmicwarconfig")
-    include("cosmicvaultconfig")
-    include("cosmicascendancyconfig")
+    pcall(include, "cosmicoverhaulconfig")
+    pcall(include, "cosmicwarconfig")
+    pcall(include, "cosmicvaultconfig")
+    pcall(include, "cosmicascendancyconfig")
 
     local registries = ccm.getAllRegistries()
 
@@ -238,7 +257,7 @@ function CosmicConfigMenu.onApplyPressed()
     invokeServerFunction("syncCCMSettings", settingsBatch)
 
     self.applyBtn.active = false
-    Player():sendChatMessage("Cosmic Config"%_t, 3, "Settings applied successfully."%_t)
+    displayChatMessage("Settings applied successfully."%_t, "Cosmic Config"%_t, 3)
 end
 
 -- Keybind capture logic
@@ -386,8 +405,7 @@ function CosmicConfigMenu.syncCCMSettings(settingsBatch)
         p:sendChatMessage("Server", 1, "You must be a Server Administrator to modify Cosmic Config values."%_t)
     end
 end
-_G.syncCCMSettings = CosmicConfigMenu.syncCCMSettings
-callable(nil, "syncCCMSettings")
+callable(CosmicConfigMenu, "syncCCMSettings")
 
 function CosmicConfigMenu.requestCCMSync(keys)
     local s = Server()
@@ -402,8 +420,7 @@ function CosmicConfigMenu.requestCCMSync(keys)
     end
     invokeClientFunction(Player(callingPlayer), "receiveCCMSync", data)
 end
-_G.requestCCMSync = CosmicConfigMenu.requestCCMSync
-callable(nil, "requestCCMSync")
+callable(CosmicConfigMenu, "requestCCMSync")
 
 
 function initialize(...)

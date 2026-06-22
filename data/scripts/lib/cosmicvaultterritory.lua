@@ -1,5 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
+include("stringutility")
+
 local CosmicVaultTerritory = {}
 
 -- This API handles background sieges and contested zones for Cosmic War and other expansions.
@@ -7,15 +9,43 @@ local CosmicVaultTerritory = {}
 
 if onServer() then
 
+    local function serializeZones(zones)
+        local parts = {}
+        for key, zone in pairs(zones) do
+            table.insert(parts, key .. "=" .. zone.x .. "," .. zone.y .. "," .. tostring(zone.invader) .. "," .. tostring(zone.defender) .. "," .. tostring(zone.endTime))
+        end
+        return table.concat(parts, ";")
+    end
+
+    local function deserializeZones(str)
+        local zones = {}
+        if type(str) ~= "string" or str == "" then return zones end
+        local fragments = str:split(";")
+        for _, part in ipairs(fragments) do
+            local kv = part:split("=")
+            if #kv == 2 then
+                local key = kv[1]
+                local vals = kv[2]:split(",")
+                if #vals >= 5 then
+                    zones[key] = {
+                        x = tonumber(vals[1]),
+                        y = tonumber(vals[2]),
+                        invader = tonumber(vals[3]) or vals[3],
+                        defender = tonumber(vals[4]) or vals[4],
+                        endTime = tonumber(vals[5])
+                    }
+                end
+            end
+        end
+        return zones
+    end
+
 --- Gets all active contested zones
 -- @return (table) Contested zones list
     function CosmicVaultTerritory.getContestedZones()
         local server = Server()
-        local zones = server:getValue("CosmicVault_ContestedZones")
-        if not zones then
-            zones = {}
-            server:setValue("CosmicVault_ContestedZones", zones)
-        end
+        local zonesStr = server:getValue("CosmicVault_ContestedZones")
+        local zones = deserializeZones(zonesStr)
         return zones
     end
 
@@ -37,7 +67,7 @@ if onServer() then
             endTime = Server().unpausedRuntime + (durationMinutes * 60)
         }
 
-        Server():setValue("CosmicVault_ContestedZones", zones)
+        Server():setValue("CosmicVault_ContestedZones", serializeZones(zones))
         print("[Cosmic Vault] Sector " .. x .. ":" .. y .. " is now Contested!")
     end
 
@@ -52,7 +82,7 @@ if onServer() then
 
         if zones[key] then
             zones[key] = nil
-            Server():setValue("CosmicVault_ContestedZones", zones)
+            Server():setValue("CosmicVault_ContestedZones", serializeZones(zones))
         end
 
         -- Briefly load the sector to flip the stations, permanently changing the Galaxy Map borders.
@@ -93,7 +123,7 @@ if onServer() then
 
         if changed then
             -- Note: Server():setValue is automatically saved, but calling it forces a sync if necessary.
-            Server():setValue("CosmicVault_ContestedZones", zones)
+            Server():setValue("CosmicVault_ContestedZones", serializeZones(zones))
         end
     end
 
