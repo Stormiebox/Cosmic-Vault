@@ -8,7 +8,7 @@ CosmicVaultArsenal = CosmicVaultArsenal or {}
 
 --[[
     Cosmic Vault Arsenal API
-    Provides mathematical generators to spit out properly balanced, custom Weapon/InventoryTurret 
+    Provides mathematical generators to spit out properly balanced, custom Weapon/InventoryTurret
     objects dynamically for loot drops, custom enemies, or missions.
 ]]
 
@@ -34,7 +34,7 @@ function CosmicVaultArsenal.GenerateTurret(config)
             slots = 2
         }
     ]]
-    
+
     local turret = InventoryTurret()
     turret.rarity = config.rarity or Rarity(RarityType.Common)
     turret.material = config.material or Material(MaterialType.Iron)
@@ -49,7 +49,7 @@ function CosmicVaultArsenal.GenerateTurret(config)
     weapon.reach = config.range or 5000
     weapon.accuracy = config.accuracy or 0.9
     weapon.pcolor = config.color or ColorRGB(1,1,1)
-    
+
     if config.energyIncrease and config.energyIncrease > 0 then
         weapon.energyIncreasePerSecond = config.energyIncrease
     end
@@ -58,9 +58,9 @@ function CosmicVaultArsenal.GenerateTurret(config)
     turret:addWeapon(weapon)
 
     turret.crew = ArmedObject.getEstimatedCrew(turret)
-    
+
     -- Re-evaluate to lock in stats
-    -- turret:updateStaticAttributes() -- Removed: Hallucinated method
+    -- turret:updateStaticAttributes() -- Removed: improperly used method
 
     return turret
 end
