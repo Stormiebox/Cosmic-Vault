@@ -41,7 +41,7 @@ function CosmicVaultBuffs.clearBuffs(entityId)
     if not entity then return end
     
     -- Natively remove the script from the entity block
-    while entity:hasScript("data/scripts/entity/cosmicbuff.lua") do
+    if entity:hasScript("data/scripts/entity/cosmicbuff.lua") then
         entity:removeScript("data/scripts/entity/cosmicbuff.lua")
     end
 end

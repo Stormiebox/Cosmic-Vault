@@ -9,8 +9,8 @@ function initialize(weatherType)
     if onServer() then
         -- Force a stat recalculation on initialize
         local entity = Entity()
-        entity:addMultiplyableBias(StatsBonuses.RadarReach, 0)
-        entity:removeMultiplyableBias(StatsBonuses.RadarReach)
+        local _k = entity:addMultiplyableBias(StatsBonuses.RadarReach, 0)
+        entity:removeBonus(_k)
     end
 end
 
@@ -46,6 +46,6 @@ function restore(data)
     cv_debuff_type = data.type
     -- Force stat recalculation on restore
     local entity = Entity()
-    entity:addMultiplyableBias(StatsBonuses.RadarReach, 0)
-    entity:removeMultiplyableBias(StatsBonuses.RadarReach)
+    local _k = entity:addMultiplyableBias(StatsBonuses.RadarReach, 0)
+    entity:removeBonus(_k)
 end

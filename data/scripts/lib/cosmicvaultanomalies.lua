@@ -16,7 +16,7 @@ function CosmicVaultAnomalies.spawnAnomaly(x, y, anomalyType, position)
     end
     
     local generator = SectorGenerator(x, y)
-    position = position or generator:createPositionInSector(10000)
+    position = position or generator:getPositionInSector(10000)
     
     local entity
     if anomalyType == "PrecursorWreck" then

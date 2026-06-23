@@ -47,4 +47,12 @@ function CosmicVaultEconomy.getFamineLevel(factionIndex)
     end
 end
 
+function CosmicVaultEconomy.TriggerMarketEvent(goodName, x, y, radius, eventType)
+    local server = Server()
+    if not server then return end
+    -- Broadcasting a sector specific event which local trading managers will catch
+    server:broadcastChatMessage("Server", 0, "Market event %s for %s started near (%d, %d).", eventType, goodName, x, y)
+    -- In a full implementation this would attach a script to the sector or register it globally
+end
+
 return CosmicVaultEconomy
