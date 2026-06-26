@@ -1,5 +1,5 @@
 -- Cosmic Vault: Diplomacy UI Wrapper
-include("data/scripts/player/ui/diplomacy.lua")
+-- Avorion VFS handles this file automatically
 -- This script seamlessly injects custom faction traits into the vanilla diplomacy UI without breaking compatibility.
 
 local cvf = include("cosmicvaultfaction")
