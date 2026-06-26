@@ -1,7 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include("cosmicvaultframework")
-local ArmedObject = include("armedobject")
 
 -- namespace CosmicVaultArsenal
 CosmicVaultArsenal = CosmicVaultArsenal or {}
@@ -57,7 +56,7 @@ function CosmicVaultArsenal.GenerateTurret(config)
     turret:clearWeapons()
     turret:addWeapon(weapon)
 
-    turret.crew = ArmedObject.getEstimatedCrew(turret)
+    turret.crew = math.floor(turret.slots * 1.5)
 
     -- Re-evaluate to lock in stats
     -- turret:updateStaticAttributes() -- Removed: improperly used method

@@ -71,6 +71,20 @@ if onServer() then
         print("[Cosmic Vault] Sector " .. x .. ":" .. y .. " is now Contested!")
     end
 
+--- Removes a contested zone from the tracking table without resolving a victor
+-- @param x (number) X coordinate
+-- @param y (number) Y coordinate
+    function CosmicVaultTerritory.removeContestedZone(x, y)
+        if not x or not y then return end
+        local zones = CosmicVaultTerritory.getContestedZones()
+        local key = x .. "_" .. y
+
+        if zones[key] then
+            zones[key] = nil
+            Server():setValue("CosmicVault_ContestedZones", serializeZones(zones))
+        end
+    end
+
 --- Resolves a siege outcome
 -- @param x (number) X coordinate
 -- @param y (number) Y coordinate
@@ -90,13 +104,10 @@ if onServer() then
         local galaxy = Galaxy()
         galaxy:loadSector(x, y)
 
-        local currentSector = Sector()
-        if currentSector then
-            local cx, cy = currentSector:getCoordinates()
-            if cx == x and cy == y then
-                for _, player in pairs({currentSector:getPlayers()}) do
-                    player:invokeFunction("cw_battlefieldhud.lua", "triggerSiegeSuccess")
-                end
+        for _, player in pairs({Server():getOnlinePlayers()}) do
+            local px, py = player:getSectorCoordinates()
+            if px == x and py == y then
+                player:invokeFunction("cw_battlefieldhud.lua", "triggerSiegeSuccess")
             end
         end
 
