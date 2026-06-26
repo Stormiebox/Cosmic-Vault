@@ -1,4 +1,4 @@
-include("data/scripts/player/init.lua")
+
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 if onServer() then

@@ -1,4 +1,4 @@
-include("data/scripts/galaxy/server.lua")
+
 local CosmicVault_old_init = initialize
 
 function initialize(...)
