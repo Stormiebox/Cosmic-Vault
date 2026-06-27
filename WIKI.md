@@ -36,6 +36,9 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultbuffs.lua`: Safely inject temporary stat modifiers (Speed, Shields, Damage) directly onto ships via tiny, self-terminating scripts. Also allows persistent tracking of global faction-wide buff tiers across the galaxy.
 - `cosmicvaultterritory.lua`: Native background mathematical border shifting and background physical station generation for native, dynamic AI faction expansion.
 - `cosmicvaultcombat.lua`: Exposes `applyDoT` and native logic to render floating combat text for DOTs dynamically.
+- `cosmicvaultscaling.lua`: Dynamic native OM/Volume math for spawning accurately scaled invasion fleets matching defender strength.
+- `cosmicvaultanomalies.lua`: Seamless API to inject persistent, interactive points-of-interest (POIs) natively into sectors.
+- `cosmicvaultweather.lua`: Global Subspace Weather API allowing mods to natively trigger or clear localized environmental hazards (EMP storms, radiation, etc) combined with seamless UI integration.
 
 **Why it matters:**
 Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.

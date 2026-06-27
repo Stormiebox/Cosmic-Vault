@@ -41,8 +41,8 @@ Welcome to the **Cosmic Vault API Guide**! This document provides technical inst
 Provides a robust, fail-safe wrapper around Avorion's `Player():setValue()` system, replacing direct `.json` file I/O which is highly prone to server locks.
 ```lua
 local PlayerSettings = include("cosmicvaultplayersettings")
-PlayerSettings.saveSetting("MyMod_FeatureEnabled", true)
-local isEnabled = PlayerSettings.getSetting("MyMod_FeatureEnabled", true)
+PlayerSettings.set(Player(), "MyMod", "FeatureEnabled", true)
+local isEnabled = PlayerSettings.get(Player(), "MyMod", "FeatureEnabled", true)
 ```
 
 ### 📰 2. Galactic News API (`cosmicvaultnews.lua`)
@@ -154,44 +154,43 @@ local CosmicVaultScaling = include("cosmicvaultscaling")
 local stats = CosmicVaultScaling.calculateSectorDefenderStrength(enemyFactionIndex)
 local params = CosmicVaultScaling.calculateInvaderSpawnParams(stats, baseShipVolume, 1.0) -- Scale to 100% of defenders
 ```
-```
 
-### 📈 11. Progression API (`cosmicvaultprogression.lua`)
+### 📈 12. Progression API (`cosmicvaultprogression.lua`)
 Wraps native custom XP, skills, and perks.
 ```lua
 local CosmicVaultProgression = include("cosmicvaultprogression")
 CosmicVaultProgression.addXP(playerIndex, 50, "combat")
 ```
 
-### 🎖️ 12. Fleet Command API (`cosmicvaultfleet.lua`)
+### 🎖️ 13. Fleet Command API (`cosmicvaultfleet.lua`)
 Safe interface to issue vanilla AI orders without rewriting `craftorders.lua`.
 ```lua
 local CosmicVaultFleet = include("cosmicvaultfleet")
 CosmicVaultFleet.orderJump(entityId, 15, -20)
 ```
 
-### 🧬 13. Goods API (`cosmicvaultgoods.lua`)
+### 🧬 14. Goods API (`cosmicvaultgoods.lua`)
 Natively injects custom trade goods.
 ```lua
 local CosmicVaultGoods = include("cosmicvaultgoods")
 CosmicVaultGoods.registerGood({name = "Cosmic Matter", price = 50000, volume = 5.0})
 ```
 
-### 💎 14. Loot API (`cosmicvaultloot.lua`)
+### 💎 15. Loot API (`cosmicvaultloot.lua`)
 Drops custom loot natively.
 ```lua
 local CosmicVaultLoot = include("cosmicvaultloot")
 CosmicVaultLoot.dropCustomLoot(entityId, "good", "Cosmic Matter", 10)
 ```
 
-### 🏗️ 15. Blueprint API (`cosmicvaultblueprint.lua`)
+### 🏗️ 16. Blueprint API (`cosmicvaultblueprint.lua`)
 Spawns custom ships, stations, and turrets natively.
 ```lua
 local CosmicVaultBlueprint = include("cosmicvaultblueprint")
 local ship = CosmicVaultBlueprint.spawnShip(factionId, "data/plans/boss.xml", Matrix(), 5000)
 ```
 
-### 🛰️ 16. Station Interaction API (`cosmicvaultstation.lua`)
+### 🛰️ 17. Station Interaction API (`cosmicvaultstation.lua`)
 Adds safe UI tabs to stations.
 > [!TIP]
 > Define your `initUI()` function **before** calling `CosmicVaultStation.injectInteraction()`.
@@ -200,49 +199,50 @@ local CosmicVaultStation = include("cosmicvaultstation")
 CosmicVaultStation.injectInteraction("Talk to Mercenary", "Mercenary Guild", "onMercClicked")
 ```
 
-### ⏰ 17. Global Events API (`cosmicvaultevents.lua`)
+### ⏰ 18. Global Events API (`cosmicvaultevents.lua`)
 Manages galaxy-wide timers natively.
 ```lua
 local CosmicVaultEvents = include("cosmicvaultevents")
 CosmicVaultEvents.startEvent("xsotan_invasion", 3600)
 ```
 
-### 🛡️ 18. Buffs API (`cosmicvaultbuffs.lua`)
+### 🛡️ 19. Buffs API (`cosmicvaultbuffs.lua`)
 Applies self-terminating buffs and tracks global faction-wide buff tiers.
 ```lua
 local CosmicVaultBuffs = include("cosmicvaultbuffs")
 CosmicVaultBuffs.applyBuff(entityId, "Velocity", 0.5, 30)
 ```
 
-### 🔥 19. Combat & DoTs API (`cosmicvaultcombat.lua`)
-Renders floating combat text and applies Damage-over-Time effects.
+### 🔥 20. Combat & DoTs API (`cosmicvaultcombat.lua`)
+Renders floating combat text and applies Damage-over-Time effects natively.
 ```lua
 local CosmicVaultCombat = include("cosmicvaultcombat")
-CosmicVaultCombat.applyDoT(targetId, sourceId, 500, 10, "Plasma Burn")
+-- applyDoT(entityId, damageType, totalDamage, durationSeconds, sourceId)
+CosmicVaultCombat.applyDoT(targetId, DamageType.Energy, 500, 10, sourceId)
 ```
 
-### 🔧 20. Config API (`cosmicvaultconfig.lua`)
+### 🔧 21. Config API (`cosmicvaultconfig.lua`)
 Handles Server-to-Client mod configuration synchronization to securely prevent client manipulation of server economy rules.
 ```lua
 local CosmicVaultConfig = include("cosmicvaultconfig")
 local isHardMode = CosmicVaultConfig.get("HardMode")
 ```
 
-### 🐛 21. Debug API (`cosmicvaultdebug.lua`)
+### 🐛 22. Debug API (`cosmicvaultdebug.lua`)
 Provides robust trace logging, error catching, and performance metrics.
 ```lua
 local CosmicVaultDebug = include("cosmicvaultdebug")
 CosmicVaultDebug.log("System initialized successfully in 12ms.")
 ```
 
-### 💬 22. Dialogue API (`cosmicvaultdialogue.lua`)
+### 💬 23. Dialogue API (`cosmicvaultdialogue.lua`)
 A wrapper for native NPC conversation branching and callbacks without needing explicit file overrides.
 ```lua
 local CosmicVaultDialogue = include("cosmicvaultdialogue")
 CosmicVaultDialogue.showNode(Player(), "Welcome to the Forge. What do you require?")
 ```
 
-### 🗺️ 23. Territory API (`cosmicvaultterritory.lua`)
+### 🗺️ 24. Territory API (`cosmicvaultterritory.lua`)
 Safely manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap. Includes native bindings to `CosmicVaultNews` and functions for background faction generation.
 
 > [!NOTE]
