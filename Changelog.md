@@ -7,9 +7,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
-## v3.0.0 UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
+## [v3.0.0] UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
-### ✨ Added
+### 🌌 Cosmic Vault Synergy (Cross-Mod Engine)
+- **Deep Economy Warfare:** `CosmicVaultEconomy` can natively trigger `CosmicWarBridge.forceDeclareWar()` when a faction's famine score exceeds 100, forcing starvation-driven invasions.
+- **Faction Trait Scaling Integration:** `CosmicVaultScaling` dynamically reads `Cosmic War` diplomatic traits. If an entrenched (Fortified) faction is invaded, their calculated defensive volume and firepower are globally multiplied by `1.3x`.
+- **Unified News API Framework:** Centralized and fortified `CosmicVaultNews` to securely capture and validate news broadcasts from `Cosmic Chronicles`, `Cosmic War`, and `Cosmic Overhaul`.
+
+### 🚀 Added
 - **Custom Faction Traits API**: Added `cosmicvaultfaction.lua` exposing `registerCustomTrait`, `getTrait`, and `setTrait`. This allows modders to easily inject custom faction traits that render beautifully in the native Avorion diplomacy UI!
 - **Subspace Weather API**: A universal, globally persistent API (`cosmicvaultweather.lua`) allowing any mod to seamlessly generate and clear localized weather hazards.
 - **Weather UI Integration**: Native HUD indicators (`cv_weather_ui.lua`) that dynamically render active debuff icons and severe weather warnings for players inside hazard zones.

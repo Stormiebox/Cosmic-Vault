@@ -306,3 +306,8 @@ return MyCustomLib
 ```
 
 Never append global VM hooks at the bottom of these files!
+
+## 🌌 Cosmic Vault Synergy
+- **Deep Economy Warfare:** The CosmicVaultEconomy API now bridges the economy simulation with the diplomatic war simulation. Factions with extreme Famine Scores can invoke CosmicWarBridge.forceDeclareWar() directly.
+- **Faction Trait Scaling:** The CosmicVaultScaling engine reads Cosmic War traits natively. An entrenched defending faction automatically triggers a 30% bonus in defensive scaling against invaders.
+- **Unified News API:** Centralized and fortified CosmicVaultNews handles global UI validation across all interconnected mods.
