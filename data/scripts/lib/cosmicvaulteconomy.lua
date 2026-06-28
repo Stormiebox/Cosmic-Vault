@@ -3,33 +3,33 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 local CosmicVaultEconomy = {}
 
--- Famine Score logic: 
+-- Famine Score logic:
 -- 0 = Normal, 1-100 = Struggling, >100 = Famine
 
 function CosmicVaultEconomy.addFamineScore(factionIndex, amount)
     local server = Server()
     if not server then return end
-    
+
     local key = "cv_famine_" .. tostring(factionIndex)
     local currentScore = server:getValue(key) or 0
     currentScore = math.max(0, currentScore + amount)
-    
+
     server:setValue(key, currentScore)
-    
+
     return currentScore
 end
 
 function CosmicVaultEconomy.getFamineScore(factionIndex)
     local server = Server()
     if not server then return 0 end
-    
+
     return server:getValue("cv_famine_" .. tostring(factionIndex)) or 0
 end
 
 function CosmicVaultEconomy.setFamineScore(factionIndex, amount)
     local server = Server()
     if not server then return end
-    
+
     local key = "cv_famine_" .. tostring(factionIndex)
     server:setValue(key, math.max(0, amount))
 end
@@ -50,8 +50,8 @@ end
 function CosmicVaultEconomy.TriggerMarketEvent(goodName, x, y, radius, eventType)
     local server = Server()
     if not server then return end
-    -- Broadcasting a sector specific event which local trading managers will catch
-    server:broadcastChatMessage("Server", 0, "Market event %s for %s started near (%d, %d).", eventType, goodName, x, y)
+    
+    server:broadcastChatMessage("Server"%_T, ChatMessageType.Economy, "Market event %s for %s started near (%d, %d)."%_T, eventType, goodName, x, y)
     -- In a full implementation this would attach a script to the sector or register it globally
 end
 
