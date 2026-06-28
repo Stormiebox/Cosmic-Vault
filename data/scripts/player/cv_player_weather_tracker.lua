@@ -26,15 +26,29 @@ function forceSectorCheck()
     local weather = cv_active_weathers[key]
     if weather then
         local sector = Sector()
-        if sector and not sector:hasScript("sector/cv_weather_controller.lua") then
-            -- Calculate remaining duration
-            local remaining = weather.expiry - os.time()
-            if weather.expiry == -1 then
-                remaining = -1
+        if sector then
+            local hasWeather = sector:hasScript("sector/cv_weather_controller.lua")
+            local overwrite = false
+            
+            if hasWeather then
+                -- Verify if the running weather type matches the global tracker
+                local ok, retData = sector:invokeFunction("sector/cv_weather_controller.lua", "secure")
+                if ok == 0 and retData and retData.type ~= weather.type then
+                    sector:removeScript("sector/cv_weather_controller.lua")
+                    overwrite = true
+                end
             end
             
-            if remaining > 0 or remaining == -1 then
-                sector:addScriptOnce("data/scripts/sector/cv_weather_controller.lua", weather.type, remaining)
+            if not hasWeather or overwrite then
+                -- Calculate remaining duration
+                local remaining = weather.expiry - os.time()
+                if weather.expiry == -1 then
+                    remaining = -1
+                end
+                
+                if remaining > 0 or remaining == -1 then
+                    sector:addScriptOnce("data/scripts/sector/cv_weather_controller.lua", weather.type, remaining)
+                end
             end
         end
     end
