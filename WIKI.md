@@ -21,6 +21,7 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaulttask.lua`: Lua Coroutine manager for running heavy operations over multiple server ticks without hanging the server.
 - `cosmicvaultdata.lua`: Natively store complex JSON tables and Entity Tags directly into the Avorion engine via `dkjson`.
 - `cosmicvaultui.lua`: Trigger highly immersive cinematic UI overlays, banners, and sounds on client screens effortlessly.
+- `cosmicvaultnews.lua`: A centralized and validated global news broadcasting API for injecting custom faction and event articles natively into the bulletin systems.
 - `cosmicvaultarsenal.lua`: Mathematical generator for spitting out perfectly balanced custom `Weapon` and `InventoryTurret` drops on the fly.
 - `cosmicvaulteconomy.lua`: Natively read market data, trigger economic Booms and Crashes, and hook custom dynamic price multipliers securely across the entire galaxy.
 - `cosmicvaultencounter.lua`: Inject custom ambushes, anomalies, or boss spawns safely when players enter sectors without touching `sectorspecifics.lua`.

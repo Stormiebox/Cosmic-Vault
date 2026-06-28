@@ -22,7 +22,14 @@ function CosmicVaultEconomy.addFamineScore(factionIndex, amount)
     if currentScore >= 100 then
         local starvingFaction = Faction(factionIndex)
         if starvingFaction then
-            local factions = {Galaxy():getFactions()}
+            local factions = {}
+            local factionStr = server:getValue("factions")
+            if type(factionStr) == "string" and factionStr ~= "" then
+                for id in string.gmatch(factionStr, "([^,]+)") do
+                    local f = Faction(tonumber(id))
+                    if f then table.insert(factions, f) end
+                end
+            end
             local bestTarget = nil
             local bestTargetWealth = -1
             
