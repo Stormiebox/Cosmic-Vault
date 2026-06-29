@@ -71,3 +71,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ## [Latest Synergy Patch]
 - [Feature] Added Famine Relief Anomalies dynamically spawning in starving territories.
 
+
+## [New] Rift DLC Interoperability
+- **Global Rift Escalation:** The Cosmic Vault now tracks global Rift Guardian kills and Depth 50+ successful extractions.
+- **Galaxy-wide Threats:** As the global Escalation Level rises, severe vanilla Xsotan attack swarms have an increased chance to converge on all online players simultaneously.

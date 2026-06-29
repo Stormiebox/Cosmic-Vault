@@ -7,4 +7,5 @@ function initialize(...)
     Galaxy():addScriptOnce("server/cosmicvaultnews_server.lua")
     Galaxy():addScriptOnce("server/cosmicvaultterritory_server.lua")
     Galaxy():addScriptOnce("server/cosmicvaultweather_server.lua")
+    Galaxy():addScriptOnce("server/cosmicvaultriftescalation_server.lua")
 end

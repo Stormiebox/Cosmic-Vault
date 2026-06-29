@@ -464,3 +464,7 @@ Vault can generate interactable permanent POIs like Precursor Wrecks and Spatial
 ## Synergy Update
 - **Famine Relief Anomalies**: Added a mechanic where severely starving factions (100+ Famine Score) can dynamically spawn Famine Relief Caches. Players can interact with them to steal loot or donate it to instantly lower the famine score by 50 and gain 25,000 reputation.
 
+
+## [New] Rift DLC Interoperability
+- **Global Rift Escalation:** The Cosmic Vault now tracks global Rift Guardian kills and Depth 50+ successful extractions.
+- **Galaxy-wide Threats:** As the global Escalation Level rises, severe vanilla Xsotan attack swarms have an increased chance to converge on all online players simultaneously.
