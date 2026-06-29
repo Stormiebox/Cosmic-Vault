@@ -33,6 +33,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Floating Combat Text & DoTs API:** Added `cosmicvaultcombat.lua` exposing `applyDoT` and native logic to render floating combat text for DOTs dynamically.
 - **Permanent Buffs API:** Added `applyPermanentFactor` to `cosmicvaultbuffs.lua` to dynamically scale boss shields/damage directly via script natively.
 - **Global Ascendancy Tier API:** Added `getGlobalTier` and `setGlobalTier` to `cosmicvaultbuffs.lua` to allow cross-sector tracking of global faction buffs (used heavily by Cosmic Ascendancy).
+- **Scaling Sanity Check:** Added a hard cap to `cosmicvaultscaling.lua` to prevent defensive volume scaling from exceeding 500 million (which mathematically crashed Avorion's shipyard generation).
+- **Salvage Buff Mapping:** Injected native support for `HiddenSectorSalvageYield` into `cosmicbuff.lua`.
 
 ### 🛠️ Improved & Upgraded
 - **Improved**: Added comprehensive auto-generated docstrings for all API functions.

@@ -42,5 +42,7 @@ function onBaseMultiplierCalculated(entity, statModifier)
         statModifier:addBaseMultiplier(StatsBonuses.Acceleration, statMultiplier)
     elseif targetStat == "HyperspaceCooldown" then
         statModifier:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, statMultiplier)
+    elseif targetStat == "SalvageYield" then
+        statModifier:addBaseMultiplier(StatsBonuses.HiddenSectorSalvageYield, statMultiplier)
     end
 end

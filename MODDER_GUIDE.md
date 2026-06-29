@@ -207,10 +207,11 @@ CosmicVaultEvents.startEvent("xsotan_invasion", 3600)
 ```
 
 ### 🛡️ 19. Buffs API (`cosmicvaultbuffs.lua`)
-Applies self-terminating buffs and tracks global faction-wide buff tiers.
+Applies self-terminating buffs and tracks global faction-wide buff tiers. Supported native mappings include: `Velocity`, `Shield`, `Damage`, `Acceleration`, `HyperspaceCooldown`, and `SalvageYield`.
 ```lua
 local CosmicVaultBuffs = include("cosmicvaultbuffs")
 CosmicVaultBuffs.applyBuff(entityId, "Velocity", 0.5, 30)
+CosmicVaultBuffs.applyBuff(entityId, "SalvageYield", 1.20, 60)
 ```
 
 ### 🔥 20. Combat & DoTs API (`cosmicvaultcombat.lua`)
