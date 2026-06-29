@@ -53,6 +53,11 @@ function CosmicVaultScaling.calculateSectorDefenderStrength(invaderFactionIndex)
             totalFirePower = totalFirePower * 1.3
         end
     end
+    
+    -- Prevent infinite deathball scaling that crashes the server
+    if totalVolume > 500000000 then
+        totalVolume = 500000000
+    end
 
     return {
         volume = totalVolume,
