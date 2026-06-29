@@ -67,3 +67,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Removed `pcall` soft-dependencies. Core 5 mods are now hard requirements for each other.
 - Adjusted `DarkMatterFog` debuff to ignore Eclipse ships.
 - **Invalid API Sweeps**: Scrubbed `StatsBonuses.ShieldCapacity` from `cosmicbuff.lua` and replaced it with the native engine `StatsBonuses.ShieldDurability`.
+
+## [Latest Synergy Patch]
+- [Feature] Added Famine Relief Anomalies dynamically spawning in starving territories.
+

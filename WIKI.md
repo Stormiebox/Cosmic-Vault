@@ -460,3 +460,7 @@ Cosmic Vault now tracks faction 'Famine Scores'. If factions lose territory, the
 
 ## Sector Anomalies
 Vault can generate interactable permanent POIs like Precursor Wrecks and Spatial Rifts.
+
+## Synergy Update
+- **Famine Relief Anomalies**: Added a mechanic where severely starving factions (100+ Famine Score) can dynamically spawn Famine Relief Caches. Players can interact with them to steal loot or donate it to instantly lower the famine score by 50 and gain 25,000 reputation.
+

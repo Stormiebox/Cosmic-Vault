@@ -43,6 +43,30 @@ end
 
 function EconomyUpdater.updateServer(timeStep)
     self.refresh()
+
+    -- Cosmic Chronicles/Vault: Vault Economy + Chronicles (Famine Relief Anomalies)
+    local sector = Sector()
+    local x, y = sector:getCoordinates()
+    local factionIndex = Galaxy():getControllingFaction(x, y)
+
+    if factionIndex then
+        local cve = include("cosmicvaulteconomy")
+        if cve and cve.getFamineScore then
+            local score = cve.getFamineScore(factionIndex)
+            if score >= 100 then
+                -- 1% chance to spawn a Famine Relief Cache in a starving sector
+                if random():test(0.01) then
+                    local generator = SectorGenerator(x, y)
+                    local beacon = generator:createBeacon(generator:getPositionInSector(), Faction(factionIndex), "EMERGENCY RELIEF CACHE")
+                    if beacon then
+                        beacon.title = "Famine Relief Cache"
+                        beacon:addScriptOnce("entity/cc_blackbox.lua")
+                        beacon:setValue("is_famine_relief", factionIndex)
+                    end
+                end
+            end
+        end
+    end
 end
 
 function EconomyUpdater.onEntityCreated(id)
