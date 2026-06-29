@@ -72,18 +72,23 @@ function CosmicVaultEconomy.addFamineScore(factionIndex, amount)
 end
 
 function CosmicVaultEconomy.getFamineScore(factionIndex)
-    local server = Server()
-    if not server then return 0 end
-
-    return server:getValue("cv_famine_" .. tostring(factionIndex)) or 0
+    if type(Server) == "function" then
+        local server = Server()
+        if server then
+            return server:getValue("cv_famine_" .. tostring(factionIndex)) or 0
+        end
+    end
+    return 0
 end
 
 function CosmicVaultEconomy.setFamineScore(factionIndex, amount)
-    local server = Server()
-    if not server then return end
-
-    local key = "cv_famine_" .. tostring(factionIndex)
-    server:setValue(key, math.max(0, amount))
+    if type(Server) == "function" then
+        local server = Server()
+        if server then
+            local key = "cv_famine_" .. tostring(factionIndex)
+            server:setValue(key, math.max(0, amount))
+        end
+    end
 end
 
 function CosmicVaultEconomy.getFamineLevel(factionIndex)
