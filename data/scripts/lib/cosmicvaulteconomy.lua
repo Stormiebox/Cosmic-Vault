@@ -9,6 +9,7 @@ local CosmicVaultEconomy = {}
 -- 0 = Normal, 1-100 = Struggling, >100 = Famine
 
 function CosmicVaultEconomy.addFamineScore(factionIndex, amount)
+    if not onServer() then return end
     local server = Server()
     if not server then return end
 
@@ -105,6 +106,7 @@ function CosmicVaultEconomy.getFamineLevel(factionIndex)
 end
 
 function CosmicVaultEconomy.TriggerMarketEvent(goodName, x, y, radius, eventType)
+    if not onServer() then return end
     local server = Server()
     if not server then return end
     

@@ -28,15 +28,7 @@ function onBaseMultiplierCalculated(entity, statModifier)
     end
 end
 
-function getUpdateInterval() return 5.0 end
 
-function updateServer(timeStep)
-    local sector = Sector()
-    -- Self-remove if the sector no longer has weather
-    if sector and not sector:hasScript("sector/cv_weather_controller.lua") then
-        terminate()
-    end
-end
 
 function secure()
     return { type = cv_debuff_type }
@@ -44,6 +36,14 @@ end
 
 function restore(data)
     cv_debuff_type = data.type
+    
+    if onServer() then
+        if not Sector():hasScript("sector/cv_weather_controller.lua") then
+            terminate()
+            return
+        end
+    end
+    
     -- Force stat recalculation on restore
     local entity = Entity()
     local _k = entity:addMultiplyableBias(StatsBonuses.RadarReach, 0)

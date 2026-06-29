@@ -12,6 +12,7 @@ function initialize(stormType, duration)
     
     if onServer() then
         Sector():registerCallback("onEntityEntered", "onEntityEntered")
+        Sector():registerCallback("onEntityLeft", "onEntityLeft")
         -- Initial sweep
         for _, entity in pairs({Sector():getEntitiesByType(EntityType.Ship)}) do
             onEntityEntered(entity.index)
@@ -45,6 +46,7 @@ function updateServer(timeStep)
     if cv_weather_type == "SolarFlare" then
         local entities = {Sector():getEntitiesByType(EntityType.Ship)}
         for _, entity in pairs(entities) do
+            if not valid(entity) then goto continue end
             local faction = Faction(entity.factionIndex)
             if faction and not faction.isPlayer and not faction.isAlliance then
                 if faction.name == "The Eclipse" or faction:getValue("is_eclipse") then
@@ -83,9 +85,23 @@ function onEntityEntered(id)
     end
 end
 
+function onEntityLeft(id)
+    local entity = Entity(id)
+    if not valid(entity) or not entity.isShip then return end
+    
+    if entity:hasScript("entity/cv_weather_debuff.lua") then
+        entity:removeScript("entity/cv_weather_debuff.lua")
+    end
+end
+
 function onRemove()
     if onClient() then
         Player():removeScript("player/ui/cv_weather_ui.lua")
+    end
+    if onServer() then
+        for _, entity in pairs({Sector():getEntitiesByType(EntityType.Ship)}) do
+            entity:removeScript("entity/cv_weather_debuff.lua")
+        end
     end
 end
 

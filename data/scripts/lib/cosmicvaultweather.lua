@@ -8,6 +8,7 @@ local CosmicVaultWeather = {}
 -- cv_weather.triggerStorm(x, y, "IonStorm", 14400) -- 4 hours
 
 function CosmicVaultWeather.triggerStorm(x, y, stormType, duration)
+    if not onServer() then return end
     -- Forward the request to the central server manager
     local server = Server()
     if server then
@@ -16,6 +17,7 @@ function CosmicVaultWeather.triggerStorm(x, y, stormType, duration)
 end
 
 function CosmicVaultWeather.clearStorm(x, y)
+    if not onServer() then return end
     local server = Server()
     if server then
         server:invokeFunction("server/cosmicvaultweather_server.lua", "removeWeather", x, y)
@@ -25,6 +27,7 @@ end
 -- Synchronous check to see if weather exists at a coordinate.
 -- Note: Requires Server context or invokeFunction callback if queried from client.
 function CosmicVaultWeather.getWeatherAt(x, y)
+    if not onServer() then return nil end
     local server = Server()
     if not server then return nil end
     local ok, weather = server:invokeFunction("server/cosmicvaultweather_server.lua", "getWeatherSync", x, y)
