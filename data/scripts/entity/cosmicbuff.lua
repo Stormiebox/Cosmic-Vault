@@ -14,6 +14,7 @@ function initialize(statName, multiplier, durationSeconds)
         statMultiplier = multiplier or 1.0
         duration = durationSeconds or 0
         timeActive = 0
+        applyBuffs()
     end
 end
 
@@ -30,19 +31,35 @@ function updateServer(timeStep)
     end
 end
 
--- Hook into Avorion's native stat calculation engine
-function onBaseMultiplierCalculated(entity, statModifier)
+function applyBuffs()
+    local entity = Entity()
+    entity:removeScriptBonuses()
+    
     if targetStat == "Velocity" then
-        statModifier:addBaseMultiplier(StatsBonuses.Velocity, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.Velocity, statMultiplier)
     elseif targetStat == "Shield" then
-        statModifier:addBaseMultiplier(StatsBonuses.ShieldDurability, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.ShieldDurability, statMultiplier)
     elseif targetStat == "Damage" then
-        statModifier:addBaseMultiplier(StatsBonuses.ArmedTurrets, statMultiplier) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
+        entity:addBaseMultiplier(StatsBonuses.ArmedTurrets, statMultiplier) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
     elseif targetStat == "Acceleration" then
-        statModifier:addBaseMultiplier(StatsBonuses.Acceleration, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.Acceleration, statMultiplier)
     elseif targetStat == "HyperspaceCooldown" then
-        statModifier:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, statMultiplier)
     elseif targetStat == "SalvageYield" then
-        statModifier:addBaseMultiplier(StatsBonuses.HiddenSectorSalvageYield, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.HiddenSectorSalvageYield, statMultiplier)
+    end
+end
+
+function secure()
+    return { targetStat = targetStat, statMultiplier = statMultiplier, duration = duration, timeActive = timeActive }
+end
+
+function restore(data)
+    targetStat = data.targetStat
+    statMultiplier = data.statMultiplier
+    duration = data.duration
+    timeActive = data.timeActive
+    if onServer() then
+        applyBuffs()
     end
 end

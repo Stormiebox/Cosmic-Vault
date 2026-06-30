@@ -5,30 +5,27 @@ local cv_debuff_type = ""
 
 function initialize(weatherType)
     cv_debuff_type = weatherType or ""
-    
     if onServer() then
-        -- Force a stat recalculation on initialize
-        local entity = Entity()
-        local _k = entity:addMultiplyableBias(StatsBonuses.RadarReach, 0)
-        entity:removeBonus(_k)
+        applyDebuffs()
     end
 end
 
-function onBaseMultiplierCalculated(entity, statModifier)
+function applyDebuffs()
+    local entity = Entity()
+    entity:removeScriptBonuses() -- Clear any existing bonuses from this script
+    
     if cv_debuff_type == "IonStorm" then
-        statModifier:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, 10.0) -- 1000% slower cooldown
-        statModifier:addBaseMultiplier(StatsBonuses.HyperspaceReach, 0.0) -- 0 reach
-        statModifier:addBaseMultiplier(StatsBonuses.RadarReach, 0.0) -- Blind radar
+        entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, 10.0) -- 1000% slower cooldown
+        entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, -1.0) -- -100% reach
+        entity:addBaseMultiplier(StatsBonuses.RadarReach, -1.0) -- -100% radar
     elseif cv_debuff_type == "DarkMatterFog" then
         local faction = Faction(entity.factionIndex)
         if not faction or faction.name ~= "The Eclipse" then
-            statModifier:addBaseMultiplier(StatsBonuses.RadarReach, 0.5) -- 50% radar
-            statModifier:addBaseMultiplier(StatsBonuses.HyperspaceReach, 0.5) -- 50% jump
+            entity:addBaseMultiplier(StatsBonuses.RadarReach, -0.5) -- -50% radar
+            entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, -0.5) -- -50% jump
         end
     end
 end
-
-
 
 function secure()
     return { type = cv_debuff_type }
@@ -42,10 +39,6 @@ function restore(data)
             terminate()
             return
         end
+        applyDebuffs()
     end
-    
-    -- Force stat recalculation on restore
-    local entity = Entity()
-    local _k = entity:addMultiplyableBias(StatsBonuses.RadarReach, 0)
-    entity:removeBonus(_k)
 end
