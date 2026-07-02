@@ -612,5 +612,3 @@ function RiftMissionUT.showMissionStarted(brief, arguments)
 
     displayMissionAccomplishedText("NEW RIFT EXPEDITION"%_t, (brief or "")%_t % arguments)
 end
-
-return RiftMissionUT
