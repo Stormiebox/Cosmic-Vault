@@ -23,6 +23,11 @@ function CosmicVaultEconomy.addFamineScore(factionIndex, amount)
     if currentScore >= 100 then
         local starvingFaction = Faction(factionIndex)
         if starvingFaction then
+            -- Cap simultaneous Famine Wars to 1: Do not declare a new war if already fighting one
+            if starvingFaction:getValue("enemy_faction") and starvingFaction:getValue("enemy_faction") > 0 then
+                return currentScore
+            end
+
             local factions = {}
             local factionStr = server:getValue("factions")
             if type(factionStr) == "string" and factionStr ~= "" then
