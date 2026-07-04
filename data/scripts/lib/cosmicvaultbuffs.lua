@@ -8,7 +8,8 @@ CosmicVaultBuffs = {}
 -- @param statName (string) The stat to modify (e.g. "Velocity", "Shield", "Damage")
 -- @param multiplier (number) The multiplier (e.g. 0.5 for half speed, 2.0 for double damage)
 -- @param durationSeconds (int) How long the buff should last
-function CosmicVaultBuffs.applyBuff(entityId, statName, multiplier, durationSeconds)
+-- @param buffId (string) Optional unique ID for early termination
+function CosmicVaultBuffs.applyBuff(entityId, statName, multiplier, durationSeconds, buffId)
     if not onServer() then return end
     
     local entity = Entity(entityId)
@@ -16,7 +17,20 @@ function CosmicVaultBuffs.applyBuff(entityId, statName, multiplier, durationSeco
     
     -- We natively attach the cosmicbuff script to the entity.
     -- The script will self-terminate when the duration expires.
-    entity:addScript("data/scripts/entity/cosmicbuff.lua", statName, multiplier, durationSeconds)
+    entity:addScript("data/scripts/entity/cosmicbuff.lua", statName, multiplier, durationSeconds, buffId or "")
+end
+
+--- Terminates a specific buff early by its unique ID
+-- @param entityId (string|Uuid) The target entity
+-- @param buffId (string) The unique ID of the buff to terminate
+function CosmicVaultBuffs.terminateBuff(entityId, buffId)
+    if not onServer() or not buffId or buffId == "" then return end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    -- Call the terminate function on all cosmicbuff scripts, but only the matching one will terminate
+    entity:invokeFunction("data/scripts/entity/cosmicbuff.lua", "terminateBuffById", buffId)
 end
 
 --- Applies a permanent stat multiplier factor natively to an entity

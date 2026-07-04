@@ -58,6 +58,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Fixed**: Added systematic strict validation checks (`if not arg then return end`) across 13 core Vault APIs for maximum stability.
 - **Fixed:** `cosmicdot.lua` `inflictDamage` signature error which passed a float as the damage source enum.
 - **Fixed:** `cosmicvaultloot.lua` passed a raw table instead of a `TradingGood` object to `dropCargo`, preventing custom loot drops from functioning properly.
+- **Fixed:** XML plan loading bug in `CosmicVaultBlueprint` that prevented certain custom structural blueprints from properly instantiating.
 - **Keybind Reliability:** Fully integrated robust user-defined keybind injection.
 - **Codex Dynamic Resizing:** Fixed a UI layout bug where articles missing images caused overlapping text. The UI rect elements now properly scale dynamically to fill empty space.
 - **Cosmic Config Menu Fix:** Fixed a massive UI bug where clicking a category resulted in a completely blank configuration panel due to Avorion's `Tree:add()` indexing behavior. A custom `treeValues` mapping correctly fetches namespaces.

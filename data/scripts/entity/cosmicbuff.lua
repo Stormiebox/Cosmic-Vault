@@ -4,15 +4,17 @@ local targetStat = ""
 local statMultiplier = 1.0
 local duration = 0
 local timeActive = 0
+local buffId = ""
 
 -- This is a background entity script that dynamically alters stats and deletes itself.
 -- It avoids needing to overwrite the core vanilla ship update loops.
 
-function initialize(statName, multiplier, durationSeconds)
+function initialize(statName, multiplier, durationSeconds, id)
     if onServer() then
         targetStat = statName or ""
         statMultiplier = multiplier or 1.0
         duration = durationSeconds or 0
+        buffId = id or ""
         timeActive = 0
         applyBuffs()
     end
@@ -47,11 +49,23 @@ function applyBuffs()
         entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, statMultiplier)
     elseif targetStat == "SalvageYield" then
         entity:addBaseMultiplier(StatsBonuses.HiddenSectorSalvageYield, statMultiplier)
+    elseif targetStat == "HyperspaceReach" then
+        entity:addMultiplyableBias(StatsBonuses.HyperspaceReach, statMultiplier)
+    elseif targetStat == "ShieldTimeUntilRechargeAfterHit" then
+        entity:addMultiplyableBias(StatsBonuses.ShieldTimeUntilRechargeAfterHit, statMultiplier)
+    elseif targetStat == "FireRate" then
+        entity:addBaseMultiplier(StatsBonuses.FireRate, statMultiplier)
+    end
+end
+
+function terminateBuffById(targetId)
+    if onServer() and buffId == targetId and targetId ~= "" then
+        terminate()
     end
 end
 
 function secure()
-    return { targetStat = targetStat, statMultiplier = statMultiplier, duration = duration, timeActive = timeActive }
+    return { targetStat = targetStat, statMultiplier = statMultiplier, duration = duration, timeActive = timeActive, buffId = buffId }
 end
 
 function restore(data)
@@ -59,6 +73,7 @@ function restore(data)
     statMultiplier = data.statMultiplier
     duration = data.duration
     timeActive = data.timeActive
+    buffId = data.buffId or ""
     if onServer() then
         applyBuffs()
     end
