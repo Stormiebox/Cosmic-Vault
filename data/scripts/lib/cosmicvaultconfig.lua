@@ -19,7 +19,13 @@ if ccm then
             {
                 title = "Debugging & Framework",
                 options = {
-                    { key = "debugEnabled", type = "bool", title = "Enable Debug Logs", description = "Prints Cosmic Vault debug info to console.", default = false },
+                    { key = "debugEnabled", type = "bool", title = "Enable Debug Logs (Master)", description = "Master toggle for all Cosmic mod debug info.", default = true },
+                    { key = "debugWar", type = "bool", title = "Debug: Cosmic War", description = "Print debug logs for Cosmic War.", default = true },
+                    { key = "debugOverhaul", type = "bool", title = "Debug: Cosmic Overhaul", description = "Print debug logs for Cosmic Overhaul.", default = true },
+                    { key = "debugChronicles", type = "bool", title = "Debug: Cosmic Chronicles", description = "Print debug logs for Cosmic Chronicles.", default = true },
+                    { key = "debugAscendancy", type = "bool", title = "Debug: Cosmic Ascendancy", description = "Print debug logs for Cosmic Ascendancy.", default = true },
+                    { key = "debugStarfall", type = "bool", title = "Debug: Cosmic Starfall", description = "Print debug logs for Cosmic Starfall.", default = true },
+                    { key = "debugSymphony", type = "bool", title = "Debug: Cosmic Symphony", description = "Print debug logs for Cosmic Symphony.", default = true },
                     { key = "diagnosticsEnabled", type = "bool", title = "Enable Diagnostics", description = "Runs periodic checks on Vault components.", default = true },
                     { key = "diagnosticsInterval", type = "number", title = "Diagnostics Interval (s)", description = "Time between diagnostic checks.", default = 300, min = 10, max = 3600 },
                     { key = "enableFrameworkStrictMode", type = "bool", title = "Strict Mode", description = "Enables strict bounds checking.", default = true },
@@ -31,7 +37,13 @@ if ccm then
 end
 
 local defaults = {
-    debugEnabled = false,
+    debugEnabled = true,
+    debugWar = true,
+    debugOverhaul = true,
+    debugChronicles = true,
+    debugAscendancy = true,
+    debugStarfall = true,
+    debugSymphony = true,
     debugPrefix = "[Cosmic]",
 
     diagnosticsEnabled = true,
@@ -85,6 +97,12 @@ local function build()
     local out = {}
 
     out.debugEnabled = readBool("debugEnabled", defaults.debugEnabled)
+    out.debugWar = readBool("debugWar", defaults.debugWar)
+    out.debugOverhaul = readBool("debugOverhaul", defaults.debugOverhaul)
+    out.debugChronicles = readBool("debugChronicles", defaults.debugChronicles)
+    out.debugAscendancy = readBool("debugAscendancy", defaults.debugAscendancy)
+    out.debugStarfall = readBool("debugStarfall", defaults.debugStarfall)
+    out.debugSymphony = readBool("debugSymphony", defaults.debugSymphony)
     out.debugPrefix = readString("debugPrefix", defaults.debugPrefix)
 
     out.diagnosticsEnabled = readBool("diagnosticsEnabled", defaults.diagnosticsEnabled)

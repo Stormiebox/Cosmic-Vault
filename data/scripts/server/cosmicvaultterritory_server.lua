@@ -39,7 +39,7 @@ function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
     local sectorName = "\\s(" .. x .. ":" .. y .. ")"
     local factionName = Faction(newFactionIndex) and Faction(newFactionIndex).name or "an Unknown Faction"
     
-    print("[Cosmic Vault] Queued territory flip in " .. x .. ":" .. y .. " to faction " .. tostring(newFactionIndex))
+    include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Queued territory flip in " .. x .. ":" .. y .. " to faction " .. tostring(newFactionIndex))
     
     local CosmicVaultNews = include("cosmicvaultnews")
     if CosmicVaultNews and CosmicVaultNews.publishArticle then

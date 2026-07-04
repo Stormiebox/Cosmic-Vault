@@ -17,14 +17,14 @@
 -- * a number < 1 — will be treated as a relative weight
 -- @treturn table — CosmicUIVerticalProportionalSplitter instance
 -- @usage local splitter = CosmicUIVerticalProportionalSplitter(Rect(0, 0, 600, 30), 10, 0, {0.5, 0.3, 0.45})
--- print(splitter.partitions[1]) -- Rect(0, 0, 232, 30)
--- print(splitter.partitions[2]) -- Rect(242, 0, 381.2, 30)
--- print(splitter.partitions[3]) -- Rect(391.2, 0, 600, 0)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter.partitions[1]) -- Rect(0, 0, 232, 30)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter.partitions[2]) -- Rect(242, 0, 381.2, 30)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter.partitions[3]) -- Rect(391.2, 0, 600, 0)
 -- @usage local splitter = CosmicUIVerticalProportionalSplitter(Rect(0, 0, 700, 30), 10, 5, {0.4, 20, 40, 0.6}) -- values > 1 treated as pixels:
--- print(splitter[1]) -- Rect(5, 5, 245, 25)
--- print(splitter[2]) -- Rect(255, 5, 275, 25)
--- print(splitter[3]) -- Rect(285, 5, 325, 25)
--- print(splitter[4]) -- Rect(335, 5, 695, 25)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter[1]) -- Rect(5, 5, 245, 25)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter[2]) -- Rect(255, 5, 275, 25)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter[3]) -- Rect(285, 5, 325, 25)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter[4]) -- Rect(335, 5, 695, 25)
 function CosmicUIVerticalProportionalSplitter(rect, paddingInside, margin, proportions)
     if type(margin) ~= "table" then
         margin = {margin, margin, margin, margin}
@@ -229,14 +229,14 @@ end
 -- * a number < 1 — will be treated as a relative weight
 -- @treturn table — CosmicUIHorizontalProportionalSplitter instance
 -- @usage local splitter = CosmicUIHorizontalProportionalSplitter(Rect(0, 0, 30, 600), 10, 0, {0.5, 0.3, 0.45})
--- print(splitter.partitions[1]) -- Rect(0, 0, 30, 232)
--- print(splitter.partitions[2]) -- Rect(0, 242, 30, 381.2)
--- print(splitter.partitions[3]) -- Rect(0, 391.2, 0, 600)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter.partitions[1]) -- Rect(0, 0, 30, 232)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter.partitions[2]) -- Rect(0, 242, 30, 381.2)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter.partitions[3]) -- Rect(0, 391.2, 0, 600)
 -- @usage local splitter = CosmicUIHorizontalProportionalSplitter(Rect(0, 0, 700, 30), 10, 5, {0.4, 20, 40, 0.6}) -- values > 1 treated as pixels:
--- print(splitter[1]) -- Rect(5, 5, 25, 245)
--- print(splitter[2]) -- Rect(5, 255, 25, 275)
--- print(splitter[3]) -- Rect(5, 285, 25, 325)
--- print(splitter[4]) -- Rect(5, 335, 25, 695)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter[1]) -- Rect(5, 5, 25, 245)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter[2]) -- Rect(5, 255, 25, 275)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter[3]) -- Rect(5, 285, 25, 325)
+-- include("cosmicvaultdebug").info("Cosmic Vault", splitter[4]) -- Rect(5, 335, 25, 695)
 function CosmicUIHorizontalProportionalSplitter(rect, paddingInside, margin, proportions)
     if type(margin) ~= "table" then
         margin = {margin, margin, margin, margin}

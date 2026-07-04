@@ -24,7 +24,7 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
                             station.factionIndex = newFactionIndex
                         end
                     end
-                    print("[Cosmic Vault] Executed pending territory flip in " .. x .. ":" .. y .. " to faction " .. tostring(newFactionIndex))
+                    include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Executed pending territory flip in " .. x .. ":" .. y .. " to faction " .. tostring(newFactionIndex))
                     
                     -- Remove from pending
                     pending[key] = nil

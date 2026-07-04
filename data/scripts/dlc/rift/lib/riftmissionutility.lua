@@ -123,7 +123,7 @@ local function tryIncreaseTier(oldTier, effectsByTier)
 
     -- check if there are still effects available for the new tier
     if #effectsByTier[newTier] == 0 then
-        eprint("no effects for tier " .. newTier .. " left")
+        include("cosmicvaultdebug").error("Cosmic Vault", "no effects for tier " .. newTier .. " left")
         return false
     end
 
@@ -132,7 +132,7 @@ end
 
 function RiftMissionUT.getEnvironmentalEffects(riftDepth)
     if riftDepth < 1 or riftDepth > 75 then
-        eprint("invalid rift depth given: " .. tostring(riftDepth))
+        include("cosmicvaultdebug").error("Cosmic Vault", "invalid rift depth given: " .. tostring(riftDepth))
         return {}
     end
 

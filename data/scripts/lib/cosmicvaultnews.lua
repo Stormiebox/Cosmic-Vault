@@ -26,6 +26,10 @@ function CosmicVaultNews.publishArticle(article)
     article.title = string.gsub(article.title, "%s*/%*.-%*/%s*", "")
     article.content = string.gsub(article.content, "%s*/%*.-%*/%s*", "")
 
+    if CosmicVaultDebug and CosmicVaultDebug.info then
+        CosmicVaultDebug.info("CosmicVaultNews", "Publishing %s News: %s", article.category or "General", article.title)
+    end
+
     local server = Server()
     if server then
         server:sendCallback("onCCNewsPublishArticle", article)

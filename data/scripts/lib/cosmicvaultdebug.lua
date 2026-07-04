@@ -12,22 +12,56 @@ local function _cfg()
     end
     return {
         debugEnabled = true,
+        debugWar = true,
+        debugOverhaul = true,
+        debugChronicles = true,
+        debugAscendancy = true,
+        debugStarfall = true,
+        debugSymphony = true,
         debugPrefix = "[Cosmic]",
     }
 end
 
 local function _fmt(msg, ...)
-    if select("#", ...) > 0 then
-        return string.format(msg, ...)
+    local n = select("#", ...)
+    if n > 0 then
+        if type(msg) == "string" and string.find(msg, "%%[sScdiqoxXfgGeE]") then
+            local success, res = pcall(string.format, msg, ...)
+            if success then return res end
+        end
+        local t = {tostring(msg)}
+        for i = 1, n do
+            table.insert(t, tostring(select(i, ...)))
+        end
+        return table.concat(t, " ")
     end
     return tostring(msg)
 end
 
 --- Checks if debug mode is enabled
 -- @return (boolean) True if debug mode is active
-function CosmicVaultDebug.isEnabled()
+function CosmicVaultDebug.isEnabled(moduleName)
     local cfg = _cfg()
-    return cfg.debugEnabled == true
+    if not cfg.debugEnabled then return false end
+
+    if moduleName and type(moduleName) == "string" then
+        local lower = string.lower(moduleName)
+        if string.find(lower, "war") then
+            return cfg.debugWar ~= false
+        elseif string.find(lower, "overhaul") then
+            return cfg.debugOverhaul ~= false
+        elseif string.find(lower, "chronicles") then
+            return cfg.debugChronicles ~= false
+        elseif string.find(lower, "ascendancy") then
+            return cfg.debugAscendancy ~= false
+        elseif string.find(lower, "starfall") then
+            return cfg.debugStarfall ~= false
+        elseif string.find(lower, "symphony") then
+            return cfg.debugSymphony ~= false
+        end
+    end
+
+    return true
 end
 
 --- Gets the standardized log prefix
@@ -44,21 +78,21 @@ end
 --- Standard log output
 -- @param msg (string) The message
 function CosmicVaultDebug.log(moduleName, msg, ...)
-    if not CosmicVaultDebug.isEnabled() then return end
+    if not CosmicVaultDebug.isEnabled(moduleName) then return end
     print("%s %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...))
 end
 
 --- Info log output
 -- @param msg (string) The message
 function CosmicVaultDebug.info(moduleName, msg, ...)
-    if not CosmicVaultDebug.isEnabled() then return end
+    if not CosmicVaultDebug.isEnabled(moduleName) then return end
     print("%s[INFO] %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...))
 end
 
 --- Warning log output
 -- @param msg (string) The message
 function CosmicVaultDebug.warn(moduleName, msg, ...)
-    if not CosmicVaultDebug.isEnabled() then return end
+    if not CosmicVaultDebug.isEnabled(moduleName) then return end
     print("%s[WARN] %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...))
 end
 

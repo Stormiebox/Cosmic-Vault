@@ -12,7 +12,7 @@ function CosmicVaultDialogue.registerLine(entry)
         if CosmicVaultDebug and CosmicVaultDebug.error then
             CosmicVaultDebug.error("CosmicVaultDialogue", "Invalid entry provided. Must contain 'category' and 'text'.")
         else
-            print("CosmicVaultDialogue [Error]: Invalid entry provided. Must contain 'category' and 'text'.")
+            include("cosmicvaultdebug").info("Cosmic Vault", "CosmicVaultDialogue [Error]: Invalid entry provided. Must contain 'category' and 'text'.")
         end
         return
     end

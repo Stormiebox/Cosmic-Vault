@@ -12,7 +12,7 @@ self.needsPlayerNotification = false
 function CosmicVaultNewsServer.initialize()
     -- Register to listen for any player requesting a news sync
     if onServer() then
-        print("[CosmicVaultNews] cosmicvaultnews_server.lua initialized! Registering callbacks.")
+        include("cosmicvaultdebug").info("Cosmic Vault", "[CosmicVaultNews] cosmicvaultnews_server.lua initialized! Registering callbacks.")
         Server():registerCallback("onCCNewsSyncRequest", "onSyncRequest")
         Server():registerCallback("onCCNewsPublishArticle", "onPublishArticle")
     end
@@ -28,7 +28,7 @@ local reporters = {
 -- Server function to publish a new article globally
 function CosmicVaultNewsServer.publishArticle(article)
     if not onServer() then return end
-    print("[CosmicVaultNews] Publishing new article: " .. tostring(article.title))
+    include("cosmicvaultdebug").info("Cosmic Vault", "[CosmicVaultNews] Publishing new article: " .. tostring(article.title))
     article.timestamp = Server().unpausedRuntime
     if not article.author then
         article.author = reporters[random():getInt(1, #reporters)]
@@ -47,11 +47,11 @@ end
 -- Triggered via Server():sendCallback("onCCNewsSyncRequest", playerIndex)
 function CosmicVaultNewsServer.onSyncRequest(playerIndex)
     if not onServer() then return end
-    print("[CosmicVaultNews] Received sync request via callback from player " .. tostring(playerIndex))
+    include("cosmicvaultdebug").info("Cosmic Vault", "[CosmicVaultNews] Received sync request via callback from player " .. tostring(playerIndex))
 
     -- Self-healing: If the server just started and has no news, ask mods to generate some
     if #self.publishedNews == 0 then
-        print("[CosmicVaultNews] News is empty, requesting seed...")
+        include("cosmicvaultdebug").info("Cosmic Vault", "[CosmicVaultNews] News is empty, requesting seed...")
         Server():sendCallback("onCCNewsRequestSeed")
     end
 
@@ -94,7 +94,7 @@ function updateServer(timeStep)
     if CosmicVaultNewsServer.needsPlayerNotification then
         CosmicVaultNewsServer.needsPlayerNotification = false
         for _, player in pairs({Server():getOnlinePlayers()}) do
-            -- print("[CosmicVaultNews] Attempting to notify online player " .. tostring(player.index))
+            -- include("cosmicvaultdebug").info("Cosmic Vault", "[CosmicVaultNews] Attempting to notify online player " .. tostring(player.index))
             player:invokeFunction("player/ui/cc_newsboard.lua", "onNewsPublished")
         end
     end

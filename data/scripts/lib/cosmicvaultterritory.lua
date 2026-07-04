@@ -68,7 +68,7 @@ if onServer() then
         }
 
         Server():setValue("CosmicVault_ContestedZones", serializeZones(zones))
-        print("[Cosmic Vault] Sector " .. x .. ":" .. y .. " is now Contested!")
+        include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Sector " .. x .. ":" .. y .. " is now Contested!")
     end
 
 --- Removes a contested zone from the tracking table without resolving a victor
@@ -114,7 +114,7 @@ if onServer() then
         -- To actually flip the stations, we must run a small script inside the sector once it loads.
         -- We will invoke a background task to flip it.
         galaxy:invokeFunction("data/scripts/galaxy/server.lua", "flipSectorTerritory", x, y, newFactionIndex)
-        print("[Cosmic Vault] Sector " .. x .. ":" .. y .. " conquered by faction " .. tostring(newFactionIndex))
+        include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Sector " .. x .. ":" .. y .. " conquered by faction " .. tostring(newFactionIndex))
     end
 
 --- Server update loop for territory control
@@ -177,7 +177,7 @@ if onServer() then
                 station.title = "Pirate Shipyard"
             end
 
-            print("[Cosmic Vault] Pirates expanded to " .. x .. ":" .. y)
+            include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Pirates expanded to " .. x .. ":" .. y)
             -- galaxy:tryUnloadSector(x, y) -- Removed: Unloading is handled by the engine
         else
             if not faction then
@@ -198,7 +198,7 @@ if onServer() then
 
             generator:createStation(faction, script)
 
-            print("[Cosmic Vault] Faction " .. faction.name .. " expanded to " .. x .. ":" .. y)
+            include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Faction " .. faction.name .. " expanded to " .. x .. ":" .. y)
 
             local CosmicVaultNews = include("cosmicvaultnews")
             if CosmicVaultNews and CosmicVaultNews.publishArticle then

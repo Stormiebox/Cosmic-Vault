@@ -11,7 +11,7 @@ function CosmicVaultAnomalies.spawnAnomaly(x, y, anomalyType, position)
     local cx, cy = sector:getCoordinates()
     
     if cx ~= x or cy ~= y then
-        print("[Cosmic Vault] Cannot spawn anomaly: Sector coords mismatch")
+        include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Cannot spawn anomaly: Sector coords mismatch")
         return nil
     end
     
@@ -35,7 +35,7 @@ function CosmicVaultAnomalies.spawnAnomaly(x, y, anomalyType, position)
         entity.invincible = true
         entity:addScriptOnce("data/scripts/entity/cv_anomaly_rift.lua")
     else
-        print("[Cosmic Vault] Unknown anomaly type: " .. tostring(anomalyType))
+        include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Unknown anomaly type: " .. tostring(anomalyType))
     end
     
     return entity
