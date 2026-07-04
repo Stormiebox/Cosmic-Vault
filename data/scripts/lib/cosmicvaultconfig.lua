@@ -50,15 +50,15 @@ end
 
 local function readNumber(key, minV, maxV, fallback)
     if not config then return fallback end
-    local success, value = pcall(config.get, key)
-    if not success then return fallback end
+    local value = config.get(key)
+    if value == nil then return fallback end
     return clampNumber(value, minV, maxV, fallback)
 end
 
 local function readBool(key, fallback)
     if not config then return fallback end
-    local success, value = pcall(config.get, key)
-    if not success then return fallback end
+    local value = config.get(key)
+    if value == nil then return fallback end
     if type(value) == "boolean" then return value end
     if type(value) == "string" then
         local lower = string.lower(value)
@@ -74,8 +74,8 @@ end
 
 local function readString(key, fallback)
     if not config then return fallback end
-    local success, value = pcall(config.get, key)
-    if not success then return fallback end
+    local value = config.get(key)
+    if value == nil then return fallback end
     if type(value) ~= "string" then return fallback end
     if value == "" then return fallback end
     return value

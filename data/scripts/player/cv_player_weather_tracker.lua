@@ -41,7 +41,7 @@ function forceSectorCheck()
             
             if not hasWeather or overwrite then
                 -- Calculate remaining duration
-                local remaining = weather.expiry - os.time()
+                local remaining = weather.expiry - Server().unpausedRuntime
                 if weather.expiry == -1 then
                     remaining = -1
                 end

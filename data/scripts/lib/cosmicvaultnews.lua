@@ -28,10 +28,7 @@ function CosmicVaultNews.publishArticle(article)
 
     local server = Server()
     if server then
-        local ok, err = pcall(function() server:sendCallback("onCCNewsPublishArticle", article) end)
-        if not ok and CosmicVaultDebug and CosmicVaultDebug.error then
-            CosmicVaultDebug.error("CosmicVaultNews", "Failed to publish article via callback: " .. tostring(err))
-        end
+        server:sendCallback("onCCNewsPublishArticle", article)
     end
 end
 

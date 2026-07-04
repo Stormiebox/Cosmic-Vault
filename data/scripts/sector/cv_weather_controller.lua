@@ -81,7 +81,7 @@ function onEntityEntered(id)
     end
     
     if not entity:hasScript("entity/cv_weather_debuff.lua") then
-        entity:addScript("data/scripts/entity/cv_weather_debuff.lua", cv_weather_type)
+        entity:addScriptOnce("data/scripts/entity/cv_weather_debuff.lua", cv_weather_type)
     end
 end
 

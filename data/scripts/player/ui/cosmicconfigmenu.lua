@@ -43,10 +43,10 @@ function CosmicConfigMenu.initialize()
     self.applyBtn.active = false
 
     -- Load configuration registries silently
-    pcall(include, "cosmicoverhaulconfig")
-    pcall(include, "cosmicwarconfig")
-    pcall(include, "cosmicvaultconfig")
-    pcall(include, "cosmicascendancyconfig")
+    include("cosmicoverhaulconfig")
+    include("cosmicwarconfig")
+    include("cosmicvaultconfig")
+    include("cosmicascendancyconfig")
 
     -- Request initial sync for keybindings and cached settings
     local keysToRequest = {}
@@ -96,11 +96,10 @@ end
 function CosmicConfigMenu.fillTree()
     self.tree:clear()
     self.elements = {}
-
-    pcall(include, "cosmicoverhaulconfig")
-    pcall(include, "cosmicwarconfig")
-    pcall(include, "cosmicvaultconfig")
-    pcall(include, "cosmicascendancyconfig")
+    include("cosmicoverhaulconfig")
+    include("cosmicwarconfig")
+    include("cosmicvaultconfig")
+    include("cosmicascendancyconfig")
 
     local registries = ccm.getAllRegistries()
 

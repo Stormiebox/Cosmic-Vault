@@ -28,7 +28,7 @@ function CosmicVaultWeatherServer.getUpdateInterval()
 end
 
 function CosmicVaultWeatherServer.updateServer(timeStep)
-    local currentTime = os.time()
+    local currentTime = Server().unpausedRuntime
     local changed = false
 
     for key, weather in pairs(CosmicVaultWeatherServer.activeWeathers) do
@@ -48,7 +48,7 @@ function CosmicVaultWeatherServer.createWeather(x, y, stormType, duration)
     local key = tostring(x) .. "_" .. tostring(y)
     local expiry = -1
     if duration and duration > 0 then
-        expiry = os.time() + duration
+        expiry = Server().unpausedRuntime + duration
     end
 
     CosmicVaultWeatherServer.activeWeathers[key] = {
