@@ -1,6 +1,5 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("randomext")
-local SectorGenerator = include("sectorgenerator")
 local ShipGenerator = include("shipgenerator")
 
 -- namespace CosmicVaultEncounter
@@ -19,10 +18,10 @@ function CosmicVaultEncounter.spawnAmbush(factionId, volume, numShips, spawnMatr
 
     local sector = Sector()
     if not sector then return {} end
-    local generator = SectorGenerator(sector.seed, sector:getCoordinates())
+    
     local spawnedShips = {}
     
-    local pos = spawnMatrix or MatrixLookUpPosition(-vec3(0, 1, 0), vec3(1, 0, 0), vec3(random():getInt(-500, 500), random():getInt(-500, 500), random():getInt(-500, 500)))
+    local pos = spawnMatrix and Matrix(spawnMatrix) or MatrixLookUpPosition(-vec3(0, 1, 0), vec3(1, 0, 0), vec3(random():getInt(-500, 500), random():getInt(-500, 500), random():getInt(-500, 500)))
 
     for i = 1, numShips do
         local ship = ShipGenerator.createMilitaryShip(faction, pos, volume)

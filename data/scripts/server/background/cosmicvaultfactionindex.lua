@@ -38,26 +38,28 @@ function CosmicVaultFactionIndex.update(timeStep)
     if type(currentFactions) == "string" and currentFactions ~= "" then
         for id in string.gmatch(currentFactions, "([^,]+)") do
             local numId = tonumber(id)
-            if numId and not Player(numId) and not Alliance(numId) then
-                table.insert(indices, numId)
+            if type(numId) == "number" then
+                local f = Faction(numId)
+                if f and f.isAIFaction then
+                    table.insert(indices, numId)
+                end
             end
         end
     end
 
     -- Collect AI Factions (Avorion typically indexes AI factions in the 1 to 2000 range)
     for i = 1, 2500 do
-        if not Player(i) and not Alliance(i) then
-            local f = Faction(i)
-            if f then
-                table.insert(indices, f.index)
-            end
+        local f = Faction(i)
+        if f and f.isAIFaction then
+            table.insert(indices, f.index)
         end
     end
 
     for _, idx in ipairs(indices) do
         if not uniqueIndices[idx] then
             -- Verify faction actually still exists
-            if not Player(idx) and not Alliance(idx) and Faction(idx) then
+            local f = Faction(idx)
+            if f and f.isAIFaction then
                 uniqueIndices[idx] = true
                 table.insert(finalIndices, idx)
             end

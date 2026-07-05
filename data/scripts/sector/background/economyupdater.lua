@@ -53,14 +53,14 @@ function EconomyUpdater.updateServer(timeStep)
         local cve = include("cosmicvaulteconomy")
         if cve and cve.getFamineScore then
             local score = cve.getFamineScore(factionIndex)
-            if score >= 100 then
+            if type(score) == "number" and score >= 100 then
                 -- 1% chance to spawn a Famine Relief Cache in a starving sector
                 if random():test(0.01) then
                     local generator = SectorGenerator(x, y)
                     local beacon = generator:createBeacon(generator:getPositionInSector(), Faction(factionIndex), "EMERGENCY RELIEF CACHE")
                     if beacon then
                         beacon.title = "Famine Relief Cache"
-                        beacon:addScriptOnce("entity/cc_blackbox.lua")
+                        beacon:addScriptOnce("data/scripts/entity/cc_blackbox.lua")
                         beacon:setValue("is_famine_relief", factionIndex)
                     end
                 end
@@ -141,21 +141,29 @@ end
 callable(EconomyUpdater, "requestData")
 
 function EconomyUpdater.setData(supply, demand)
-    self.supply = supply or {}
-    self.demand = demand or {}
+    if type(supply) ~= "table" then supply = {} end
+    if type(demand) ~= "table" then demand = {} end
+
+    self.supply = supply
+    self.demand = demand
     self.sum = {}
 
     local sum = self.sum
     for good, value in pairs(supply) do
-        sum[good] = value
+        if type(good) == "string" and type(value) == "number" then
+            sum[good] = value
+        end
     end
 
     for good, value in pairs(demand) do
-        sum[good] = (sum[good] or 0) - value
+        if type(good) == "string" and type(value) == "number" then
+            sum[good] = (sum[good] or 0) - value
+        end
     end
 end
 
 function EconomyUpdater.getSupplyDemandPriceChange(good, ownSupplyType)
+    if type(good) ~= "string" then return 0 end
     if not self.sum then return 0 end
 
     local sum = self.sum[good]
@@ -179,7 +187,7 @@ function EconomyUpdater.getSupplyDemandPriceChange(good, ownSupplyType)
         local key = "CVE_PriceHook_" .. good:gsub("%s+", "_")
         local hooksStr = Server():getValue(key)
 
-        if hooksStr then
+        if type(hooksStr) == "string" then
             for hook in string.gmatch(hooksStr, "([^|]+)") do
                 local scriptName, functionName = string.match(hook, "([^:]+)::([^:]+)")
                 if scriptName and functionName then

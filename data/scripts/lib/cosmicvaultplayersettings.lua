@@ -7,9 +7,15 @@ include("cosmicvaultdebug")
 CosmicVaultPlayerSettings = {}
 
 local function getStorageKey(modId, key)
-    if not modId or modId == "" then
+    if not modId or type(modId) ~= "string" or modId == "" then
         if CosmicVaultDebug and CosmicVaultDebug.error then
-            CosmicVaultDebug.error("PlayerSettings", "Mod ID is required to get a player setting.")
+            CosmicVaultDebug.error("PlayerSettings", "Mod ID is required and must be a string to get/set a player setting.")
+        end
+        return nil
+    end
+    if not key or type(key) ~= "string" or key == "" then
+        if CosmicVaultDebug and CosmicVaultDebug.error then
+            CosmicVaultDebug.error("PlayerSettings", "Key is required and must be a string to get/set a player setting.")
         end
         return nil
     end

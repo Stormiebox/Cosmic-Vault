@@ -6,4 +6,5 @@ if onServer() then
     player:addScriptOnce("data/scripts/player/ui/cosmiccodex.lua")
     player:addScriptOnce("data/scripts/player/cosmicvaultcodex.lua")
     player:addScriptOnce("data/scripts/player/ui/cosmicconfigmenu.lua")
+    player:addScriptOnce("data/scripts/player/cosmicvaultcinematic.lua")
 end

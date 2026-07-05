@@ -19,7 +19,7 @@ function CosmicVaultWeatherServer.onPlayerLogIn(playerIndex)
     if player then
         player:addScriptOnce("data/scripts/player/cv_player_weather_tracker.lua")
         -- Send the current weather map to the player upon login
-        player:invokeFunction("cv_player_weather_tracker.lua", "syncWeatherMap", CosmicVaultWeatherServer.activeWeathers)
+        player:invokeFunction("data/scripts/player/cv_player_weather_tracker.lua", "syncWeatherMap", CosmicVaultWeatherServer.activeWeathers)
     end
 end
 
@@ -28,11 +28,11 @@ function CosmicVaultWeatherServer.getUpdateInterval()
 end
 
 function CosmicVaultWeatherServer.updateServer(timeStep)
-    local currentTime = Server().unpausedRuntime
+    local currentTime = Server().unpausedRuntime or 0
     local changed = false
 
     for key, weather in pairs(CosmicVaultWeatherServer.activeWeathers) do
-        if weather.expiry > 0 and currentTime >= weather.expiry then
+        if type(weather) == "table" and type(weather.expiry) == "number" and weather.expiry > 0 and currentTime >= weather.expiry then
             CosmicVaultWeatherServer.activeWeathers[key] = nil
             changed = true
         end
@@ -47,8 +47,8 @@ end
 function CosmicVaultWeatherServer.createWeather(x, y, stormType, duration)
     local key = tostring(x) .. "_" .. tostring(y)
     local expiry = -1
-    if duration and duration > 0 then
-        expiry = Server().unpausedRuntime + duration
+    if type(duration) == "number" and duration > 0 then
+        expiry = (Server().unpausedRuntime or 0) + duration
     end
 
     CosmicVaultWeatherServer.activeWeathers[key] = {
@@ -64,7 +64,7 @@ function CosmicVaultWeatherServer.createWeather(x, y, stormType, duration)
     for _, player in pairs({Server():getPlayers()}) do
         local px, py = player:getSectorCoordinates()
         if px == x and py == y then
-            player:invokeFunction("cv_player_weather_tracker.lua", "forceSectorCheck")
+            player:invokeFunction("data/scripts/player/cv_player_weather_tracker.lua", "forceSectorCheck")
         end
     end
 end
@@ -79,7 +79,7 @@ function CosmicVaultWeatherServer.removeWeather(x, y)
         for _, player in pairs({Server():getPlayers()}) do
             local px, py = player:getSectorCoordinates()
             if px == x and py == y then
-                player:invokeFunction("cv_player_weather_tracker.lua", "forceSectorCleanup")
+                player:invokeFunction("data/scripts/player/cv_player_weather_tracker.lua", "forceSectorCleanup")
             end
         end
     end
@@ -93,7 +93,7 @@ end
 -- Sync state
 function CosmicVaultWeatherServer.broadcastSync()
     for _, player in pairs({Server():getPlayers()}) do
-        player:invokeFunction("cv_player_weather_tracker.lua", "syncWeatherMap", CosmicVaultWeatherServer.activeWeathers)
+        player:invokeFunction("data/scripts/player/cv_player_weather_tracker.lua", "syncWeatherMap", CosmicVaultWeatherServer.activeWeathers)
     end
 end
 
@@ -102,7 +102,8 @@ function CosmicVaultWeatherServer.secure()
 end
 
 function CosmicVaultWeatherServer.restore(data)
-    CosmicVaultWeatherServer.activeWeathers = data.activeWeathers or {}
+    if type(data) ~= "table" then return end
+    CosmicVaultWeatherServer.activeWeathers = type(data.activeWeathers) == "table" and data.activeWeathers or {}
 end
 
 function initialize(...)

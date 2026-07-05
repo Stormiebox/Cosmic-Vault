@@ -2,18 +2,45 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 local cv_weather_type = "None"
-local cv_ui_element = nil
+
+function secure()
+    return { cv_weather_type = cv_weather_type }
+end
+
+function restore(data_in)
+    if type(data_in) == "table" and type(data_in.cv_weather_type) == "string" then
+        cv_weather_type = data_in.cv_weather_type
+    else
+        cv_weather_type = "None"
+    end
+end
 
 function initialize(weatherType)
-    cv_weather_type = weatherType or "None"
+    if type(weatherType) == "string" then
+        cv_weather_type = weatherType
+    end
     
     if onClient() then
         Player():registerCallback("onPreRenderHud", "onPreRenderHud")
+        invokeServerFunction("sync")
+    end
+end
+
+function sync()
+    if onServer() then
+        invokeClientFunction(Player(callingPlayer), "syncClient", cv_weather_type)
+    end
+end
+callable(nil, "sync")
+
+function syncClient(weatherType)
+    if onClient() and type(weatherType) == "string" then
+        cv_weather_type = weatherType
     end
 end
 
 function onPreRenderHud()
-    if cv_weather_type == "None" then return end
+    if type(cv_weather_type) ~= "string" or cv_weather_type == "None" then return end
     
     local res = getResolution()
     local x = res.x / 2 - 150

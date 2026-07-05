@@ -27,7 +27,7 @@ end
 -- @param name (string) Module name
 -- @param data (table) Module data
 function CosmicVaultFramework.registerModule(name, metadata)
-    if not name or type(data) ~= 'table' then return end
+    if not name or type(metadata) ~= 'table' then return end
     if _isBlank(name) then
         if CosmicVaultDebug and CosmicVaultDebug.error then
             CosmicVaultDebug.error("CosmicVault-Framework", "Refusing to register unnamed module.")
@@ -99,7 +99,7 @@ end
 --- Requires another module or mod for compatibility
 -- @param name (string) Module or mod name
 -- @return (boolean) True if compatible
-function CosmicVaultFramework.requireCompat()
+function CosmicVaultFramework.requireCompat(name)
     if not name then return false end
     local cfg = _cfg()
     return cfg.enableCompatLayer == true

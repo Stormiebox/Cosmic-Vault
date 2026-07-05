@@ -178,7 +178,7 @@ end
 
 --- Decompose a packed value into { scancode, lctrl, rctrl, lshift, rshift, lalt, ralt, unbound }.
 function M.unpack(packed)
-    if not packed or packed < 0 then
+    if type(packed) ~= "number" or packed < 0 then
         return {
             scancode = -1,
             lctrl = false, rctrl = false,
@@ -205,13 +205,13 @@ end
 
 --- Get the UI label for a single scancode.
 function M.nameForKey(scancode)
-    if not scancode or scancode < 0 then return "Unbound" end
+    if type(scancode) ~= "number" or scancode < 0 then return "Unbound" end
     return LABELS[scancode] or ("Key #" .. tostring(scancode))
 end
 
 --- Get the UI label for a packed combo (e.g. "L. Ctrl+R. Shift+H").
 function M.nameForCombo(packed)
-    if not packed or packed < 0 then return "Unbound" end
+    if type(packed) ~= "number" or packed < 0 then return "Unbound" end
     local c = M.unpack(packed)
     local parts = {}
     if c.lctrl  then parts[#parts + 1] = "L. Ctrl"  end

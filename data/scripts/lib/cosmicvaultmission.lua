@@ -12,6 +12,7 @@ CosmicVaultMission = {}
 -- @param args (table) Any script arguments
 -- @return table A formatted bulletin object that can be returned to `getBulletins()`
 function CosmicVaultMission.createBulletin(title, description, difficulty, rewardText, scriptPath, args)
+    if not title or not description or not scriptPath then return nil end
     local bulletin = {
         brief = title,
         description = description,
@@ -29,6 +30,7 @@ end
 -- @param missionId (string) The mission UUID or identifier
 -- @param objectiveText (string) The new objective text to display
 function CosmicVaultMission.updateMissionObjective(missionId, objectiveText)
+    if not missionId or not objectiveText then return end
     if onServer() then
         local player = Player()
         if not player then return end
@@ -42,6 +44,7 @@ end
 -- @param reputationReward (int) Reputation to reward with the local faction
 function CosmicVaultMission.completeMission(missionId, creditReward, reputationReward)
     if not onServer() then return end
+    if not missionId then return end
     local player = Player()
     if not player then return end
     
@@ -54,12 +57,9 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
         if not sector then return end
         
         local x, y = sector:getCoordinates()
-        local factionVal = Galaxy():getControllingFaction(x, y)
-        if factionVal then
-            local faction = Faction(factionVal)
-            if faction then
-                Galaxy():changeFactionRelations(Faction(player.index), Faction(faction.index), reputationReward)
-            end
+        local faction = Galaxy():getControllingFaction(x, y)
+        if faction then
+            Galaxy():changeFactionRelations(Faction(player.index), faction, reputationReward)
         end
     end
 

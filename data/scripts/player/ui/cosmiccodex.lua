@@ -93,6 +93,8 @@ end
 
 -- API Function for other mods
 function CosmicCodex.addCategory(id, title, iconPath)
+    if not id then return end
+    if type(title) ~= "string" then title = tostring(title) or "" end
     if self.categories[id] then return end
     local categoryIndex = self.tree:add(nil, title, "onEntrySelected", false, id)
     self.categories[id] = { index = categoryIndex, title = title, icon = iconPath }
@@ -100,6 +102,8 @@ function CosmicCodex.addCategory(id, title, iconPath)
 end
 
 function CosmicCodex.addChapter(categoryId, id, title)
+    if not categoryId or not id then return end
+    if type(title) ~= "string" then title = tostring(title) or "" end
     local cat = self.categories[categoryId]
     if not cat then return end
     if self.chapters[id] then return end
@@ -108,14 +112,19 @@ function CosmicCodex.addChapter(categoryId, id, title)
 end
 
 function CosmicCodex.addArticle(chapterId, id, title, text, picturePath)
+    if not chapterId or not id then return end
+    if type(title) ~= "string" then title = tostring(title) or "" end
+    if type(text) ~= "string" then text = tostring(text) or "" end
+
     local chapter = self.chapters[chapterId]
     -- Fallback for backwards compatibility
     if not chapter then chapter = self.categories[chapterId] end
     if not chapter then return end
 
-    local searchText = string.lower(string.trim(self.searchTextBox.text))
+    local searchText = string.lower(string.trim(self.searchTextBox.text or ""))
     if searchText ~= "" then
-        if not string.match(string.lower(title), searchText) and not string.match(string.lower(text), searchText) then
+        -- string.find with arg 4 = true disables pattern matching, preventing crashes from special chars
+        if not string.find(string.lower(title), searchText, 1, true) and not string.find(string.lower(text), searchText, 1, true) then
             return -- skip if filtered
         end
     end

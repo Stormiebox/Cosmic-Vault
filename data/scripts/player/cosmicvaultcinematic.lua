@@ -47,7 +47,10 @@ function CosmicVaultCinematic.showPopup(title, message)
 end
 
 function CosmicVaultCinematic.showFloatingText(entityId, text, cInfo)
-    if onServer() then return end
+    if onServer() then
+        invokeClientFunction(Player(), "showFloatingText", entityId, text, cInfo)
+        return
+    end
     -- Fallback to combat log since Avorion lacks 3D text renderer from Lua
     local color = ColorRGB(cInfo.r, cInfo.g, cInfo.b)
 

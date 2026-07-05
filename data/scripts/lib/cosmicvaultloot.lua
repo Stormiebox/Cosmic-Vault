@@ -28,7 +28,7 @@ function CosmicVaultLoot.dropCustomLoot(entityId, lootType, payload, amount, own
     elseif lootType == "weapon" or lootType == "turret" then
         -- payload must be an InventoryTurret or Weapon object
         if payload then
-            sector:dropUpgrade(position, owner or 0, owner or 0, payload)
+            sector:dropTurret(position, owner or 0, owner or 0, payload)
         end
     elseif lootType == "system" then
         -- payload must be an SystemUpgradeTemplate

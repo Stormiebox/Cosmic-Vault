@@ -322,7 +322,7 @@ function RiftGuardian.create(position, dx, dy, minimal)
     ship:addScriptOnce("internal/dlc/rift/entity/xsotanriftguardian.lua", dx, dy)
 
     -- Phase 4: Cosmic Vault - Global Rift Escalation tracking
-    ship:addScriptOnce("entity/cv_rift_escalation_tracker.lua")
+    ship:addScriptOnce("data/scripts/entity/cv_rift_escalation_tracker.lua")
 
     ship:setValue("is_xsotan", true)
     ship.name = ""
@@ -332,5 +332,3 @@ function RiftGuardian.create(position, dx, dy, minimal)
 
     return ship
 end
-
-

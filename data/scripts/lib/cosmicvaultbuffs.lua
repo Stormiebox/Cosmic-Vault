@@ -11,6 +11,10 @@ CosmicVaultBuffs = {}
 -- @param buffId (string) Optional unique ID for early termination
 function CosmicVaultBuffs.applyBuff(entityId, statName, multiplier, durationSeconds, buffId)
     if not onServer() then return end
+    if type(statName) ~= "string" then return end
+    if type(multiplier) ~= "number" then return end
+    if type(durationSeconds) ~= "number" then return end
+    if buffId and type(buffId) ~= "string" then return end
     
     local entity = Entity(entityId)
     if not entity then return end
@@ -24,7 +28,7 @@ end
 -- @param entityId (string|Uuid) The target entity
 -- @param buffId (string) The unique ID of the buff to terminate
 function CosmicVaultBuffs.terminateBuff(entityId, buffId)
-    if not onServer() or not buffId or buffId == "" then return end
+    if not onServer() or type(buffId) ~= "string" or buffId == "" then return end
     
     local entity = Entity(entityId)
     if not entity then return end
@@ -39,6 +43,8 @@ end
 -- @param factor (number) The base factor (e.g. 5.0 for +500% increase)
 function CosmicVaultBuffs.applyPermanentFactor(entityId, statName, factor)
     if not onServer() then return end
+    if type(statName) ~= "number" then return end
+    if type(factor) ~= "number" then return end
     
     local entity = Entity(entityId)
     if not entity then return end
@@ -55,8 +61,10 @@ function CosmicVaultBuffs.clearBuffs(entityId)
     if not entity then return end
     
     -- Natively remove the script from the entity block
-    if entity:hasScript("data/scripts/entity/cosmicbuff.lua") then
+    local safety = 0
+    while entity:hasScript("data/scripts/entity/cosmicbuff.lua") and safety < 100 do
         entity:removeScript("data/scripts/entity/cosmicbuff.lua")
+        safety = safety + 1
     end
 end
 
@@ -65,6 +73,8 @@ end
 -- @param tier (int) The tier level
 function CosmicVaultBuffs.setGlobalTier(factionIndex, tier)
     if not onServer() then return end
+    if type(factionIndex) ~= "number" then return end
+    if type(tier) ~= "number" then return end
     local faction = Faction(factionIndex)
     if not faction then return end
     faction:setValue("cv_ascendancy_global_tier", tier)
@@ -74,6 +84,7 @@ end
 -- @param factionIndex (int) The faction to query
 -- @return int The current tier, or 0 if none
 function CosmicVaultBuffs.getGlobalTier(factionIndex)
+    if type(factionIndex) ~= "number" then return 0 end
     local faction = Faction(factionIndex)
     if not faction then return 0 end
     return faction:getValue("cv_ascendancy_global_tier") or 0

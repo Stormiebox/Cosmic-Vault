@@ -12,7 +12,7 @@ function CosmicVaultGoods.registerGood(goodData)
     
     -- Ensure default properties if missing
     goodData.price = goodData.price or 100
-    goodData.size = goodData.size or 1.0
+    goodData.size = goodData.size or goodData.volume or 1.0
     goodData.description = goodData.description or ""
     goodData.icon = goodData.icon or "data/textures/icons/crate.png"
     goodData.plural = goodData.plural or goodData.name

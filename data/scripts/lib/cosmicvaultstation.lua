@@ -8,6 +8,7 @@ CosmicVaultStation = {}
 -- @param windowTitle (string) The title of the dialogue window when opened
 -- @param onInteractionCallback (string) The name of the function to call when clicked
 function CosmicVaultStation.injectInteraction(buttonText, windowTitle, onInteractionCallback)
+    if not buttonText or type(buttonText) ~= "string" or not onInteractionCallback or type(onInteractionCallback) ~= "string" then return end
     if not onClient() then return end
     
     -- Avorion automatically scans all scripts on an entity for 'interactionPossible' 
@@ -31,10 +32,10 @@ function CosmicVaultStation.isInteractionPossible()
     if not ship then return false end
 
     local station = Entity()
-    if ship.factionIndex == station.factionIndex then return true end
+    if station.factionIndex and ship.factionIndex == station.factionIndex then return true end
     
     -- Check relation and distance
-    if player:getRelations(station.factionIndex) <= -30000 then return false end
+    if station.factionIndex and player:getRelations(station.factionIndex) <= -30000 then return false end
     
     local dist = ship:getNearestDistance(station)
     if dist > 50 then return false end

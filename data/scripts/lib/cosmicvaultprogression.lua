@@ -10,6 +10,7 @@ local VAULT_PREFIX = "cosmic_progression_"
 -- @param xpAmount (int) Amount of XP to add
 -- @param skillTreeName (string) The category of XP (e.g. "combat", "mining")
 function CosmicVaultProgression.addXP(playerIndex, xpAmount, skillTreeName)
+    if not playerIndex or type(xpAmount) ~= "number" or type(skillTreeName) ~= "string" then return end
     if not onServer() then return end
     local player = Player(playerIndex)
     if not player then return end
@@ -24,6 +25,7 @@ end
 -- @param skillTreeName (string) The category of XP
 -- @return int Current XP
 function CosmicVaultProgression.getXP(playerIndex, skillTreeName)
+    if not playerIndex or type(skillTreeName) ~= "string" then return 0 end
     local player = Player(playerIndex)
     if not player then return 0 end
     
@@ -35,6 +37,7 @@ end
 -- @param playerIndex (int) The player's index
 -- @param perkId (string) Unique ID of the perk (e.g. "starfall_shield_boost")
 function CosmicVaultProgression.unlockPerk(playerIndex, perkId)
+    if not playerIndex or type(perkId) ~= "string" then return end
     if not onServer() then return end
     local player = Player(playerIndex)
     if not player then return end
@@ -48,6 +51,7 @@ end
 -- @param perkId (string) Unique ID of the perk
 -- @return boolean True if unlocked
 function CosmicVaultProgression.hasPerk(playerIndex, perkId)
+    if not playerIndex or type(perkId) ~= "string" then return false end
     local player = Player(playerIndex)
     if not player then return false end
     

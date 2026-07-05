@@ -41,6 +41,9 @@ function CosmicVaultDialogue.getValidLine(category, currentContext)
             if entry.conditions.minWarHeat and (currentContext.warHeat or 0) < entry.conditions.minWarHeat then
                 isValid = false
             end
+            if isValid and entry.conditions.maxWarHeat and (currentContext.warHeat or 0) > entry.conditions.maxWarHeat then
+                isValid = false
+            end
             if isValid and entry.conditions.factionTrait and currentContext.factionTrait ~= entry.conditions.factionTrait then
                 isValid = false
             end
@@ -57,6 +60,9 @@ function CosmicVaultDialogue.getValidLine(category, currentContext)
                 isValid = false
             end
             if isValid and entry.conditions.minReputation and (currentContext.reputation or 0) < entry.conditions.minReputation then
+                isValid = false
+            end
+            if isValid and entry.conditions.maxReputation and (currentContext.reputation or 0) > entry.conditions.maxReputation then
                 isValid = false
             end
         end

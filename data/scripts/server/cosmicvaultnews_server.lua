@@ -28,8 +28,10 @@ local reporters = {
 -- Server function to publish a new article globally
 function CosmicVaultNewsServer.publishArticle(article)
     if not onServer() then return end
+    if type(article) ~= "table" then return end
+    
     include("cosmicvaultdebug").info("Cosmic Vault", "[CosmicVaultNews] Publishing new article: " .. tostring(article.title))
-    article.timestamp = Server().unpausedRuntime
+    article.timestamp = Server().unpausedRuntime or 0
     if not article.author then
         article.author = reporters[random():getInt(1, #reporters)]
     end
@@ -79,7 +81,8 @@ end
 
 
 function CosmicVaultNewsServer.restore(data)
-    self.publishedNews = data.publishedNews or {}
+    if type(data) ~= "table" then return end
+    self.publishedNews = type(data.publishedNews) == "table" and data.publishedNews or {}
 end
 
 function getUpdateInterval()
@@ -95,7 +98,7 @@ function updateServer(timeStep)
         CosmicVaultNewsServer.needsPlayerNotification = false
         for _, player in pairs({Server():getOnlinePlayers()}) do
             -- include("cosmicvaultdebug").info("Cosmic Vault", "[CosmicVaultNews] Attempting to notify online player " .. tostring(player.index))
-            player:invokeFunction("player/ui/cc_newsboard.lua", "onNewsPublished")
+            player:invokeFunction("data/scripts/player/ui/cc_newsboard.lua", "onNewsPublished")
         end
     end
 end

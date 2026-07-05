@@ -9,8 +9,8 @@ end
 function onSectorEntered(playerIndex, x, y, sectorChangeType)
     if onServer() then
         local pending = Server():getValue("CosmicVault_PendingFlips")
-        if pending then
-            local key = x .. "_" .. y
+        if type(pending) == "table" then
+            local key = tostring(x) .. "_" .. tostring(y)
             if pending[key] then
                 local newFactionIndex = pending[key]
                 -- Running in player/sector context, so Sector() is 100% legal here

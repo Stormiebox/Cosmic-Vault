@@ -26,9 +26,13 @@
 -- include("cosmicvaultdebug").info("Cosmic Vault", splitter[3]) -- Rect(285, 5, 325, 25)
 -- include("cosmicvaultdebug").info("Cosmic Vault", splitter[4]) -- Rect(335, 5, 695, 25)
 function CosmicUIVerticalProportionalSplitter(rect, paddingInside, margin, proportions)
+    if not rect then return nil end
+    paddingInside = paddingInside or 0
+    margin = margin or 0
     if type(margin) ~= "table" then
         margin = {margin, margin, margin, margin}
     end
+    proportions = proportions or {1}
     local e = {
         __ = {
           paddingLeft = 0,
@@ -59,7 +63,7 @@ function CosmicUIVerticalProportionalSplitter(rect, paddingInside, margin, propo
                 end
             end
             width = width - totalAbsolute
-            local part = width / totalWeight
+            local part = totalWeight > 0 and (width / totalWeight) or 0
             local result = {}
             local x = self.inner.lower.x
             local startY = self.inner.lower.y + self.__.paddingTop
@@ -238,9 +242,13 @@ end
 -- include("cosmicvaultdebug").info("Cosmic Vault", splitter[3]) -- Rect(5, 285, 25, 325)
 -- include("cosmicvaultdebug").info("Cosmic Vault", splitter[4]) -- Rect(5, 335, 25, 695)
 function CosmicUIHorizontalProportionalSplitter(rect, paddingInside, margin, proportions)
+    if not rect then return nil end
+    paddingInside = paddingInside or 0
+    margin = margin or 0
     if type(margin) ~= "table" then
         margin = {margin, margin, margin, margin}
     end
+    proportions = proportions or {1}
     local e = {
         __ = {
           paddingLeft = 0,
@@ -271,7 +279,7 @@ function CosmicUIHorizontalProportionalSplitter(rect, paddingInside, margin, pro
                 end
             end
             height = height - totalAbsolute
-            local part = height / totalWeight
+            local part = totalWeight > 0 and (height / totalWeight) or 0
             local result = {}
             local y = self.inner.lower.y
             local startX = self.inner.lower.x + self.__.paddingLeft

@@ -15,19 +15,22 @@ function CosmicVaultNews.publishArticle(article)
         return
     end
     
-    if not article or type(article) ~= "table" or not article.title or not article.content then
+    if not article or type(article) ~= "table" or type(article.title) ~= "string" or type(article.content) ~= "string" then
         if CosmicVaultDebug and CosmicVaultDebug.error then
-            CosmicVaultDebug.error("CosmicVaultNews", "Invalid article format.")
+            CosmicVaultDebug.error("CosmicVaultNews", "Invalid article format or types.")
         end
         return
     end
+
+    -- Enforce default category
+    article.category = article.category or "General"
 
     -- Clean Avorion translation hints (e.g. /* faction name */) from the title and content
     article.title = string.gsub(article.title, "%s*/%*.-%*/%s*", "")
     article.content = string.gsub(article.content, "%s*/%*.-%*/%s*", "")
 
     if CosmicVaultDebug and CosmicVaultDebug.info then
-        CosmicVaultDebug.info("CosmicVaultNews", "Publishing %s News: %s", article.category or "General", article.title)
+        CosmicVaultDebug.info("CosmicVaultNews", "Publishing %s News: %s", article.category, article.title)
     end
 
     local server = Server()

@@ -68,11 +68,13 @@ local function modifiersMatch(c, kb, mode)
 end
 
 function CCM.bind(namespace)
+    if type(namespace) ~= "string" then return nil end
     if bindings[namespace] then return bindings[namespace] end
 
     local binding = {}
 
     function binding.get(key)
+        if type(key) ~= "string" then return nil end
         if onServer() then
             local sv = Server()
             if sv then

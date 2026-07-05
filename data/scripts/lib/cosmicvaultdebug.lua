@@ -79,21 +79,21 @@ end
 -- @param msg (string) The message
 function CosmicVaultDebug.log(moduleName, msg, ...)
     if not CosmicVaultDebug.isEnabled(moduleName) then return end
-    print("%s %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...))
+    print(string.format("%s %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...)))
 end
 
 --- Info log output
 -- @param msg (string) The message
 function CosmicVaultDebug.info(moduleName, msg, ...)
     if not CosmicVaultDebug.isEnabled(moduleName) then return end
-    print("%s[INFO] %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...))
+    print(string.format("%s[INFO] %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...)))
 end
 
 --- Warning log output
 -- @param msg (string) The message
 function CosmicVaultDebug.warn(moduleName, msg, ...)
     if not CosmicVaultDebug.isEnabled(moduleName) then return end
-    print("%s[WARN] %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...))
+    print(string.format("%s[WARN] %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...)))
 end
 
 --- Error log output
@@ -101,7 +101,7 @@ end
 function CosmicVaultDebug.error(moduleName, msg, ...)
     if not msg then return end
     -- Always print errors regardless of debug toggle.
-    print("%s[ERROR] %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...))
+    print(string.format("%s[ERROR] %s", CosmicVaultDebug.getPrefix(moduleName), _fmt(msg, ...)))
 end
 
 return CosmicVaultDebug

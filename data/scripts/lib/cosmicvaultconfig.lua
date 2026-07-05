@@ -54,10 +54,11 @@ local defaults = {
 }
 
 local function clampNumber(v, minV, maxV, fallback)
-    if type(v) ~= "number" then return fallback end
-    if v < minV then return minV end
-    if v > maxV then return maxV end
-    return v
+    local num = tonumber(v)
+    if not num then return fallback end
+    if num < minV then return minV end
+    if num > maxV then return maxV end
+    return num
 end
 
 local function readNumber(key, minV, maxV, fallback)
@@ -114,12 +115,20 @@ local function build()
     return out
 end
 
---- Retrieves a configuration value
--- @param key (string) The config key
--- @param default (any) Default value if not found
--- @return (any) The config value
-function CosmicVaultConfig.get()
-    return build()
+--- Retrieves a configuration value or the entire config table
+-- @param key (string, optional) The config key
+-- @param default (any, optional) Default value if not found
+-- @return (any|table) The config value, or the entire config table if no key is provided
+function CosmicVaultConfig.get(key, default)
+    local cfg = build()
+    if key then
+        if cfg[key] ~= nil then
+            return cfg[key]
+        else
+            return default
+        end
+    end
+    return cfg
 end
 
 return CosmicVaultConfig

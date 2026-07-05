@@ -30,9 +30,13 @@ end
 
 -- This function is called by the API when a sector is briefly loaded to flip its stations
 function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
+    if type(x) ~= "number" or type(y) ~= "number" or type(newFactionIndex) ~= "number" then return end
+    
     -- Queue the territory flip for the next time a player enters the sector
-    local pending = Server():getValue("CosmicVault_PendingFlips") or {}
-    local key = x .. "_" .. y
+    local pending = Server():getValue("CosmicVault_PendingFlips")
+    if type(pending) ~= "table" then pending = {} end
+    
+    local key = tostring(x) .. "_" .. tostring(y)
     pending[key] = newFactionIndex
     Server():setValue("CosmicVault_PendingFlips", pending)
 

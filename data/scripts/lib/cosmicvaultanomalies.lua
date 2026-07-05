@@ -20,7 +20,8 @@ function CosmicVaultAnomalies.spawnAnomaly(x, y, anomalyType, position)
     
     local entity
     if anomalyType == "PrecursorWreck" then
-        local plan = PlanGenerator.makeShipPlan(Faction(), Balancing_GetSectorShipVolume(x, y) * 5, Material(MaterialType.Xanion))
+        local faction = Galaxy():getNearestFaction(x, y) or Galaxy():getPirateFaction(0)
+        local plan = PlanGenerator.makeShipPlan(faction, Balancing_GetSectorShipVolume(x, y) * 5, nil, Material(MaterialType.Xanion))
         entity = sector:createWreckage(plan, position)
         entity.title = "Ancient Precursor Wreck"
         entity:addScriptOnce("data/scripts/entity/cv_anomaly_wreck.lua")

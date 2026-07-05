@@ -47,7 +47,7 @@ function CosmicVaultEconomy.addFamineScore(factionIndex, amount)
                     end
                     
                     if not isEradicated then
-                        local wealth = f:getWealth() or 0
+                        local wealth = f.money or 0
                         if wealth > bestTargetWealth then
                             bestTarget = f
                             bestTargetWealth = wealth

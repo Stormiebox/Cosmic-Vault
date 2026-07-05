@@ -4,7 +4,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 local cv_debuff_type = ""
 
 function initialize(weatherType)
-    cv_debuff_type = weatherType or ""
+    cv_debuff_type = type(weatherType) == "string" and weatherType or ""
     if onServer() then
         applyDebuffs()
     end
@@ -20,7 +20,14 @@ function applyDebuffs()
         entity:addBaseMultiplier(StatsBonuses.RadarReach, -1.0) -- -100% radar
     elseif cv_debuff_type == "DarkMatterFog" then
         local faction = Faction(entity.factionIndex)
-        if not faction or faction.name ~= "The Eclipse" then
+        local isEclipse = false
+        if faction and not faction.isPlayer and not faction.isAlliance then
+            if faction.name == "The Eclipse" or faction:getValue("is_eclipse") then
+                isEclipse = true
+            end
+        end
+        
+        if not isEclipse then
             entity:addBaseMultiplier(StatsBonuses.RadarReach, -0.5) -- -50% radar
             entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, -0.5) -- -50% jump
         end
@@ -32,10 +39,11 @@ function secure()
 end
 
 function restore(data)
-    cv_debuff_type = data.type
+    if type(data) ~= "table" then return end
+    cv_debuff_type = type(data.type) == "string" and data.type or ""
     
     if onServer() then
-        if not Sector():hasScript("sector/cv_weather_controller.lua") then
+        if not Sector():hasScript("data/scripts/sector/cv_weather_controller.lua") then
             terminate()
             return
         end

@@ -6,8 +6,8 @@ local cv_weather_time = 0
 local cv_weather_duration = 0
 
 function initialize(stormType, duration)
-    cv_weather_type = stormType or "IonStorm"
-    cv_weather_duration = duration or -1
+    cv_weather_type = type(stormType) == "string" and stormType or "IonStorm"
+    cv_weather_duration = type(duration) == "number" and duration or -1
     cv_weather_time = 0
     
     if onServer() then
@@ -57,10 +57,10 @@ function updateServer(timeStep)
             -- Deal 2% max shield damage per 5-sec tick
             local maxShield = entity.shieldMax or 0
             if maxShield > 0 then
-                entity:inflictDamage(maxShield * 0.02, 0, DamageSource.Collision, entity.translationf)
+                entity:inflictDamage(maxShield * 0.02, 1, DamageType.Energy, entity.translationf, entity.id)
             else
                 local maxHull = entity.maxDurability or 0
-                entity:inflictDamage(maxHull * 0.005, 0, DamageSource.Collision, entity.translationf)
+                entity:inflictDamage(maxHull * 0.005, 1, DamageType.Physical, entity.translationf, entity.id)
             end
             
             ::continue::
@@ -80,8 +80,9 @@ function onEntityEntered(id)
         end
     end
     
-    if not entity:hasScript("entity/cv_weather_debuff.lua") then
-        entity:addScriptOnce("data/scripts/entity/cv_weather_debuff.lua", cv_weather_type)
+    local scriptPath = "data/scripts/entity/cv_weather_debuff.lua"
+    if not entity:hasScript(scriptPath) then
+        entity:addScriptOnce(scriptPath, cv_weather_type)
     end
 end
 
@@ -89,18 +90,19 @@ function onEntityLeft(id)
     local entity = Entity(id)
     if not valid(entity) or not entity.isShip then return end
     
-    if entity:hasScript("entity/cv_weather_debuff.lua") then
-        entity:removeScript("entity/cv_weather_debuff.lua")
+    local scriptPath = "data/scripts/entity/cv_weather_debuff.lua"
+    if entity:hasScript(scriptPath) then
+        entity:removeScript(scriptPath)
     end
 end
 
 function onRemove()
     if onClient() then
-        Player():removeScript("player/ui/cv_weather_ui.lua")
+        Player():removeScript("data/scripts/player/ui/cv_weather_ui.lua")
     end
     if onServer() then
         for _, entity in pairs({Sector():getEntitiesByType(EntityType.Ship)}) do
-            entity:removeScript("entity/cv_weather_debuff.lua")
+            entity:removeScript("data/scripts/entity/cv_weather_debuff.lua")
         end
     end
 end
@@ -110,7 +112,8 @@ function secure()
 end
 
 function restore(data)
-    cv_weather_type = data.type
-    cv_weather_time = data.time
-    cv_weather_duration = data.duration
+    if type(data) ~= "table" then return end
+    cv_weather_type = data.type or "None"
+    cv_weather_time = data.time or 0
+    cv_weather_duration = data.duration or -1
 end

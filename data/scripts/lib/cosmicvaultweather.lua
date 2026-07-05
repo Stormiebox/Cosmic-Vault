@@ -8,6 +8,8 @@ local CosmicVaultWeather = {}
 -- cv_weather.triggerStorm(x, y, "IonStorm", 14400) -- 4 hours
 
 function CosmicVaultWeather.triggerStorm(x, y, stormType, duration)
+    if type(x) ~= "number" or type(y) ~= "number" or type(stormType) ~= "string" then return end
+    if duration and type(duration) ~= "number" then return end
     if not onServer() then return end
     -- Forward the request to the central server manager
     local server = Server()
@@ -17,6 +19,7 @@ function CosmicVaultWeather.triggerStorm(x, y, stormType, duration)
 end
 
 function CosmicVaultWeather.clearStorm(x, y)
+    if type(x) ~= "number" or type(y) ~= "number" then return end
     if not onServer() then return end
     local server = Server()
     if server then
@@ -27,6 +30,7 @@ end
 -- Synchronous check to see if weather exists at a coordinate.
 -- Note: Requires Server context or invokeFunction callback if queried from client.
 function CosmicVaultWeather.getWeatherAt(x, y)
+    if type(x) ~= "number" or type(y) ~= "number" then return nil end
     if not onServer() then return nil end
     local server = Server()
     if not server then return nil end

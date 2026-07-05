@@ -18,8 +18,9 @@ end
 function CosmicVaultRiftEscalation.onRiftGuardianDestroyed(entityIdStr)
     if not onServer() then return end
     local server = Server()
-    local kills = server:getValue("cv_rift_guardian_kills") or 0
-    server:broadcastChatMessage("System"%_T, ChatMessageType.Warning, "WARNING: Global Xsotan aggression rising. A Rift Guardian has been destroyed. Escalation Level: %1%"%_T, kills)
+    local kills = server:getValue("cv_rift_guardian_kills")
+    if type(kills) ~= "number" then kills = 0 end
+    server:broadcastChatMessage("System"%_T, ChatMessageType.Warning, "WARNING: Global Xsotan aggression rising. A Rift Guardian has been destroyed. Escalation Level: %1%"%_T, tostring(kills))
     
     local cvn = include("cosmicvaultnews")
     cvn.publishArticle({
@@ -32,8 +33,9 @@ end
 function CosmicVaultRiftEscalation.onRiftExtractionDepth50(playerIndex)
     if not onServer() then return end
     local server = Server()
-    local extractions = server:getValue("cv_rift_extractions") or 0
-    server:broadcastChatMessage("System"%_T, ChatMessageType.Warning, "WARNING: Subspace anomalies detected. A deep rift extraction has succeeded. Escalation Level: %1%"%_T, extractions)
+    local extractions = server:getValue("cv_rift_extractions")
+    if type(extractions) ~= "number" then extractions = 0 end
+    server:broadcastChatMessage("System"%_T, ChatMessageType.Warning, "WARNING: Subspace anomalies detected. A deep rift extraction has succeeded. Escalation Level: %1%"%_T, tostring(extractions))
     
     local cvn = include("cosmicvaultnews")
     cvn.publishArticle({
@@ -49,8 +51,10 @@ end
 
 function CosmicVaultRiftEscalation.updateServer(timeStep)
     local server = Server()
-    local kills = server:getValue("cv_rift_guardian_kills") or 0
-    local extractions = server:getValue("cv_rift_extractions") or 0
+    local kills = server:getValue("cv_rift_guardian_kills")
+    if type(kills) ~= "number" then kills = 0 end
+    local extractions = server:getValue("cv_rift_extractions")
+    if type(extractions) ~= "number" then extractions = 0 end
     
     local escalationLevel = kills + (extractions * 0.5)
     
@@ -64,7 +68,7 @@ function CosmicVaultRiftEscalation.updateServer(timeStep)
                 local attackType = random():getInt(1, 3)
                 -- 3 is also a valid type but is less common. Use 0, 1, or 2 for standard attacks.
                 attackType = random():getInt(0, 2)
-                player:addScriptOnce("events/alienattack", attackType)
+                player:addScriptOnce("data/scripts/player/events/alienattack.lua", attackType)
             end
             server:broadcastChatMessage("System"%_T, ChatMessageType.Warning, "CRITICAL: Global Rift Escalation Threshold Reached. Xsotan swarms converging galaxy-wide!"%_T)
             

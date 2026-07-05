@@ -13,6 +13,10 @@ CosmicVaultBlueprint = {}
 -- @return Entity The spawned ship entity
 function CosmicVaultBlueprint.spawnShip(factionId, xmlPlan, matrix, volume)
     if not onServer() then return end
+    if type(factionId) ~= "number" then return nil end
+    if type(xmlPlan) ~= "string" then return nil end
+    if matrix and type(matrix) ~= "userdata" then return nil end
+    if volume and type(volume) ~= "number" then return nil end
     
     local faction = Faction(factionId)
     if not faction then return end
@@ -53,6 +57,10 @@ end
 -- @return Entity The spawned station entity
 function CosmicVaultBlueprint.spawnStation(factionId, xmlPlan, matrix, stationType)
     if not onServer() then return end
+    if type(factionId) ~= "number" then return nil end
+    if type(xmlPlan) ~= "string" then return nil end
+    if matrix and type(matrix) ~= "userdata" then return nil end
+    if stationType and type(stationType) ~= "string" then return nil end
     
     local faction = Faction(factionId)
     if not faction then return end
@@ -87,6 +95,10 @@ end
 -- @param material (Material) The material of the turret
 -- @return InventoryTurret The generated custom turret item
 function CosmicVaultBlueprint.createTurretFromPlan(xmlPlan, weaponType, rarity, material)
+    if type(xmlPlan) ~= "string" then return nil end
+    if weaponType and type(weaponType) ~= "number" then return nil end
+    if rarity and type(rarity) ~= "userdata" then return nil end
+    if material and type(material) ~= "userdata" then return nil end
     local plan = BlockPlan()
     local success = pcall(function() plan = LoadPlanFromString(xmlPlan) end)
     if not success or not plan or plan.numBlocks == 0 then return nil end

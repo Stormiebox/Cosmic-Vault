@@ -558,13 +558,18 @@ function RiftMissionUT.showMissionAccomplished(brief, arguments)
         if not player then return end
 
         player:sendChatMessage("", ChatMessageType.Information, "Objective accomplished!"%_T)
-        player:sendChatMessage("", ChatMessageType.Information, brief, unpack(arguments or {}))
+        local argsTable = arguments
+        if type(argsTable) ~= "table" then argsTable = {arguments} end
+        player:sendChatMessage("", ChatMessageType.Information, brief, unpack(argsTable))
 
         -- Cosmic Vault - Global Rift Escalation tracking
-        local riftDepth = Sector():getValue("rift_depth") or 0
+        local riftDepth = Sector():getValue("rift_depth")
+        if type(riftDepth) ~= "number" then riftDepth = 0 end
+        
         if riftDepth >= 50 then
             local server = Server()
-            local count = server:getValue("cv_rift_extractions") or 0
+            local count = server:getValue("cv_rift_extractions")
+            if type(count) ~= "number" then count = 0 end
             server:setValue("cv_rift_extractions", count + 1)
             server:sendCallback("onRiftExtractionDepth50", player.index)
         end

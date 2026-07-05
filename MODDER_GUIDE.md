@@ -29,9 +29,14 @@ Welcome to the **Cosmic Vault API Guide**! This document provides technical inst
 > **Common Native API Errors**
 > Be highly cautious of incorrectly used API method names when using native C++ userdata objects.
 > - **Relations:** `Faction` and `Player` userdata objects do NOT have a `setRelations()` or `changeRelations()` method. You must use the global `Galaxy():setFactionRelations()` and `Galaxy():changeFactionRelations()`.
+> - **Relations (Get):** Native `Galaxy():getFactionRelations(a, b)` strictly requires `Faction` objects, NOT integer indices. Wrapping indices with `Faction(index)` is mandatory.
+> - **Wealth:** Factions do NOT have a `getWealth()` method. You must use the native property `faction.money`.
 > - **Stats & Entities:** Use `statModifier:addBaseMultiplier()` (not `modifyBaseMultiplier`). Use `entity:addMultiplyableBias()` (not `addMultiplyableFactor`).
 > - **Sectors:** `Galaxy()` does NOT have a `setFaction()` or `tryUnloadSector()` method. Sector borders are natively controlled by the stations inside them.
+> - **InvokeFunction:** Pay strict attention to where scripts are attached. Use `Server():invokeFunction("script.lua", ...)` for scripts in `data/scripts/server/`. Use `Galaxy():invokeFunction("script.lua", ...)` ONLY for scripts in `data/scripts/galaxy/`.
+> - **Client Functions:** When communicating from a server script to a player script, use the global `invokeClientFunction(Player(), "functionName", args...)` to safely cross the server-client boundary.
 > - **Blueprints:** `BlockPlan` does NOT have `plan:fromString()`. Use the global `LoadPlanFromString()`.
+> - **Loot Drops:** Use `Sector():dropTurret()` for weapons and `Sector():dropUpgrade()` specifically for SystemUpgradeTemplate objects. Mismatching these will crash the sector.
 > Stormbox: This is from my personal findings and debugging often.
 ---
 
@@ -138,6 +143,7 @@ Injects custom ambushes or anomalies natively when a player enters a sector.
 ```lua
 local CosmicVaultEncounter = include("cosmicvaultencounter")
 CosmicVaultEncounter.spawnAmbush(Faction().index, 5000, 3, nil, true)
+CosmicVaultEncounter.broadcastEncounterMessage("Pirate Lord", "You picked the wrong sector!", true)
 ```
 
 ### 📜 10. Mission API (`cosmicvaultmission.lua`)
@@ -173,7 +179,7 @@ CosmicVaultFleet.orderJump(entityId, 15, -20)
 Natively injects custom trade goods.
 ```lua
 local CosmicVaultGoods = include("cosmicvaultgoods")
-CosmicVaultGoods.registerGood({name = "Cosmic Matter", price = 50000, volume = 5.0})
+CosmicVaultGoods.registerGood({name = "Cosmic Matter", price = 50000, size = 5.0})
 ```
 
 ### 💎 15. Loot API (`cosmicvaultloot.lua`)
@@ -207,11 +213,10 @@ CosmicVaultEvents.startEvent("xsotan_invasion", 3600)
 ```
 
 ### 🛡️ 19. Buffs API (`cosmicvaultbuffs.lua`)
-Applies self-terminating buffs and tracks global faction-wide buff tiers. Supported native mappings include: `Velocity`, `Shield`, `Damage`, `Acceleration`, `HyperspaceCooldown`, and `SalvageYield`.
+Applies self-terminating buffs and tracks global faction-wide buff tiers. Supported native mappings include: `Velocity`, `Shield`, `Damage`, `Acceleration`, and `HyperspaceCooldown`.
 ```lua
 local CosmicVaultBuffs = include("cosmicvaultbuffs")
 CosmicVaultBuffs.applyBuff(entityId, "Velocity", 0.5, 30)
-CosmicVaultBuffs.applyBuff(entityId, "SalvageYield", 1.20, 60)
 ```
 
 ### 🔥 20. Combat & DoTs API (`cosmicvaultcombat.lua`)
@@ -237,10 +242,24 @@ CosmicVaultDebug.log("System initialized successfully in 12ms.")
 ```
 
 ### 💬 23. Dialogue API (`cosmicvaultdialogue.lua`)
-A wrapper for native NPC conversation branching and callbacks without needing explicit file overrides.
+A wrapper for native NPC conversation branching and contextual random lines without needing explicit file overrides.
+
+> [!TIP]
+> **Contextual Dialogue Conditions:** When registering a dialogue line, you can provide a `conditions` table. The API will automatically filter out invalid dialogues based on the provided context.
+> Supported conditions:
+> - `minWarHeat` / `maxWarHeat` (number)
+> - `minReputation` / `maxReputation` (number)
+> - `minDistanceToCenter` / `maxDistanceToCenter` (number)
+> - `factionTrait` (string)
+> - `stationType` (string)
+
 ```lua
 local CosmicVaultDialogue = include("cosmicvaultdialogue")
-CosmicVaultDialogue.showNode(Player(), "Welcome to the Forge. What do you require?")
+CosmicVaultDialogue.registerLine({
+    category = "greeting_hostile",
+    text = "You've got some nerve showing up here.",
+    conditions = { maxReputation = -10000 }
+})
 ```
 
 ### 🗺️ 24. Territory API (`cosmicvaultterritory.lua`)

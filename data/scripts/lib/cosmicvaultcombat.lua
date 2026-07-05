@@ -16,8 +16,8 @@ CosmicVaultCombat = CosmicVaultCombat or {}
 -- @param amount (number) The amount of raw damage to inflict
 -- @param sourceId (string|Uuid) Optional source of the damage
 function CosmicVaultCombat.applyTrueDamage(entityId, amount, sourceId)
-    if not entityId or not amount then return end
     if not onServer() then return end
+    if not entityId or type(amount) ~= "number" then return end
     local entity = Entity(entityId)
     if not valid(entity) then return end
     
@@ -42,8 +42,8 @@ end
 -- @param durationSeconds (int) How long the DoT lasts in seconds
 -- @param sourceId (string|Uuid) Optional source of the damage
 function CosmicVaultCombat.applyDoT(entityId, damageType, totalDamage, durationSeconds, sourceId)
-    if not entityId or not damageType or not totalDamage or not durationSeconds then return end
     if not onServer() then return end
+    if not entityId or type(damageType) ~= "string" or type(totalDamage) ~= "number" or type(durationSeconds) ~= "number" then return end
     local entity = Entity(entityId)
     if not valid(entity) then return end
     
@@ -56,8 +56,8 @@ end
 -- @param totalHeal (number) Total healing to restore over the duration
 -- @param durationSeconds (int) How long the HoT lasts in seconds
 function CosmicVaultCombat.applyHoT(entityId, totalHeal, durationSeconds)
-    if not entityId or not totalHeal or not durationSeconds then return end
     if not onServer() then return end
+    if not entityId or type(totalHeal) ~= "number" or type(durationSeconds) ~= "number" then return end
     local entity = Entity(entityId)
     if not valid(entity) then return end
     

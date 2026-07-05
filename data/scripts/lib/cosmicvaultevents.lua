@@ -10,6 +10,7 @@ local VAULT_PREFIX = "cosmic_event_"
 -- @param durationSeconds (int) How long the event should last in real unpaused server seconds
 function CosmicVaultEvents.startEvent(eventName, durationSeconds)
     if not onServer() then return end
+    if not eventName then return end
     
     local server = Server()
     local key = VAULT_PREFIX .. eventName
@@ -22,6 +23,7 @@ end
 -- @param eventName (string) The unique name of the event
 function CosmicVaultEvents.endEvent(eventName)
     if not onServer() then return end
+    if not eventName then return end
     
     local server = Server()
     local key = VAULT_PREFIX .. eventName
@@ -32,6 +34,7 @@ end
 -- @param eventName (string) The unique name of the event
 -- @return boolean
 function CosmicVaultEvents.isEventActive(eventName)
+    if not onServer() then return false end
     if not eventName then return false end
     local server = Server()
     local key = VAULT_PREFIX .. eventName
@@ -41,10 +44,8 @@ function CosmicVaultEvents.isEventActive(eventName)
         if server.unpausedRuntime < endTime then
             return true
         else
-            -- Event naturally expired, clean it up if we are on server
-            if onServer() then
-                server:setValue(key, nil)
-            end
+            -- Event naturally expired, clean it up
+            server:setValue(key, nil)
         end
     end
     
@@ -55,6 +56,7 @@ end
 -- @param eventName (string) The unique name of the event
 -- @return int Seconds remaining, or 0 if inactive
 function CosmicVaultEvents.getEventTimeRemaining(eventName)
+    if not onServer() then return 0 end
     if not eventName then return 0 end
     local server = Server()
     local key = VAULT_PREFIX .. eventName

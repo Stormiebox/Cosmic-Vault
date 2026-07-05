@@ -1,6 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include("cosmicvaultframework")
+include("cosmicvaultdebug")
 local json = include("dkjson")
 
 -- namespace CosmicVaultData
@@ -18,6 +19,7 @@ CosmicVaultData = CosmicVaultData or {}
 -- @param data (table) The data to save
 function CosmicVaultData.SetTable(entity, key, tbl)
     if not valid(entity) then return false end
+    if type(key) ~= "string" then return false end
     if type(tbl) ~= "table" then return false end
     
     local encoded = json.encode(tbl, { indent = false })
@@ -30,7 +32,7 @@ end
 -- @param key (string) The table key
 -- @return (table|nil) The data table
 function CosmicVaultData.GetTable(entity, key)
-    if not valid(entity) then return nil end
+    if not valid(entity) or type(key) ~= "string" then return nil end
     local val = entity:getValue(key)
     if type(val) ~= "string" then return nil end
     
@@ -46,7 +48,7 @@ end
 -- @param entity (Entity) The target entity
 -- @param tag (string) The tag
 function CosmicVaultData.AddTag(entity, tag)
-    if not valid(entity) then return false end
+    if not valid(entity) or type(tag) ~= "string" then return false end
     local tags = CosmicVaultData.GetTable(entity, "_cosmic_tags") or {}
     tags[tag] = true
     CosmicVaultData.SetTable(entity, "_cosmic_tags", tags)
@@ -57,7 +59,7 @@ end
 -- @param entity (Entity) The target entity
 -- @param tag (string) The tag
 function CosmicVaultData.RemoveTag(entity, tag)
-    if not valid(entity) then return false end
+    if not valid(entity) or type(tag) ~= "string" then return false end
     local tags = CosmicVaultData.GetTable(entity, "_cosmic_tags") or {}
     tags[tag] = nil
     CosmicVaultData.SetTable(entity, "_cosmic_tags", tags)
@@ -69,7 +71,7 @@ end
 -- @param tag (string) The tag
 -- @return (boolean) True if tag exists
 function CosmicVaultData.HasTag(entity, tag)
-    if not valid(entity) then return false end
+    if not valid(entity) or type(tag) ~= "string" then return false end
     local tags = CosmicVaultData.GetTable(entity, "_cosmic_tags") or {}
     return tags[tag] == true
 end
@@ -78,9 +80,9 @@ end
 -- @param tag (string) The tag
 -- @return (table) List of entities
 function CosmicVaultData.GetEntitiesByTag(sector, tag)
-    if not valid(sector) then return {} end
+    if not valid(sector) or type(tag) ~= "string" then return {} end
     local results = {}
-    local entities = sector:getEntities()
+    local entities = {sector:getEntities()}
     for _, entity in pairs(entities) do
         if CosmicVaultData.HasTag(entity, tag) then
             table.insert(results, entity)

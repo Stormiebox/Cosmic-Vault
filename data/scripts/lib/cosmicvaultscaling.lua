@@ -31,7 +31,7 @@ function CosmicVaultScaling.calculateSectorDefenderStrength(invaderFactionIndex)
         if entity.factionIndex and entity.factionIndex > 0 then
             -- Determine if this entity is hostile or neutral to the invader.
             -- If the invader hates them, they are a defender.
-            local rel = galaxy:getFactionRelations(invaderFactionIndex, entity.factionIndex)
+            local rel = galaxy:getFactionRelations(Faction(invaderFactionIndex), Faction(entity.factionIndex))
             if rel < -10000 or entity.isPlayer then
                 count = count + 1
                 totalVolume = totalVolume + (entity.volume or 0)

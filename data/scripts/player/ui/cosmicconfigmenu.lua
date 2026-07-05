@@ -86,7 +86,9 @@ function CosmicConfigMenu.receiveCCMSync(data)
     if not self.serverData then self.serverData = {} end
     if type(data) == "table" then
         for k, v in pairs(data) do
-            self.serverData[k] = v
+            if type(k) == "string" then
+                self.serverData[k] = v
+            end
         end
     end
     ccm.setClientCache(self.serverData)
@@ -394,7 +396,7 @@ function CosmicConfigMenu.syncCCMSettings(settingsBatch)
         local s = Server()
         local sanitizedBatch = {}
         for k, v in pairs(settingsBatch) do
-            if type(v) == "boolean" or type(v) == "number" or type(v) == "string" then
+            if type(k) == "string" and (type(v) == "boolean" or type(v) == "number" or type(v) == "string") then
                 s:setValue("ccm_" .. k, v)
                 sanitizedBatch[k] = v
             end
@@ -411,7 +413,7 @@ function CosmicConfigMenu.requestCCMSync(keys)
     local data = {}
     if type(keys) == "table" then
         for _, item in ipairs(keys) do
-            if type(item) == "table" and item.namespace and item.key then
+            if type(item) == "table" and type(item.namespace) == "string" and type(item.key) == "string" then
                 local val = s:getValue("ccm_" .. item.namespace .. "_" .. item.key)
                 data[item.namespace .. "_" .. item.key] = val
             end

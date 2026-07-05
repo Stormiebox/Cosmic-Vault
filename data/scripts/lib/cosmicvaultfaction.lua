@@ -15,6 +15,7 @@ end
 -- @param traitName (string) The display name in the UI (e.g. "Industrial")
 -- @param descriptions (table) Array of strings acting as tooltips (e.g. {"Produces more goods", "Aggressively defends miners"})
 function CosmicVaultFaction.registerCustomTrait(traitId, traitName, descriptions)
+    if not traitId then return end
     _G.CosmicVaultRegisteredTraits[traitId] = {
         name = traitName,
         descriptions = descriptions or {}
@@ -33,6 +34,7 @@ end
 -- @param value (any) The value of the trait (usually boolean or int)
 function CosmicVaultFaction.setTrait(factionIndex, traitName, value)
     if not onServer() then return end
+    if not traitName then return end
     local faction = Faction(factionIndex)
     if not faction then return end
     
@@ -45,6 +47,7 @@ end
 -- @param traitName (string) The name of the trait
 -- @return any The value of the trait, or nil if not found
 function CosmicVaultFaction.getTrait(factionIndex, traitName)
+    if not traitName then return nil end
     local faction = Faction(factionIndex)
     if not faction then return nil end
     
@@ -58,6 +61,9 @@ end
 -- @param delta (int) Amount to change relations by
 function CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
     if not onServer() then return end
+    if not delta then return end
+    if factionIndex1 == factionIndex2 then return end
+    
     local f1 = Faction(factionIndex1)
     local f2 = Faction(factionIndex2)
     if not f1 or not f2 then return end
@@ -65,7 +71,7 @@ function CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
     local current = f1:getRelations(factionIndex2) or 0
     local newRelation = math.max(-100000, math.min(100000, current + delta))
     
-    Galaxy():setFactionRelations(f1, Faction(factionIndex2), newRelation)
+    Galaxy():setFactionRelations(f1, f2, newRelation)
 end
 
 return CosmicVaultFaction
