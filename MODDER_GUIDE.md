@@ -331,3 +331,7 @@ Never append global VM hooks at the bottom of these files!
 - **Deep Economy Warfare:** The CosmicVaultEconomy API now bridges the economy simulation with the diplomatic war simulation. Factions with extreme Famine Scores can invoke CosmicWarBridge.forceDeclareWar() directly.
 - **Faction Trait Scaling:** The CosmicVaultScaling engine reads Cosmic War traits natively. An entrenched defending faction automatically triggers a 30% bonus in defensive scaling against invaders.
 - **Unified News API:** Centralized and fortified CosmicVaultNews handles global UI validation across all interconnected mods.
+## CosmicVaultFaction API
+CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
+Safely modifies relations without resetting them completely, clamping to valid values (-100000 to 100000). Use this instead of Galaxy():setFactionRelations to prevent engine crashes from out-of-bounds math logic.
+
