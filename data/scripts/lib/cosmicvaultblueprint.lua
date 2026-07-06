@@ -21,11 +21,10 @@ function CosmicVaultBlueprint.spawnShip(factionId, xmlPlan, matrix, volume)
     local faction = Faction(factionId)
     if not faction then return end
     
-    local plan = BlockPlan()
-    local success = pcall(function() plan = LoadPlanFromString(xmlPlan) end)
-    if not success or not plan or plan.numBlocks == 0 then
+    local plan = LoadPlanFromString(xmlPlan)
+    if not plan or plan.numBlocks == 0 then
         -- Try loading as a file path if string parsing failed or was empty
-        pcall(function() plan = LoadPlanFromFile(xmlPlan) end)
+        plan = LoadPlanFromFile(xmlPlan)
     end
     
     if not plan or plan.numBlocks == 0 then return nil end
@@ -65,10 +64,9 @@ function CosmicVaultBlueprint.spawnStation(factionId, xmlPlan, matrix, stationTy
     local faction = Faction(factionId)
     if not faction then return end
     
-    local plan = BlockPlan()
-    local success = pcall(function() plan = LoadPlanFromString(xmlPlan) end)
-    if not success or not plan or plan.numBlocks == 0 then
-        pcall(function() plan = LoadPlanFromFile(xmlPlan) end)
+    local plan = LoadPlanFromString(xmlPlan)
+    if not plan or plan.numBlocks == 0 then
+        plan = LoadPlanFromFile(xmlPlan)
     end
     
     if not plan or plan.numBlocks == 0 then return nil end
@@ -99,9 +97,8 @@ function CosmicVaultBlueprint.createTurretFromPlan(xmlPlan, weaponType, rarity, 
     if weaponType and type(weaponType) ~= "number" then return nil end
     if rarity and type(rarity) ~= "userdata" then return nil end
     if material and type(material) ~= "userdata" then return nil end
-    local plan = BlockPlan()
-    local success = pcall(function() plan = LoadPlanFromString(xmlPlan) end)
-    if not success or not plan or plan.numBlocks == 0 then return nil end
+    local plan = LoadPlanFromString(xmlPlan)
+    if not plan or plan.numBlocks == 0 then return nil end
     
     local turret = InventoryTurret()
     turret.weaponPrefix = weaponType or WeaponType.ChainGun
