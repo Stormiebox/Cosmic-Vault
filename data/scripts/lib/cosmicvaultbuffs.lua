@@ -90,4 +90,40 @@ function CosmicVaultBuffs.getGlobalTier(factionIndex)
     return faction:getValue("cv_ascendancy_global_tier") or 0
 end
 
+--- Calculates the dynamic multiplier for Living Relics based on distance to core and war heat.
+-- Automatically reads from Cosmic War's global server state to prevent hard-dependencies.
+-- @param entityId (Entity|Uuid|string) The entity to base the calculation on.
+-- @return number The final multiplier (e.g. 1.0 to 2.5)
+function CosmicVaultBuffs.getDynamicRelicMultiplier(entityId)
+    local distMultiplier = 1.0
+    local x, y = Sector():getCoordinates()
+    if x and y then
+        local dist = math.sqrt(x * x + y * y)
+        distMultiplier = 1.0 + (math.max(0, 500 - dist) / 250)
+    end
+    
+    local entity = Entity(entityId)
+    if not entity then return math.min(2.5, distMultiplier) end
+    
+    local factionIndex = entity.factionIndex
+    local warMultiplier = 1.0
+    
+    local server = Server()
+    if server then
+        local snapshotStr = server:getValue("cw_war_heat_snapshot")
+        if type(snapshotStr) == "string" and snapshotStr ~= "" then
+            for pair in string.gmatch(snapshotStr, "([^,]+)") do
+                local idxStr, heatStr = string.match(pair, "(%d+):([%d%.]+)")
+                if idxStr and tonumber(idxStr) == factionIndex and heatStr then
+                    local heat = tonumber(heatStr) or 0
+                    warMultiplier = 1.0 + (heat * 1.5)
+                    break
+                end
+            end
+        end
+    end
+    
+    return math.min(2.5, distMultiplier * warMultiplier)
+end
+
 return CosmicVaultBuffs

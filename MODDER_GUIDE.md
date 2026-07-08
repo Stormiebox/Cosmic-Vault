@@ -212,11 +212,15 @@ local CosmicVaultEvents = include("cosmicvaultevents")
 CosmicVaultEvents.startEvent("xsotan_invasion", 3600)
 ```
 
-### 🛡️ 19. Buffs API (`cosmicvaultbuffs.lua`)
-Applies self-terminating buffs and tracks global faction-wide buff tiers. Supported native mappings include: `Velocity`, `Shield`, `Damage`, `Acceleration`, and `HyperspaceCooldown`.
+### 🚀 19. Buffs API (`cosmicvaultbuffs.lua`)
+Applies self-terminating buffs, tracks global faction-wide buff tiers, and calculates dynamic "Living Relic" modifiers securely. Supported native buff mappings include: `Velocity`, `Shield`, `Damage`, `Acceleration`, and `HyperspaceCooldown`.
 ```lua
 local CosmicVaultBuffs = include("cosmicvaultbuffs")
+-- Apply a 30 second -50% speed debuff
 CosmicVaultBuffs.applyBuff(entityId, "Velocity", 0.5, 30)
+
+-- Fetch the dynamic multiplier for Living Relics (e.g. 1.0 - 2.5 multiplier based on Core Distance and War Heat)
+local finalMultiplier = CosmicVaultBuffs.getDynamicRelicMultiplier(entity.id)
 ```
 
 ### 🔥 20. Combat & DoTs API (`cosmicvaultcombat.lua`)
