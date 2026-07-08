@@ -113,7 +113,7 @@ if onServer() then
 
         -- To actually flip the stations, we must run a small script inside the sector once it loads.
         -- We will invoke a background task to flip it.
-        Server():invokeFunction("data/scripts/server/cosmicvaultterritory_server.lua", "flipSectorTerritory", x, y, newFactionIndex)
+        Galaxy():invokeFunction("data/scripts/server/cosmicvaultterritory_server.lua", "flipSectorTerritory", x, y, newFactionIndex)
         include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Sector " .. x .. ":" .. y .. " conquered by faction " .. tostring(newFactionIndex))
     end
 

@@ -12,19 +12,13 @@ function CosmicVaultWeather.triggerStorm(x, y, stormType, duration)
     if duration and type(duration) ~= "number" then return end
     if not onServer() then return end
     -- Forward the request to the central server manager
-    local server = Server()
-    if server then
-        server:invokeFunction("server/cosmicvaultweather_server.lua", "createWeather", x, y, stormType, duration)
-    end
+    Galaxy():invokeFunction("server/cosmicvaultweather_server.lua", "createWeather", x, y, stormType, duration)
 end
 
 function CosmicVaultWeather.clearStorm(x, y)
     if type(x) ~= "number" or type(y) ~= "number" then return end
     if not onServer() then return end
-    local server = Server()
-    if server then
-        server:invokeFunction("server/cosmicvaultweather_server.lua", "removeWeather", x, y)
-    end
+    Galaxy():invokeFunction("server/cosmicvaultweather_server.lua", "removeWeather", x, y)
 end
 
 -- Synchronous check to see if weather exists at a coordinate.
@@ -32,9 +26,7 @@ end
 function CosmicVaultWeather.getWeatherAt(x, y)
     if type(x) ~= "number" or type(y) ~= "number" then return nil end
     if not onServer() then return nil end
-    local server = Server()
-    if not server then return nil end
-    local ok, weather = server:invokeFunction("server/cosmicvaultweather_server.lua", "getWeatherSync", x, y)
+    local ok, weather = Galaxy():invokeFunction("server/cosmicvaultweather_server.lua", "getWeatherSync", x, y)
     if ok == 0 then
         return weather
     end

@@ -197,8 +197,7 @@ function EconomyUpdater.getSupplyDemandPriceChange(good, ownSupplyType)
                     if ok == 0 and type(extraFactor) == "number" then
                         factor = factor * extraFactor
                     else
-                        -- Fallback to Server script
-                        local ok2, extraFactor2 = Server():invokeFunction(scriptName, functionName, good, factor)
+                        local ok2, extraFactor2 = Galaxy():invokeFunction(scriptName, functionName, good, factor)
                         if ok2 == 0 and type(extraFactor2) == "number" then
                             factor = factor * extraFactor2
                         end
