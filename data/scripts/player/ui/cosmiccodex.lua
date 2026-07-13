@@ -133,16 +133,16 @@ function CosmicCodex.addArticle(chapterId, id, title, text, picturePath)
     self.articles[articleIndex] = { title = title, text = text, picture = picturePath, chapterId = chapterId }
 end
 
-function addCategory(id, title, iconPath)
-    CosmicCodex.addCategory(id, title, iconPath)
+function addCategory(...)
+    if CosmicCodex.addCategory then return CosmicCodex.addCategory(...) end
 end
 
-function addChapter(categoryId, id, title)
-    CosmicCodex.addChapter(categoryId, id, title)
+function addChapter(...)
+    if CosmicCodex.addChapter then return CosmicCodex.addChapter(...) end
 end
 
-function addArticle(chapterId, id, title, text, picturePath)
-    CosmicCodex.addArticle(chapterId, id, title, text, picturePath)
+function addArticle(...)
+    if CosmicCodex.addArticle then return CosmicCodex.addArticle(...) end
 end
 
 function CosmicCodex.onEntrySelected(index)

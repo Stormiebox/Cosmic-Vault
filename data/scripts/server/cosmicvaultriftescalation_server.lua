@@ -86,14 +86,15 @@ function CosmicVaultRiftEscalation.updateServer(timeStep)
     end
 end
 
-function getUpdateInterval()
-    return CosmicVaultRiftEscalation.getUpdateInterval()
+function getUpdateInterval(...)
+    if CosmicVaultRiftEscalation.getUpdateInterval then return CosmicVaultRiftEscalation.getUpdateInterval(...) end
 end
 
-function initialize()
-    CosmicVaultRiftEscalation.initialize()
+function initialize(...)
+    if CosmicVaultRiftEscalation.initialize then return CosmicVaultRiftEscalation.initialize(...) end
 end
 
-function updateServer(timeStep)
-    CosmicVaultRiftEscalation.updateServer(timeStep)
+function updateServer(...)
+    if CosmicVaultRiftEscalation.updateServer then return CosmicVaultRiftEscalation.updateServer(...) end
 end
+

@@ -85,22 +85,29 @@ function CosmicVaultNewsServer.restore(data)
     self.publishedNews = type(data.publishedNews) == "table" and data.publishedNews or {}
 end
 
-function getUpdateInterval()
+function CosmicVaultNewsServer.getUpdateInterval()
     return 1.0
 end
 
-function initialize()
-    CosmicVaultNewsServer.initialize()
-end
-
-function updateServer(timeStep)
+function CosmicVaultNewsServer.updateServer(timeStep)
     if CosmicVaultNewsServer.needsPlayerNotification then
         CosmicVaultNewsServer.needsPlayerNotification = false
         for _, player in pairs({Server():getOnlinePlayers()}) do
-            -- include("cosmicvaultdebug").info("Cosmic Vault", "[CosmicVaultNews] Attempting to notify online player " .. tostring(player.index))
             player:invokeFunction("data/scripts/player/ui/cc_newsboard.lua", "onNewsPublished")
         end
     end
+end
+
+function getUpdateInterval(...)
+    if CosmicVaultNewsServer.getUpdateInterval then return CosmicVaultNewsServer.getUpdateInterval(...) end
+end
+
+function initialize(...)
+    if CosmicVaultNewsServer.initialize then return CosmicVaultNewsServer.initialize(...) end
+end
+
+function updateServer(...)
+    if CosmicVaultNewsServer.updateServer then return CosmicVaultNewsServer.updateServer(...) end
 end
 
 
