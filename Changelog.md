@@ -36,6 +36,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Content] **Galaxy-wide Threats:** As the global Escalation Level rises, severe vanilla Xsotan attack swarms have an increased chance to converge on all online players simultaneously.
 
 ### ⚙️ Changed & ⚖️ Balanced
+- [Changed] **Alliance PvP Mirroring**: Upgraded `CosmicVaultFaction.changeRelations` to dynamically mirror reputation shifts to the player's active Alliance, destroying the PvP safe-harbor exploit globally across all Cosmic series mods.
 - [Changed] **LDoc Standardization:** Injected comprehensive LDoc style auto-generated docstrings across all exposed library functions (`cosmicvaultarsenal.lua`, `cosmicvaultui.lua`, etc.) to enhance modder readability.
 - [Changed] **3-Column HUD Layout:** Revamped Cosmic Config Menu with a cleaner Label | Control | Reset UI ratio.
 - [Changed] **UI Polish:** Centered the title in the `Cosmic Codex` UI, and enabled text-wrapping in the `Cosmic Config Menu` labels to prevent overlap.
@@ -51,6 +52,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Optimized] **Faction Script Casting:** `cosmicvaultmission.lua` `completeMission` had a redundant double-faction cast removed.
 - [Bugfixed] **Engine API Bug Fixes:** Fixed multiple Avorion API Indexes across various scripts that could cause C++ attempt to index or attempt to call engine crashes (corrected stat modifier functions, entity bias functions, replaced invalid faction relation setters, and scrubbed `StatsBonuses.ShieldCapacity` from `cosmicbuff.lua` in favor of `ShieldDurability`).
 - [Bugfixed] **Engine Crash Prevention:** Injected robust `if not arg then return end` guard clauses and strict validation checks across 13 core Vault APIs, completely eliminating an entire class of Lua crashes when other mods pass uninitialized variables.
+- [Bugfixed] **Codex Crash Protection:** Hardened the Codex `[Category]` parsing engine. If a modded article registers to a non-existent category, the Codex will no longer crash to desktop but will instead safely skip rendering the article.
+- [Bugfixed] **Cinematic UI Splitters:** Audited all UI components across the Vault and applied proportional `CosmicVaultUI.ShowCinematicBanner` splitters to ensure UI menus scale dynamically on all resolutions without clipping.
 - [Bugfixed] **Core Library Hardening:** Performed a massive line-by-line audit of the entire `Cosmic Vault` library. Fixed critical API errors including `Sector():dropUpgrade()` crashes when dropping turrets, `getFactionRelations()` type mismatches, and `invokeFunction` misroutes on the Server object.
 - [Bugfixed] **DoT & HoT Persistence:** Completely rewrote `cosmichot.lua` and `cosmicdot.lua` from using volatile `deferredCallback` ghost scripts to persistent `updateServer` loops with `secure()` and `restore()`. This ensures that HoTs and DoTs reliably persist and tick even across sector reloads without vanishing.
 - [Bugfixed] **Anomalies Fix:** Resolved a hard crash in `cosmicvaultanomalies.lua` where an empty `Faction()` constructor was being invoked without arguments during entity spawning. It now safely queries the nearest faction.

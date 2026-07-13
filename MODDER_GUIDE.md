@@ -337,5 +337,5 @@ Never append global VM hooks at the bottom of these files!
 - **Unified News API:** Centralized and fortified CosmicVaultNews handles global UI validation across all interconnected mods.
 ## CosmicVaultFaction API
 CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
-Safely modifies relations without resetting them completely, clamping to valid values (-100000 to 100000). Use this instead of Galaxy():setFactionRelations to prevent engine crashes from out-of-bounds math logic.
+Safely modifies relations without resetting them completely, clamping to valid values (-100000 to 100000). Use this instead of Galaxy():setFactionRelations to prevent engine crashes from out-of-bounds math logic. As of the Pre-Launch Push, this function also automatically detects if the modified faction is a Player in an Alliance, and mirrors the reputation delta onto the Alliance's relations to prevent multiplayer PvP safe-harbor exploits.
 

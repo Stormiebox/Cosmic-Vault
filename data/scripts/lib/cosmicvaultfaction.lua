@@ -72,6 +72,24 @@ function CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
     local newRelation = math.max(-100000, math.min(100000, current + delta))
     
     Galaxy():setFactionRelations(f1, f2, newRelation)
+
+    -- Synergy & Balancing: Mirror relations changes to Alliance if Player
+    if f1.isPlayer and f1.allianceIndex and f1.allianceIndex > 0 then
+        local a1 = Faction(f1.allianceIndex)
+        if a1 then
+            local aCurrent = a1:getRelations(factionIndex2) or 0
+            local aNewRelation = math.max(-100000, math.min(100000, aCurrent + delta))
+            Galaxy():setFactionRelations(a1, f2, aNewRelation)
+        end
+    end
+    if f2.isPlayer and f2.allianceIndex and f2.allianceIndex > 0 then
+        local a2 = Faction(f2.allianceIndex)
+        if a2 then
+            local aCurrent = f1:getRelations(f2.allianceIndex) or 0
+            local aNewRelation = math.max(-100000, math.min(100000, aCurrent + delta))
+            Galaxy():setFactionRelations(f1, a2, aNewRelation)
+        end
+    end
 end
 
 return CosmicVaultFaction

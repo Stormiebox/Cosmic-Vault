@@ -463,6 +463,7 @@ Vault can generate interactable permanent POIs like Precursor Wrecks and Spatial
 
 ## Synergy Update
 - **Famine Relief Anomalies**: Added a mechanic where severely starving factions (100+ Famine Score) can dynamically spawn Famine Relief Caches. Players can interact with them to steal loot or donate it to instantly lower the famine score by 50 and gain 25,000 reputation.
+- **Alliance PvP Repercussions:** Core faction relations logic natively supports mirroring reputation changes to the player's active Alliance. You can no longer swap to a personal ship to trigger hostilities without implicating your alliance.
 
 
 ## [New] Rift DLC Interoperability
