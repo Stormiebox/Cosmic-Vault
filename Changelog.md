@@ -7,7 +7,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
-## [v3.0.0] UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
+## [v3.0.0]
 
 ### ✨ New Features & 📦 Content Additions
 - [Feature] **Custom Faction Traits API**: Added `cosmicvaultfaction.lua` exposing `registerCustomTrait`, `getTrait`, and `setTrait`. This allows modders to easily inject custom faction traits that render beautifully in the native Avorion diplomacy UI!
