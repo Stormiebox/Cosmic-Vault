@@ -22,22 +22,11 @@ function initialize(weatherType)
     
     if onClient() then
         Player():registerCallback("onPreRenderHud", "onPreRenderHud")
-        invokeServerFunction("sync")
+
     end
 end
 
-function sync()
-    if onServer() then
-        invokeClientFunction(Player(callingPlayer), "syncClient", cv_weather_type)
-    end
-end
-callable(nil, "sync")
 
-function syncClient(weatherType)
-    if onClient() and type(weatherType) == "string" then
-        cv_weather_type = weatherType
-    end
-end
 
 function onPreRenderHud()
     if type(cv_weather_type) ~= "string" or cv_weather_type == "None" then return end

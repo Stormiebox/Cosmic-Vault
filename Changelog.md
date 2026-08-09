@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.0.1] - Patch
+
+### 🐛 Bug Fix & 🛠️ Optimization
+- [Bugfixed] Fixed a synchronization bug in the Dynamic Weather controller where clients would always default to rendering the "Ion Storm" UI warning regardless of the actual weather type. Weather types are now correctly synchronized and displayed.
+- [Optimized] Added high-priority chat warnings for players entering hazard zones (Solar Flares, Dark Matter Fog, etc.).
+
 ## [v3.0.0]
 
 ### ✨ New Features & 📦 Content Additions

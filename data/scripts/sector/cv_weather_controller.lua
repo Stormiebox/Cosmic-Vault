@@ -18,17 +18,6 @@ function initialize(stormType, duration)
             onEntityEntered(entity.index)
         end
     end
-    
-    if onClient() then
-        if cv_weather_type == "IonStorm" then
-            Sector():addScriptOnce("data/scripts/sector/background/lightning.lua")
-        elseif cv_weather_type == "DarkMatterFog" then
-            -- Attempt to spawn visual fog if Rift DLC particles are available, otherwise standard lightning
-            Sector():addScriptOnce("data/scripts/sector/background/lightning.lua")
-        end
-        -- Attach UI visualizer to player
-        Player():addScriptOnce("data/scripts/player/ui/cv_weather_ui.lua", cv_weather_type)
-    end
 end
 
 function getUpdateInterval()
@@ -84,6 +73,20 @@ function onEntityEntered(id)
     if not entity:hasScript(scriptPath) then
         entity:addScriptOnce(scriptPath, cv_weather_type)
     end
+
+    -- Send chat warning for players
+    if faction and faction.isPlayer then
+        local player = Player(faction.index)
+        if player then
+            if cv_weather_type == "IonStorm" then
+                player:sendChatMessage("Weather Alert", 2, "WARNING: Ion Storm detected! Radar and hyperspace systems impaired.")
+            elseif cv_weather_type == "SolarFlare" then
+                player:sendChatMessage("Weather Alert", 2, "WARNING: Solar Flare detected! Shields are actively draining.")
+            elseif cv_weather_type == "DarkMatterFog" then
+                player:sendChatMessage("Weather Alert", 2, "WARNING: Dark Matter Fog detected! Sensors severely impaired.")
+            end
+        end
+    end
 end
 
 function onEntityLeft(id)
@@ -116,4 +119,15 @@ function restore(data)
     cv_weather_type = data.type or "None"
     cv_weather_time = data.time or 0
     cv_weather_duration = data.duration or -1
+    
+    if onClient() then
+        if cv_weather_type == "IonStorm" then
+            Sector():addScriptOnce("data/scripts/sector/background/lightning.lua")
+        elseif cv_weather_type == "DarkMatterFog" then
+            -- Attempt to spawn visual fog if Rift DLC particles are available, otherwise standard lightning
+            Sector():addScriptOnce("data/scripts/sector/background/lightning.lua")
+        end
+        -- Attach UI visualizer to player
+        Player():addScriptOnce("data/scripts/player/ui/cv_weather_ui.lua", cv_weather_type)
+    end
 end
