@@ -7,21 +7,30 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.0.3] - Patch
+
+### 🛠️ API Update & Optimization
+
+- [API] **Precise Siege Timers:** Upgraded `CosmicVaultTerritory.setContestedZone()` to securely store `startTime` inside the serialized sector strings. This guarantees flawless absolute progression tracking and perfectly synchronized visual HUD splitters for joining players, eliminating the visual jump glitch previously seen when joining sieges mid-way. Existing active sieges are backward-compatible.
+
 ## [v3.0.2] - Patch
 
 ### 🐛 Bug Fixes
+
 - [Bugfixed] **Config Unbind Bug**: Fixed an issue where the Cosmic Config Menu would close itself when players tried to use Escape to unbind a hotkey. Re-mapped the unbind action to the `Delete` or `Backspace` keys, properly displaying this instruction in the capture prompt.
 - [Bugfixed] **Chat Hotkey Bleed**: Fixed a highly disruptive bug where CCM hotkeys would randomly fire and open menus while a player was trying to type a sentence in the chat window. The `ccm.lua` API now leverages the `checkInputFocus()` check to block inputs if the player is currently typing in a text field.
 
 ## [v3.0.1] - Patch
 
 ### 🐛 Bug Fix & 🛠️ Optimization
+
 - [Bugfixed] Fixed a synchronization bug in the Dynamic Weather controller where clients would always default to rendering the "Ion Storm" UI warning regardless of the actual weather type. Weather types are now correctly synchronized and displayed.
 - [Optimized] Added high-priority chat warnings for players entering hazard zones (Solar Flares, Dark Matter Fog, etc.).
 
 ## [v3.0.0]
 
 ### ✨ New Features & 📦 Content Additions
+
 - [Feature] **Custom Faction Traits API**: Added `cosmicvaultfaction.lua` exposing `registerCustomTrait`, `getTrait`, and `setTrait`. This allows modders to easily inject custom faction traits that render beautifully in the native Avorion diplomacy UI!
 - [Feature] **Subspace Weather API**: A universal, globally persistent API (`cosmicvaultweather.lua`) allowing any mod to seamlessly generate and clear localized weather hazards.
 - [Feature] **Weather UI Integration**: Native HUD indicators (`cv_weather_ui.lua`) that dynamically render active debuff icons and severe weather warnings for players inside hazard zones.
@@ -48,6 +57,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Content] **Galaxy-wide Threats:** As the global Escalation Level rises, severe vanilla Xsotan attack swarms have an increased chance to converge on all online players simultaneously.
 
 ### ⚙️ Changed & ⚖️ Balanced
+
 - [Changed] **Alliance PvP Mirroring**: Upgraded `CosmicVaultFaction.changeRelations` to dynamically mirror reputation shifts to the player's active Alliance, destroying the PvP safe-harbor exploit globally across all Cosmic series mods.
 - [Changed] **LDoc Standardization:** Injected comprehensive LDoc style auto-generated docstrings across all exposed library functions (`cosmicvaultarsenal.lua`, `cosmicvaultui.lua`, etc.) to enhance modder readability.
 - [Changed] **3-Column HUD Layout:** Revamped Cosmic Config Menu with a cleaner Label | Control | Reset UI ratio.
@@ -58,6 +68,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Balanced] **Eclipse Immunity:** Adjusted `DarkMatterFog` debuff to ignore Eclipse ships natively.
 
 ### 🐛 Bug Fixes & 🛠️ Optimization
+
 - [Optimized] **API Quality Audit:** Conducted a massive static analysis and quality upgrade across all 28 Cosmic Vault core library files.
 - [Optimized] **News Broadcaster Interval:** Injected `getUpdateInterval()` into `cosmicvaultnews_server.lua` to ensure the server updates the news queue reliably every second without lagging.
 - [Optimized] **Server Thread GC Optimization:** Fixed `cosmicvaultfactionindex.lua` causing massive garbage collection spikes on the Server Thread. Replaced highly inefficient 2,500 consecutive `Faction(i)` C++ boundary creations with native engine property checks, dropping memory footprint to exactly 1 binding per index.

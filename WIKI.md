@@ -35,7 +35,7 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultstation.lua`: Safely append custom dialogue or interaction tabs to vanilla stations cleanly.
 - `cosmicvaultevents.lua`: A server-safe timer for tracking galaxy-wide events (e.g. "Xsotan Invasions") that persist across server reboots.
 - `cosmicvaultbuffs.lua`: Safely inject temporary stat modifiers (Speed, Shields, Damage) directly onto ships via tiny, self-terminating scripts. Also allows persistent tracking of global faction-wide buff tiers across the galaxy.
-- `cosmicvaultterritory.lua`: Native background mathematical border shifting and background physical station generation for native, dynamic AI faction expansion.
+- `cosmicvaultterritory.lua`: Native background mathematical border shifting and background physical station generation for native, dynamic AI faction expansion. Securely tracks absolute `startTime` for synchronized HUD integration across client bounds.
 - `cosmicvaultcombat.lua`: Exposes `applyDoT` and native logic to render floating combat text for DOTs dynamically.
 - `cosmicvaultscaling.lua`: Dynamic native OM/Volume math for spawning accurately scaled invasion fleets matching defender strength.
 - `cosmicvaultanomalies.lua`: Seamless API to inject persistent, interactive points-of-interest (POIs) natively into sectors.

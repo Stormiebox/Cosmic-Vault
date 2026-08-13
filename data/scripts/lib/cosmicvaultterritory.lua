@@ -12,7 +12,7 @@ if onServer() then
     local function serializeZones(zones)
         local parts = {}
         for key, zone in pairs(zones) do
-            table.insert(parts, key .. "=" .. zone.x .. "," .. zone.y .. "," .. tostring(zone.invader) .. "," .. tostring(zone.defender) .. "," .. tostring(zone.endTime))
+            table.insert(parts, key .. "=" .. zone.x .. "," .. zone.y .. "," .. tostring(zone.invader) .. "," .. tostring(zone.defender) .. "," .. tostring(zone.endTime) .. "," .. tostring(zone.startTime))
         end
         return table.concat(parts, ";")
     end
@@ -32,7 +32,8 @@ if onServer() then
                         y = tonumber(vals[2]),
                         invader = tonumber(vals[3]) or vals[3],
                         defender = tonumber(vals[4]) or vals[4],
-                        endTime = tonumber(vals[5])
+                        endTime = tonumber(vals[5]),
+                        startTime = tonumber(vals[6]) or (tonumber(vals[5]) - 3600)
                     }
                 end
             end
@@ -64,7 +65,8 @@ if onServer() then
             y = y,
             invader = invadingFactionIndex,
             defender = defendingFactionIndex,
-            endTime = Server().unpausedRuntime + (durationMinutes * 60)
+            endTime = Server().unpausedRuntime + (durationMinutes * 60),
+            startTime = Server().unpausedRuntime
         }
 
         Server():setValue("CosmicVault_ContestedZones", serializeZones(zones))

@@ -272,6 +272,9 @@ Safely manages mathematical territory expansion and station flips without trigge
 > [!NOTE]
 > **Station Flip Queue:** Due to engine limits in Avorion 2.0+, stations in unloaded offline sectors cannot be physically flipped. The Territory API safely bypasses this by placing territory conquests into a global deferred queue. The actual station ownership transfer executes instantaneously the next time any player loads into that sector natively.
 
+> [!TIP]
+> **Precise Siege Progress:** The `setContestedZone()` API automatically injects an absolute `startTime` property (using `Server().unpausedRuntime`) into the serialized background simulation state. Client-side scripts like `cw_battlefieldhud.lua` can pass `zone.startTime` from the server down to the client to render 100% mathematically accurate siege progress bars even for players who join hours late.
+
 ```lua
 local CosmicVaultTerritory = include("cosmicvaultterritory")
 
