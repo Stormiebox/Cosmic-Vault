@@ -283,7 +283,7 @@ function CosmicConfigMenu.startCapture(elementData)
         if kb:keyPressed(sc) then self.captureIgnore[sc] = true end
     end
 
-    elementData.ui.caption = "Press a key... (Esc to cancel)"%_t
+    elementData.ui.caption = "Press a key... (Del/Back to unbind, Esc to cancel)"%_t
 end
 
 function CosmicConfigMenu.commitCapture(packed)
@@ -309,7 +309,11 @@ function CosmicConfigMenu.runCaptureTick(timeStep)
     if self.captureTimeLeft <= 0 then self.cancelCapture(); return end
 
     local kb = Keyboard()
-    if kb:keyDown(41) then self.cancelCapture(); return end -- Escape
+    if kb:keyDown(41) or kb:keyDown(KeyboardKey.Escape) then self.cancelCapture(); return end -- Escape
+    if kb:keyDown(KeyboardKey.Back) or kb:keyDown(KeyboardKey.Delete) then
+        self.commitCapture(ccm.keys.UNBOUND)
+        return
+    end
 
     for sc in pairs(self.captureIgnore) do
         if not kb:keyPressed(sc) then self.captureIgnore[sc] = nil end

@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.0.2] - Patch
+
+### 🐛 Bug Fixes
+- [Bugfixed] **Config Unbind Bug**: Fixed an issue where the Cosmic Config Menu would close itself when players tried to use Escape to unbind a hotkey. Re-mapped the unbind action to the `Delete` or `Backspace` keys, properly displaying this instruction in the capture prompt.
+- [Bugfixed] **Chat Hotkey Bleed**: Fixed a highly disruptive bug where CCM hotkeys would randomly fire and open menus while a player was trying to type a sentence in the chat window. The `ccm.lua` API now leverages the `checkInputFocus()` check to block inputs if the player is currently typing in a text field.
+
 ## [v3.0.1] - Patch
 
 ### 🐛 Bug Fix & 🛠️ Optimization

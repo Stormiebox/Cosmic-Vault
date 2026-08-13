@@ -109,6 +109,7 @@ function CCM.bind(namespace)
 
     function binding.isKeyComboDown(key, mode)
         if not onClient() then return false end
+        if checkInputFocus and checkInputFocus() then return false end
         local packed = binding.get(key)
         if not packed or packed < 0 then return false end
         local c = Keys.unpack(packed)
@@ -120,6 +121,7 @@ function CCM.bind(namespace)
 
     function binding.isKeyComboHeld(key, mode)
         if not onClient() then return false end
+        if checkInputFocus and checkInputFocus() then return false end
         local packed = binding.get(key)
         if not packed or packed < 0 then return false end
         local c = Keys.unpack(packed)

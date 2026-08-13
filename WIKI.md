@@ -128,15 +128,14 @@ Provides native UI layout tools that allow developers to design complex interfac
 
 </details>
 
-### 3) Shared Configuration Baseline (MCM)
+### 3) Shared Configuration Baseline (CCM)
 
 <details>
 <summary><b>Click to expand details</b></summary>
 
-**Primary files:**
+**Primary file:**
 
-- `modconfig.lua`
-- `modinfo.lua`
+- `ccm.lua`
 
 **What it does:**
 Provides a base configuration schema for shared Cosmic-level utility controls.
@@ -451,8 +450,10 @@ All deep lore, stat blocks, and dynamic recipes have been fully integrated into 
 ---
 
 ### Cosmic Configuration Menu (CCM) & Keybinds
-As of v3.0.0, the Cosmic Vault introduces a fully standalone, 3-column UI Mod Configuration Menu (CCM). Modders can effortlessly expose their settings and keybinds to players.
+As of v3.0.0, the Cosmic Vault introduces a fully standalone, 3-column UI Cosmic Configuration Menu (CCM). Modders can effortlessly expose their settings and keybinds to players.
 - **Dynamic Hotkeys:** Fully supports modifier keys (CTRL, ALT, SHIFT).
+- **Intelligent Input Safeties:** The keybind engine now actively respects Avorion's native UI focus state (`checkInputFocus()`), securely preventing any hotkeys from triggering or bleeding through while a player is typing in the chat or text boxes.
+- **Clean Unbinding:** Players can seamlessly unbind their configured hotkeys using the `Delete` or `Backspace` keys, cleanly avoiding Avorion's hardcoded engine-level `Escape` behavior.
 - **Reset Functionality:** Every single configuration option natively receives an `anticlockwise-rotation` reset button to instantly restore schema defaults.
 
 ## Faction Economy

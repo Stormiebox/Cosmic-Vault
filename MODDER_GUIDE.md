@@ -288,7 +288,7 @@ The internal state machine and bootstrapper for all vault APIs. Generally not in
 
 ---
 
-### 🎮 25. Mod Configuration Menu (CCM) Keybind API (`ccm.lua` & `ccm_keycodes.lua`)
+### 🎮 25. Cosmic Configuration Menu (CCM) Keybind API (`ccm.lua` & `ccm_keycodes.lua`)
 Provides a native, user-configurable keybind framework fully integrated into the UI.
 ```lua
 local cvcfg = ccm.bind("CosmicVault")
@@ -296,7 +296,7 @@ if cvcfg.isKeyComboDown("hotkeyCodex") then
     -- Execute action when ALT+P (default) is pressed
 end
 ```
-You can register keybinds dynamically by using `type = "keybind"` in your `ccm.register` options array!
+You can register keybinds dynamically by using `type = "keybind"` in your `ccm.register` options array! The API automatically filters out inputs while players are typing in chat, and natively supports user-friendly unbinding via the `Delete` and `Backspace` keys.
 
 ### 🌾 26. Economy Famine API (`cosmicvaulteconomy.lua`)
 Exposes `addFamineScore` and `getFamineLevel` to track faction starvation, creating dynamic resource shortages and inflation across an entire empire's territory.
