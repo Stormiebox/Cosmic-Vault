@@ -285,13 +285,29 @@ CosmicVaultTerritory.setContestedZone(x, y, 2, 3, 60)
 CosmicVaultTerritory.expandToSector(x, y, factionIndex, isPirate)
 ```
 
-### 🧩 24. Framework Core API (`cosmicvaultframework.lua`)
+### 🧩 25. Framework Core API (`cosmicvaultframework.lua`)
 The internal state machine and bootstrapper for all vault APIs. Generally not interacted with directly, but handles dependency injection.
+
+### 🤝 26. Faction & Diplomacy API (`cosmicvaultfaction.lua`)
+Safely manages faction properties and diplomacies, specifically designed to safely mirror reputation gains to player alliances without causing crashes or double-penalties. It also features a custom semantic trait registry (like "Aggressive" or "Industrial") for other mods to interact with vanilla factions.
+```lua
+local CosmicVaultFaction = include("cosmicvaultfaction")
+
+-- Safely applies -5000 relations to player/faction and cleanly mirrors it to their alliance if applicable
+CosmicVaultFaction.changeRelations(player.index, targetFaction.index, -5000)
+
+-- Register and assign a custom trait for cross-mod synergy
+CosmicVaultFaction.registerCustomTrait("industrial", "Industrial", {"Produces more goods"})
+CosmicVaultFaction.setTrait(factionIndex, "industrial", true)
+if CosmicVaultFaction.getTrait(factionIndex, "industrial") then
+    -- Do something specific for industrial factions
+end
+```
 
 
 ---
 
-### 🎮 25. Cosmic Configuration Menu (CCM) Keybind API (`ccm.lua` & `ccm_keycodes.lua`)
+### 🎮 27. Cosmic Configuration Menu (CCM) Keybind API (`ccm.lua` & `ccm_keycodes.lua`)
 Provides a native, user-configurable keybind framework fully integrated into the UI.
 ```lua
 local cvcfg = ccm.bind("CosmicVault")
@@ -301,7 +317,7 @@ end
 ```
 You can register keybinds dynamically by using `type = "keybind"` in your `ccm.register` options array! The API automatically filters out inputs while players are typing in chat, and natively supports user-friendly unbinding via the `Delete` and `Backspace` keys.
 
-### 🌾 26. Economy Famine API (`cosmicvaulteconomy.lua`)
+### 🌾 28. Economy Famine API (`cosmicvaulteconomy.lua`)
 Exposes `addFamineScore` and `getFamineLevel` to track faction starvation, creating dynamic resource shortages and inflation across an entire empire's territory.
 ```lua
 local CosmicVaultEconomy = include("cosmicvaulteconomy")
@@ -309,14 +325,14 @@ CosmicVaultEconomy.addFamineScore(factionIndex, 500)
 local severity = CosmicVaultEconomy.getFamineLevel(factionIndex)
 ```
 
-### 🛠️ 27. Anomalies API (`cosmicvaultanomalies.lua`)
+### 🛠️ 29. Anomalies API (`cosmicvaultanomalies.lua`)
 Exposes logic for generating permanent, interactive points of interest natively.
 ```lua
 local CosmicVaultAnomalies = include("cosmicvaultanomalies")
 CosmicVaultAnomalies.spawnAnomaly(x, y, "Void_Rupture")
 ```
 
-### 🛠️ 28. Subspace Weather API (`cv_weather_controller.lua`)
+### 🛠️ 30. Subspace Weather API (`cv_weather_controller.lua`)
 Exposes logic for safely attaching dynamic, localized environmental hazards (EMP storms, radiation, etc) to a sector, combined with seamless UI integration natively through Avorion's problem system.
 
 > [!TIP]

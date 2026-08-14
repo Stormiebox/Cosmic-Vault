@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.1.2]
+
+### 🐛 Bug Fixes
+- [Bugfix] **API Crash Fix:** Fixed a critical bug in `cosmicvaultfaction.lua` where `cvf.changeRelations` attempted to read the `allianceIndex` property directly from a C++ Faction object instead of casting it to a Player object first. This caused fatal crashes on servers when external mods invoked the relation mirroring function.
+
 ## [v3.1.1]
 
 ### ⚙️ Changed & Balanced
