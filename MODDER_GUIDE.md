@@ -309,11 +309,22 @@ CosmicVaultEconomy.addFamineScore(factionIndex, 500)
 local severity = CosmicVaultEconomy.getFamineLevel(factionIndex)
 ```
 
-### 🌌 27. Anomalies API (`cosmicvaultanomalies.lua`)
+### 🛠️ 27. Anomalies API (`cosmicvaultanomalies.lua`)
 Exposes logic for generating permanent, interactive points of interest natively.
 ```lua
 local CosmicVaultAnomalies = include("cosmicvaultanomalies")
 CosmicVaultAnomalies.spawnAnomaly(x, y, "Void_Rupture")
+```
+
+### 🛠️ 28. Subspace Weather API (`cv_weather_controller.lua`)
+Exposes logic for safely attaching dynamic, localized environmental hazards (EMP storms, radiation, etc) to a sector, combined with seamless UI integration natively through Avorion's problem system.
+
+> [!TIP]
+> Do not attempt to use `Sector():addScript()` manually for weather, use the vault API `addScriptOnce` to prevent duplicated hazards on server restarts. Modders can review `cv_weather_generator.lua` to easily inject their own custom hazards with dynamically linked descriptions and UI icons.
+
+```lua
+-- Attach Dark Matter Fog to the current sector indefinitely (-1 duration)
+Sector():addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
 ```
 
 ## 10. Library Development Best Practices & Rogue Globals

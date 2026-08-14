@@ -39,8 +39,8 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultcombat.lua`: Exposes `applyDoT` and native logic to render floating combat text for DOTs dynamically.
 - `cosmicvaultscaling.lua`: Dynamic native OM/Volume math for spawning accurately scaled invasion fleets matching defender strength.
 - `cosmicvaultanomalies.lua`: Seamless API to inject persistent, interactive points-of-interest (POIs) natively into sectors.
-- `cosmicvaultweather.lua`: Global Subspace Weather API allowing mods to natively trigger or clear localized environmental hazards (EMP storms, radiation, etc) combined with seamless UI integration via `addSectorProblem()`.
-- `cosmicvaultweatherdictionary.lua`: Data dictionary where modders can inject their own custom weather hazards, mapping keys to native Avorion icons, descriptions, and dynamic `isShipPrepared` protection callbacks.
+- `cv_weather_controller.lua`: Global Subspace Weather API allowing mods to natively trigger or clear localized environmental hazards (EMP storms, radiation, etc) combined with seamless UI integration via `addSectorProblem()`.
+- `cv_weather_generator.lua`: Defines all standard weather hazards, mapping keys to native Avorion icons, descriptions, and dynamic `isShipPrepared` protection callbacks.
 
 **Why it matters:**
 Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.
