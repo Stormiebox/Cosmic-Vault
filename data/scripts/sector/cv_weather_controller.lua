@@ -5,6 +5,8 @@ local cv_weather_type = "None"
 local cv_weather_time = 0
 local cv_weather_duration = 0
 
+local CosmicVaultWeatherDictionary = include("cosmicvaultweatherdictionary")
+
 function initialize(stormType, duration)
     cv_weather_type = type(stormType) == "string" and stormType or "IonStorm"
     cv_weather_duration = type(duration) == "number" and duration or -1
@@ -13,9 +15,14 @@ function initialize(stormType, duration)
     if onServer() then
         Sector():registerCallback("onEntityEntered", "onEntityEntered")
         Sector():registerCallback("onEntityLeft", "onEntityLeft")
-        -- Initial sweep
+        Sector():registerCallback("onPlayerEntered", "onPlayerEntered")
+        -- Initial sweep for entities
         for _, entity in pairs({Sector():getEntitiesByType(EntityType.Ship)}) do
             onEntityEntered(entity.index)
+        end
+        -- Initial sweep for players
+        for _, player in pairs({Sector():getPlayers()}) do
+            onPlayerEntered(player.index)
         end
     end
 end
@@ -30,29 +37,34 @@ function updateServer(timeStep)
         terminate()
         return
     end
-    
-    -- Handle Solar Flares (Shield Drain)
-    if cv_weather_type == "SolarFlare" then
-        local entities = {Sector():getEntitiesByType(EntityType.Ship)}
-        for _, entity in pairs(entities) do
-            if not valid(entity) then goto continue end
-            local faction = Faction(entity.factionIndex)
-            if faction and not faction.isPlayer and not faction.isAlliance then
-                if faction.name == "The Eclipse" or faction:getValue("is_eclipse") then
-                    goto continue
+    -- Handle damage and specific weather logic
+    local weatherData = CosmicVaultWeatherDictionary.data[cv_weather_type]
+    if weatherData then
+        if cv_weather_type == "SolarFlare" then
+            local entities = {Sector():getEntitiesByType(EntityType.Ship)}
+            for _, entity in pairs(entities) do
+                if not valid(entity) then goto continue end
+                local faction = Faction(entity.factionIndex)
+                if faction and not faction.isPlayer and not faction.isAlliance then
+                    if faction.name == "The Eclipse" or faction:getValue("is_eclipse") then
+                        goto continue
+                    end
                 end
+                
+                -- Check for dynamic hull/material resistance
+                local isPrepared, damageMultiplier = weatherData.isShipPrepared(entity)
+                
+                -- Deal max shield/hull damage per 5-sec tick
+                local maxShield = entity.shieldMax or 0
+                if maxShield > 0 then
+                    entity:inflictDamage(maxShield * 0.02 * damageMultiplier, 1, DamageType.Energy, entity.translationf, entity.id)
+                else
+                    local maxHull = entity.maxDurability or 0
+                    entity:inflictDamage(maxHull * 0.005 * damageMultiplier, 1, DamageType.Physical, entity.translationf, entity.id)
+                end
+                
+                ::continue::
             end
-            
-            -- Deal 2% max shield damage per 5-sec tick
-            local maxShield = entity.shieldMax or 0
-            if maxShield > 0 then
-                entity:inflictDamage(maxShield * 0.02, 1, DamageType.Energy, entity.translationf, entity.id)
-            else
-                local maxHull = entity.maxDurability or 0
-                entity:inflictDamage(maxHull * 0.005, 1, DamageType.Physical, entity.translationf, entity.id)
-            end
-            
-            ::continue::
         end
     end
 end
@@ -73,20 +85,21 @@ function onEntityEntered(id)
     if not entity:hasScript(scriptPath) then
         entity:addScriptOnce(scriptPath, cv_weather_type)
     end
+end
 
-    -- Send chat warning for players
-    if faction and faction.isPlayer then
-        local player = Player(faction.index)
-        if player then
-            if cv_weather_type == "IonStorm" then
-                player:sendChatMessage("Weather Alert", 2, "WARNING: Ion Storm detected! Radar and hyperspace systems impaired.")
-            elseif cv_weather_type == "SolarFlare" then
-                player:sendChatMessage("Weather Alert", 2, "WARNING: Solar Flare detected! Shields are actively draining.")
-            elseif cv_weather_type == "DarkMatterFog" then
-                player:sendChatMessage("Weather Alert", 2, "WARNING: Dark Matter Fog detected! Sensors severely impaired.")
-            end
-        end
+function onPlayerEntered(playerIndex)
+    local player = Player(playerIndex)
+    if not player then return end
+
+    -- Send direct chat warning to the player dynamically from dictionary
+    local weatherData = CosmicVaultWeatherDictionary.data[cv_weather_type]
+    if weatherData and weatherData.chatWarning then
+        player:sendChatMessage("Weather Alert", 2, weatherData.chatWarning)
     end
+    
+    -- Ensure their local HUD updates.
+    player:addScriptOnce("data/scripts/player/ui/cv_weather_ui.lua", cv_weather_type)
+    invokeClientFunction(player, "setWeatherType", cv_weather_type)
 end
 
 function onEntityLeft(id)
@@ -129,5 +142,6 @@ function restore(data)
         end
         -- Attach UI visualizer to player
         Player():addScriptOnce("data/scripts/player/ui/cv_weather_ui.lua", cv_weather_type)
+        invokeClientFunction(Player(), "setWeatherType", cv_weather_type)
     end
 end

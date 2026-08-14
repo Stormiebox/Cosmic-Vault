@@ -1,7 +1,10 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
+local CosmicVaultWeatherDictionary = include("cosmicvaultweatherdictionary")
+
 local cv_weather_type = "None"
+local cv_last_weather_type = "None"
 
 function secure()
     return { cv_weather_type = cv_weather_type }
@@ -21,33 +24,52 @@ function initialize(weatherType)
     end
     
     if onClient() then
-        Player():registerCallback("onPreRenderHud", "onPreRenderHud")
-
+        Player():registerCallback("onSectorEntered", "onSectorEntered")
+        updateSectorProblem()
     end
 end
 
+function onSectorEntered()
+    -- When the player jumps, the old weather is left behind. Clear the local HUD.
+    cv_weather_type = "None"
+    updateSectorProblem()
+end
 
+function setWeatherType(wType)
+    if type(wType) == "string" then
+        cv_weather_type = wType
+        if onClient() then
+            updateSectorProblem()
+        end
+    end
+end
 
-function onPreRenderHud()
-    if type(cv_weather_type) ~= "string" or cv_weather_type == "None" then return end
-    
-    local res = getResolution()
-    local x = res.x / 2 - 150
-    local y = 80 -- Draw near the top middle
-    
-    local text = ""
-    local color = ColorRGB(1, 0, 0)
-    
-    if cv_weather_type == "IonStorm" then
-        text = "⚠️ ION STORM: Radar & Hyperspace Disabled"
-        color = ColorRGB(0.2, 0.5, 1.0)
-    elseif cv_weather_type == "SolarFlare" then
-        text = "⚠️ SOLAR FLARE: Shields Draining"
-        color = ColorRGB(1.0, 0.5, 0.0)
-    elseif cv_weather_type == "DarkMatterFog" then
-        text = "⚠️ DARK MATTER FOG: Sensors Impaired"
-        color = ColorRGB(0.5, 0.0, 0.5)
+function updateSectorProblem()
+    -- Remove the old problem if it existed
+    if cv_last_weather_type ~= "None" then
+        local oldData = CosmicVaultWeatherDictionary.data[cv_last_weather_type]
+        if oldData then
+            removeSectorProblem(oldData.name)
+        end
     end
     
-    drawTextRect(text, Rect(x, y, x + 300, y + 30), 0, 0, color, 18, 0, 0, 2)
+    -- Add the new problem
+    if cv_weather_type ~= "None" then
+        local data = CosmicVaultWeatherDictionary.data[cv_weather_type]
+        if data then
+            local tooltip = data.detailedName .. "\n\n" .. data.description
+            addSectorProblem(data.name, tooltip, data.icon, data.color)
+        end
+    end
+    
+    cv_last_weather_type = cv_weather_type
+end
+
+function onRemove()
+    if cv_weather_type ~= "None" then
+        local data = CosmicVaultWeatherDictionary.data[cv_weather_type]
+        if data then
+            removeSectorProblem(data.name)
+        end
+    end
 end

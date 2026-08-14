@@ -7,6 +7,15 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.1.0] - Minor Update
+
+### 🛠️ Architecture & Optimization
+
+- [Optimized] **Native UI Integration**: Completely refactored the Weather HUD to utilize Avorion's native `addSectorProblem()` API instead of drawing custom floating text rectangles. Weather warnings now seamlessly hook into your vanilla UI layout with standard icons and hover tooltips.
+- [API] **Weather Data Dictionary**: Replaced hardcoded weather logic with a centralized data dictionary (`cosmicvaultweatherdictionary.lua`). Modders can now easily inject custom weather hazards complete with native UI bindings!
+- [Balanced] **Dynamic Hazard Protection**: Added a dynamic `isShipPrepared()` callback to the Weather API. Players caught in a Solar Flare who possess a heavily armored ship (Trinium or above) will now natively resist 50% of the physical hull damage.
+- [Bugfix] **API Crash Fix**: Fixed a critical server crash in the Weather API's synchronization loop where an invalid engine function (server:getPlayers()) was used instead of server:getOnlinePlayers(). This resolves a severe crash when players log in or weather is created.
+
 ## [v3.0.3] - Patch
 
 ### 🛠️ API Update & Optimization

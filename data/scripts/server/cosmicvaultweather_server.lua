@@ -9,7 +9,7 @@ function CosmicVaultWeatherServer.initialize()
     server:registerCallback("onPlayerLogIn", "onPlayerLogIn")
 
     -- Inject the tracker into all currently online players
-    for _, player in pairs({server:getPlayers()}) do
+    for _, player in pairs({server:getOnlinePlayers()}) do
         CosmicVaultWeatherServer.onPlayerLogIn(player.index)
     end
 end
@@ -61,7 +61,7 @@ function CosmicVaultWeatherServer.createWeather(x, y, stormType, duration)
     CosmicVaultWeatherServer.broadcastSync()
 
     -- If a player is currently in this sector, force inject it immediately
-    for _, player in pairs({Server():getPlayers()}) do
+    for _, player in pairs({Server():getOnlinePlayers()}) do
         local px, py = player:getSectorCoordinates()
         if px == x and py == y then
             player:invokeFunction("data/scripts/player/cv_player_weather_tracker.lua", "forceSectorCheck")
@@ -76,7 +76,7 @@ function CosmicVaultWeatherServer.removeWeather(x, y)
         CosmicVaultWeatherServer.broadcastSync()
 
         -- Clean up players currently in that sector
-        for _, player in pairs({Server():getPlayers()}) do
+        for _, player in pairs({Server():getOnlinePlayers()}) do
             local px, py = player:getSectorCoordinates()
             if px == x and py == y then
                 player:invokeFunction("data/scripts/player/cv_player_weather_tracker.lua", "forceSectorCleanup")
@@ -92,7 +92,7 @@ end
 
 -- Sync state
 function CosmicVaultWeatherServer.broadcastSync()
-    for _, player in pairs({Server():getPlayers()}) do
+    for _, player in pairs({Server():getOnlinePlayers()}) do
         player:invokeFunction("data/scripts/player/cv_player_weather_tracker.lua", "syncWeatherMap", CosmicVaultWeatherServer.activeWeathers)
     end
 end
