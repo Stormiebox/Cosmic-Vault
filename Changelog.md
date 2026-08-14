@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.1.1]
+
+### ⚙️ Changed & Balanced
+- [Changed] **Keybind Adjustments:** Unbound the default keys for the Cosmic Vault UI tabs (Cosmic Codex, Config Menu). They now default to unbound to allow players to set their own custom shortcuts without overlapping with other mods.
+
 ## [v3.1.0] - Minor Update
 
 ### 🛠️ Architecture & Optimization

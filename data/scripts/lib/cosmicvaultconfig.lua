@@ -12,8 +12,8 @@ if ccm then
             {
                 title = "UI & Keybinds",
                 options = {
-                    { key = "hotkeyCodex", type = "keybind", title = "Open Cosmic Codex", description = "Hotkey to quickly open the Cosmic Codex tab.", default = ccm.keys and ccm.keys.combo(ccm.keys.KEY_P, ccm.keys.LALT) or 25 },
-                    { key = "hotkeyConfigMenu", type = "keybind", title = "Open Config Menu", description = "Hotkey to quickly open the Cosmic Config Menu.", default = ccm.keys and ccm.keys.combo(ccm.keys.KEY_O, ccm.keys.LALT) or 24 },
+                    { key = "hotkeyCodex", type = "keybind", title = "Open Cosmic Codex", description = "Hotkey to quickly open the Cosmic Codex tab." },
+                    { key = "hotkeyConfigMenu", type = "keybind", title = "Open Config Menu", description = "Hotkey to quickly open the Cosmic Config Menu." },
                 }
             },
             {
