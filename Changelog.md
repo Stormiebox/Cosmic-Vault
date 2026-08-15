@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.1.4]
+
+### 🐛 Bug Fixes
+
+- [Bugfix] **Dynamic Reward Payout Crash:** Proactively fixed a severe bug in the `cosmicvaultmission.lua` backend where the dynamic bounty reward for missions utilized the highly unstable `player:receive()` API overload. The engine would fatally crash upon attempting to award the millions of credits to the victorious player. This has been completely replaced with direct property assignment, permanently securing the reward payout.
+
 ## [v3.1.3]
 
 ## 🖼️Texture Pack Update

@@ -49,7 +49,8 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
     if not player then return end
     
     if creditReward and creditReward > 0 then
-        player:receive("Mission Reward", creditReward)
+        player.money = player.money + creditReward
+        player:sendChatMessage("System", 0, "Received %s Credits for completing a mission.", tostring(creditReward))
     end
 
     if reputationReward and reputationReward > 0 then
