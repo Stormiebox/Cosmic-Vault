@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.1.5]
+
+### 🐛 Bug Fixes
+- [Bugfix] **Linux Case Sensitivity:** Patched `cosmicvaultterritory.lua` and `cosmicvaultanomalies.lua` to enforce strict casing on `include("SectorGenerator")`. This prevents a fatal `module not found` crash on Linux dedicated servers.
+
 ## [v3.1.4]
 
 ### 🐛 Bug Fixes

@@ -166,7 +166,7 @@ if onServer() then
                 return
             end
 
-            local SectorGenerator = include("sectorgenerator")
+            local SectorGenerator = include("SectorGenerator")
             local generator = SectorGenerator(x, y)
 
             local random = random()
@@ -187,7 +187,7 @@ if onServer() then
                 return
             end
 
-            local SectorGenerator = include("sectorgenerator")
+            local SectorGenerator = include("SectorGenerator")
             local generator = SectorGenerator(x, y)
 
             local types = {
