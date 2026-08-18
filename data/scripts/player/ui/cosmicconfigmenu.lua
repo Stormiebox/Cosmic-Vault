@@ -165,6 +165,7 @@ function CosmicConfigMenu.refreshUI()
         if opt.min and opt.max then
             desc = desc .. string.format("\n\n(Min: %s, Max: %s)", tostring(opt.min), tostring(opt.max))
         end
+        desc = desc .. "\n\n[Only server Administrators can change this option!]"%_t
         label.tooltip = desc
 
         local currentValue = nil
@@ -176,6 +177,7 @@ function CosmicConfigMenu.refreshUI()
         if opt.type == "bool" then
             local cb = self.container:createCheckBox(rightPart, "", "onValueChanged")
             cb.checked = currentValue
+            cb.tooltip = desc
             self.elements[opt.key] = { ui = cb, type = opt.type, namespace = namespace, default = opt.default }
         elseif opt.type == "number" then
             if opt.min and opt.max then
@@ -184,15 +186,18 @@ function CosmicConfigMenu.refreshUI()
                 if steps <= 0 then steps = 1 end
                 local slider = self.container:createSlider(rightPart, opt.min, opt.max, steps, "", "onValueChanged")
                 slider:setValueNoCallback(currentValue)
+                slider.tooltip = desc
                 self.elements[opt.key] = { ui = slider, type = "slider", namespace = namespace, min = opt.min, max = opt.max, default = opt.default }
             else
                 local tb = self.container:createTextBox(rightPart, "onValueChanged")
                 tb.text = tostring(currentValue)
+                tb.tooltip = desc
                 self.elements[opt.key] = { ui = tb, type = "number", namespace = namespace, min = opt.min, max = opt.max, default = opt.default }
             end
         elseif opt.type == "keybind" then
             if type(currentValue) ~= "number" then currentValue = ccm.keys.UNBOUND end
             local btn = self.container:createButton(rightPart, ccm.keys.nameForCombo(currentValue), "onKeybindPressed")
+            btn.tooltip = desc
             self.elements[opt.key] = { ui = btn, type = "keybind", namespace = namespace, default = opt.default, packed = currentValue, key = opt.key }
         end
 

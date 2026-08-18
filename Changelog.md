@@ -7,6 +7,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.1.6]
+
+### ✨ Features & UI
+- [Feature] **CCM Permission Tooltips:** Added a dynamic tooltip to all Cosmic Configuration Menu options globally. When hovering over any settings widget (checkboxes, sliders, text boxes), the UI will now explicitly warn players that "Only Server Administrators can change this option". This provides immediate feedback to players on dedicated servers regarding why their changes are being rejected by the server permissions.
+
+### 🐛 Bug Fixes
+- [Bugfix] **Rift Escalation Crash & Sync:** Patched `cosmicvaultriftescalation_server.lua`. Added the missing `stringutility` library to prevent fatal text formatting crashes when the server broadcasts escalation warnings. Also removed legacy global wrapper functions that were shadowing the script's namespace and causing native event hook synchronization failures.
+
 ## [v3.1.5]
 
 ### 🐛 Bug Fixes

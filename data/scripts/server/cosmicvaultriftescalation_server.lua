@@ -3,6 +3,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 include("callable")
 include("randomext")
+include("stringutility")
 
 -- namespace CosmicVaultRiftEscalation
 CosmicVaultRiftEscalation = {}
@@ -86,15 +87,5 @@ function CosmicVaultRiftEscalation.updateServer(timeStep)
     end
 end
 
-function getUpdateInterval(...)
-    if CosmicVaultRiftEscalation.getUpdateInterval then return CosmicVaultRiftEscalation.getUpdateInterval(...) end
-end
 
-function initialize(...)
-    if CosmicVaultRiftEscalation.initialize then return CosmicVaultRiftEscalation.initialize(...) end
-end
-
-function updateServer(...)
-    if CosmicVaultRiftEscalation.updateServer then return CosmicVaultRiftEscalation.updateServer(...) end
-end
 
