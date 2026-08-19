@@ -151,6 +151,12 @@ Builds and posts standard bulletin boards natively.
 ```lua
 local CosmicVaultMission = include("cosmicvaultmission")
 local bulletin = CosmicVaultMission.createBulletin("Bounty Target", "Kill the pirate lord", "Hard", "150,000 Cr", "script.lua", {})
+
+-- Fails the mission and handles UI notifications
+CosmicVaultMission.failMission(missionId)
+
+-- Grants physical item templates to the player upon success
+CosmicVaultMission.grantItemReward(itemTemplate, amount)
 ```
 
 ### ⚖️ 11. Dynamic Scaling API (`cosmicvaultscaling.lua`)
@@ -173,6 +179,10 @@ Safe interface to issue vanilla AI orders without rewriting `craftorders.lua`.
 ```lua
 local CosmicVaultFleet = include("cosmicvaultfleet")
 CosmicVaultFleet.orderJump(entityId, 15, -20)
+
+-- Automates mining and salvaging behaviors for AI ships safely
+CosmicVaultFleet.orderMine(entityId, clearPrevious)
+CosmicVaultFleet.orderSalvage(entityId, clearPrevious)
 ```
 
 ### 🧬 14. Goods API (`cosmicvaultgoods.lua`)
@@ -187,6 +197,9 @@ Drops custom loot natively.
 ```lua
 local CosmicVaultLoot = include("cosmicvaultloot")
 CosmicVaultLoot.dropCustomLoot(entityId, "good", "Cosmic Matter", 10)
+
+-- Specifically spawns upgrade templates as physical drops in space
+CosmicVaultLoot.SpawnLootUpgrade(Sector(), x, y, z, "data/scripts/systems/bossupgrade.lua", Rarity(RarityType.Legendary))
 ```
 
 ### 🏗️ 16. Blueprint API (`cosmicvaultblueprint.lua`)
@@ -203,6 +216,9 @@ Adds safe UI tabs to stations.
 ```lua
 local CosmicVaultStation = include("cosmicvaultstation")
 CosmicVaultStation.injectInteraction("Talk to Mercenary", "Mercenary Guild", "onMercClicked")
+
+-- Safely check interaction ranges (now supports custom maxDistance overrides)
+if CosmicVaultStation.isInteractionPossible(500) then ... end
 ```
 
 ### ⏰ 18. Global Events API (`cosmicvaultevents.lua`)
@@ -221,6 +237,9 @@ CosmicVaultBuffs.applyBuff(entityId, "Velocity", 0.5, 30)
 
 -- Fetch the dynamic multiplier for Living Relics (e.g. 1.0 - 2.5 multiplier based on Core Distance and War Heat)
 local finalMultiplier = CosmicVaultBuffs.getDynamicRelicMultiplier(entity.id)
+
+-- Permanently multiply base stats, safely utilizing C++ callbacks without infinitely stacking
+CosmicVaultBuffs.addPermanentBaseMultiplier(entityId, "Damage", 0.15)
 ```
 
 ### 🔥 20. Combat & DoTs API (`cosmicvaultcombat.lua`)
@@ -286,7 +305,12 @@ CosmicVaultTerritory.expandToSector(x, y, factionIndex, isPirate)
 ```
 
 ### 🧩 25. Framework Core API (`cosmicvaultframework.lua`)
-The internal state machine and bootstrapper for all vault APIs. Generally not interacted with directly, but handles dependency injection.
+The internal state machine and bootstrapper for all vault APIs. Generally not interacted with directly, but handles dependency injection and strict type-checking.
+```lua
+local CosmicVaultFramework = include("cosmicvaultframework")
+-- Aggressive development type-checking to prevent silent UI or server failures
+CosmicVaultFramework.assertType(playerIndex, "number", "playerIndex")
+```
 
 ### 🤝 26. Faction & Diplomacy API (`cosmicvaultfaction.lua`)
 Safely manages faction properties and diplomacies, specifically designed to safely mirror reputation gains to player alliances without causing crashes or double-penalties. It also features a custom semantic trait registry (like "Aggressive" or "Industrial") for other mods to interact with vanilla factions.

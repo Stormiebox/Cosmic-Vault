@@ -45,9 +45,8 @@ function CosmicVaultScaling.calculateSectorDefenderStrength(invaderFactionIndex)
     -- but still scale significantly.
     
     -- Synergy: Faction Traits Modifying Siege Scaling
-    local controllingFactionIndex = galaxy:getControllingFaction(sector:getCoordinates())
-    if controllingFactionIndex and controllingFactionIndex > 0 then
-        local controllingFaction = Faction(controllingFactionIndex)
+    local controllingFaction = galaxy:getControllingFaction(sector:getCoordinates())
+    if controllingFaction and type(controllingFaction) ~= "number" and controllingFaction.index and controllingFaction.index > 0 then
         if controllingFaction and controllingFaction:getValue("cosmic_trait_cw_entrenched") == 1 then
             totalVolume = totalVolume * 1.3
             totalFirePower = totalFirePower * 1.3

@@ -20,6 +20,7 @@ function CosmicVaultCombat.applyTrueDamage(entityId, amount, sourceId)
     if not entityId or type(amount) ~= "number" then return end
     local entity = Entity(entityId)
     if not valid(entity) then return end
+    if entity.invincible then return end
     
     local newDurability = entity.durability - amount
     if newDurability <= 0 then

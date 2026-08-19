@@ -62,4 +62,34 @@ function CosmicVaultFleet.orderJump(entityId, x, y)
     entity:invokeFunction("data/scripts/entity/orderchain.lua", "runOrders")
 end
 
+--- Orders a ship to start mining in the sector natively
+-- @param entityId (string|Uuid) The entity to order
+-- @param clearPrevious (boolean) If true, clears the order chain first
+function CosmicVaultFleet.orderMine(entityId, clearPrevious)
+    if not onServer() then return end
+    if not entityId then return end
+    if clearPrevious then CosmicVaultFleet.clearOrders(entityId) end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    entity:invokeFunction("data/scripts/entity/orderchain.lua", "addMineOrder")
+    entity:invokeFunction("data/scripts/entity/orderchain.lua", "runOrders")
+end
+
+--- Orders a ship to start salvaging in the sector natively
+-- @param entityId (string|Uuid) The entity to order
+-- @param clearPrevious (boolean) If true, clears the order chain first
+function CosmicVaultFleet.orderSalvage(entityId, clearPrevious)
+    if not onServer() then return end
+    if not entityId then return end
+    if clearPrevious then CosmicVaultFleet.clearOrders(entityId) end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    entity:invokeFunction("data/scripts/entity/orderchain.lua", "addSalvageOrder")
+    entity:invokeFunction("data/scripts/entity/orderchain.lua", "runOrders")
+end
+
 return CosmicVaultFleet

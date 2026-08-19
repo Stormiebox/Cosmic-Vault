@@ -7,6 +7,19 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.2.0]
+
+### ✨ New Features & API Expansion
+- [API] **Framework Strictness:** Added `CosmicVaultFramework.assertType()` to enforce strict type-checking and prevent silent engine failures across interconnected mods.
+- [API] **Mission Automation:** Added `failMission()` and `grantItemReward()` to `cosmicvaultmission.lua` for robust UI handling and physical item reward generation.
+- [API] **Fleet Automation:** Expanded `cosmicvaultfleet.lua` with `orderMine()` and `orderSalvage()` to safely push mining/salvaging behaviors to AI ships without rewriting `craftorders.lua`.
+- [API] **Physical Upgrades:** Added `SpawnLootUpgrade()` to `cosmicvaultloot.lua`, allowing modders to specifically spawn `SystemUpgradeTemplate` objects physically into space natively.
+- [API] **Permanent Buffs:** Added `addPermanentBaseMultiplier()` to `cosmicvaultbuffs.lua` to permanently multiply base stats safely utilizing C++ callbacks without infinitely stacking.
+- [API] **Station Distances:** Overhauled `cosmicvaultstation.lua` to support custom `maxDistance` overrides within `isInteractionPossible()` for UI security.
+
+### 🐛 Bug Fixes
+- [Bugfix] **Scaling API Crash Fix:** Fixed a severe bug in `cosmicvaultscaling.lua` where calculating defender strength crashed if the native `Galaxy():getControllingFaction()` returned a C++ Faction userdata object instead of an expected numerical index.
+
 ## [v3.1.7]
 
 ### 🐛 Bug Fixes

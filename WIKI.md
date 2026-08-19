@@ -25,16 +25,16 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultarsenal.lua`: Mathematical generator for spitting out perfectly balanced custom `Weapon` and `InventoryTurret` drops on the fly.
 - `cosmicvaulteconomy.lua`: Natively read market data, trigger economic Booms and Crashes, and hook custom dynamic price multipliers securely across the entire galaxy.
 - `cosmicvaultencounter.lua`: Inject custom ambushes, anomalies, or boss spawns safely when players enter sectors without touching `sectorspecifics.lua`.
-- `cosmicvaultmission.lua`: Streamlined creation and injection of custom missions into native Bulletin Boards without overriding station logic.
+- `cosmicvaultmission.lua`: Streamlined creation and injection of custom missions into native Bulletin Boards without overriding station logic. Features comprehensive UI-handling for `failMission` events and physical `grantItemReward` automation.
 - `cosmicvaultprogression.lua`: Standardized custom XP, levels, and skill-tree perks synced securely across client and server.
-- `cosmicvaultfleet.lua`: Safe command injection for pushing complex AI orders (patrol, escort, mine) without hard overriding `craftorders.lua`.
+- `cosmicvaultfleet.lua`: Safe command injection for pushing complex AI orders (patrol, escort, automated mining/salvaging) without hard overriding `craftorders.lua`.
 - `cosmicvaultfaction.lua`: A revolutionary API to bypass Avorion's hardcoded UI and inject Custom Faction Traits natively into the diplomacy window, as well as safely mirror relationship changes to Player Alliances without crashing.
 - `cosmicvaultgoods.lua`: Safely inject custom Trade Goods (with properties like illegal, dangerous) directly into the 5 global economy arrays without overwriting the hardcoded `goods.lua`.
-- `cosmicvaultloot.lua`: Hook into native destruction sequences to drop custom loot natively.
+- `cosmicvaultloot.lua`: Hook into native destruction sequences to drop custom loot and specifically spawn dynamic `SystemUpgradeTemplate` objects directly into space natively.
 - `cosmicvaultblueprint.lua`: Safely load and dynamically spawn custom XML ships, stations, and custom turrets with native AI and crew generation.
-- `cosmicvaultstation.lua`: Safely append custom dialogue or interaction tabs to vanilla stations cleanly.
+- `cosmicvaultstation.lua`: Safely append custom dialogue or interaction tabs to vanilla stations cleanly, featuring custom maximum-distance overrides for UI security.
 - `cosmicvaultevents.lua`: A server-safe timer for tracking galaxy-wide events (e.g. "Xsotan Invasions") that persist across server reboots.
-- `cosmicvaultbuffs.lua`: Safely inject temporary stat modifiers (Speed, Shields, Damage) directly onto ships via tiny, self-terminating scripts. Also allows persistent tracking of global faction-wide buff tiers across the galaxy.
+- `cosmicvaultbuffs.lua`: Safely inject temporary stat modifiers (Speed, Shields, Damage) directly onto ships via tiny, self-terminating scripts. Allows persistent tracking of global faction-wide buff tiers across the galaxy, and features C++-safe `addPermanentBaseMultiplier` integrations.
 - `cosmicvaultterritory.lua`: Native background mathematical border shifting and background physical station generation for native, dynamic AI faction expansion. Securely tracks absolute `startTime` for synchronized HUD integration across client bounds.
 - `cosmicvaultcombat.lua`: Exposes `applyDoT` and native logic to render floating combat text for DOTs dynamically.
 - `cosmicvaultscaling.lua`: Dynamic native OM/Volume math for spawning accurately scaled invasion fleets matching defender strength.

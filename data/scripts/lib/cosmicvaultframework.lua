@@ -112,4 +112,20 @@ function CosmicVaultFramework.isStrict()
     return cfg.enableFrameworkStrictMode == true
 end
 
+--- Validates the type of a variable and logs an error if it mismatches
+-- @param value (any) The variable to check
+-- @param expectedType (string) The expected Lua type (e.g. "string", "number", "table")
+-- @param variableName (string) Optional name of the variable for the error log
+-- @return (boolean) True if valid, false if invalid
+function CosmicVaultFramework.assertType(value, expectedType, variableName)
+    local actualType = type(value)
+    if actualType ~= expectedType then
+        if CosmicVaultDebug and CosmicVaultDebug.error then
+            CosmicVaultDebug.error("CosmicVault-Framework", "Type mismatch on variable '%s': expected %s, got %s", variableName or "unknown", expectedType, actualType)
+        end
+        return false
+    end
+    return true
+end
+
 return CosmicVaultFramework

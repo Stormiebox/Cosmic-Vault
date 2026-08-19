@@ -52,6 +52,47 @@ function CosmicVaultBuffs.applyPermanentFactor(entityId, statName, factor)
     entity:addMultiplyableBias(statName, factor)
 end
 
+--- Removes a permanent stat multiplier factor natively from an entity
+-- @param entityId (string|Uuid) The target entity
+-- @param statName (int) The StatsBonuses Enum value (e.g. StatsBonuses.ShieldDurability)
+function CosmicVaultBuffs.removePermanentFactor(entityId, statName)
+    if not onServer() then return end
+    if type(statName) ~= "number" then return end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    entity:removeMultiplyableBias(statName)
+end
+
+--- Applies a permanent base multiplier natively to an entity
+-- @param entityId (string|Uuid) The target entity
+-- @param statName (int) The StatsBonuses Enum value (e.g. StatsBonuses.ShieldDurability)
+-- @param factor (number) The base multiplier (e.g. 0.1 for +10% increase)
+function CosmicVaultBuffs.addPermanentBaseMultiplier(entityId, statName, factor)
+    if not onServer() then return end
+    if type(statName) ~= "number" then return end
+    if type(factor) ~= "number" then return end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    entity:addBaseMultiplier(statName, factor)
+end
+
+--- Removes a permanent base multiplier natively from an entity
+-- @param entityId (string|Uuid) The target entity
+-- @param statName (int) The StatsBonuses Enum value (e.g. StatsBonuses.ShieldDurability)
+function CosmicVaultBuffs.removePermanentBaseMultiplier(entityId, statName)
+    if not onServer() then return end
+    if type(statName) ~= "number" then return end
+    
+    local entity = Entity(entityId)
+    if not entity then return end
+    
+    entity:removeBaseMultiplier(statName)
+end
+
 --- Removes all active Cosmic Buffs natively from an entity
 -- @param entityId (string|Uuid) The target entity
 function CosmicVaultBuffs.clearBuffs(entityId)

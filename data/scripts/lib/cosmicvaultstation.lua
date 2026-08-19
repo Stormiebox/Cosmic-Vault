@@ -23,8 +23,9 @@ function CosmicVaultStation.injectInteraction(buttonText, windowTitle, onInterac
 end
 
 --- Returns true if the player is allowed to interact with the station (Docking range and relations)
+-- @param maxDistance (number) Optional maximum interaction distance (default 500)
 -- @return boolean
-function CosmicVaultStation.isInteractionPossible()
+function CosmicVaultStation.isInteractionPossible(maxDistance)
     if not onClient() then return false end
     
     local player = Player()
@@ -34,11 +35,14 @@ function CosmicVaultStation.isInteractionPossible()
     local station = Entity()
     if station.factionIndex and ship.factionIndex == station.factionIndex then return true end
     
-    -- Check relation and distance
-    if station.factionIndex and player:getRelations(station.factionIndex) <= -30000 then return false end
+    -- Check relation safely via Galaxy to avoid player/alliance index mismatches
+    if station.factionIndex then 
+        local relations = Galaxy():getFactionRelations(Faction(player.index), Faction(station.factionIndex))
+        if relations <= -30000 then return false end
+    end
     
     local dist = ship:getNearestDistance(station)
-    if dist > 50 then return false end
+    if dist > (maxDistance or 500) then return false end
     
     return true
 end

@@ -9,10 +9,10 @@ CosmicVaultMission = {}
 -- @param difficulty (string) "Easy", "Normal", "Hard"
 -- @param rewardText (string) Text to show for the reward
 -- @param scriptPath (string) The path to the mission script (e.g. "data/scripts/player/missions/mymission.lua")
--- @param args (table) Any script arguments
+-- @param icon (string) Optional icon path
 -- @return table A formatted bulletin object that can be returned to `getBulletins()`
-function CosmicVaultMission.createBulletin(title, description, difficulty, rewardText, scriptPath, args)
-    if not title or not description or not scriptPath then return nil end
+function CosmicVaultMission.createBulletin(title, description, difficulty, rewardText, scriptPath, args, icon)
+    if type(title) ~= "string" or type(description) ~= "string" or type(scriptPath) ~= "string" then return nil end
     local bulletin = {
         brief = title,
         description = description,
@@ -21,7 +21,8 @@ function CosmicVaultMission.createBulletin(title, description, difficulty, rewar
         script = scriptPath,
         arguments = args or {},
         formatArguments = {},
-        msg = description
+        msg = description,
+        icon = icon or "data/textures/icons/mission.png"
     }
     return bulletin
 end
@@ -66,6 +67,31 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
 
     -- Cleanly remove the mission script from the player
     player:removeScript(missionId)
+end
+
+--- Fails the mission and cleans up the script safely
+-- @param missionId (string) The mission UUID or identifier
+function CosmicVaultMission.failMission(missionId)
+    if not onServer() then return end
+    if type(missionId) ~= "string" then return end
+    local player = Player()
+    if not player then return end
+
+    player:sendChatMessage("System", 1, "Mission Failed.")
+    player:removeScript(missionId)
+end
+
+--- Grants an item reward directly to the player's inventory
+-- @param itemTemplate (table/SystemUpgradeTemplate/TurretTemplate) The item to grant
+-- @param amount (int) The amount to grant (default: 1)
+function CosmicVaultMission.grantItemReward(itemTemplate, amount)
+    if not onServer() then return end
+    if not itemTemplate then return end
+    local player = Player()
+    if not player then return end
+
+    local qty = tonumber(amount) or 1
+    player:getInventory():add(itemTemplate, qty)
 end
 
 return CosmicVaultMission

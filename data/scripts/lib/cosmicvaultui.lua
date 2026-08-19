@@ -19,6 +19,8 @@ CosmicVaultUI = CosmicVaultUI or {}
 -- @param duration (number) Duration of banner
 function CosmicVaultUI.ShowCinematicBanner(player, text, color, soundPath, duration)
     if not valid(player) then return false end
+    if type(text) ~= "string" then return false end
+    
     if not player:hasScript("cosmicvaultcinematic.lua") then
         player:addScriptOnce("cosmicvaultcinematic.lua")
     end
@@ -40,6 +42,8 @@ end
 -- @param title (string) The popup title
 function CosmicVaultUI.ShowPopup(player, title, message)
     if not valid(player) then return false end
+    if type(title) ~= "string" or type(message) ~= "string" then return false end
+    
     if not player:hasScript("cosmicvaultcinematic.lua") then
         player:addScriptOnce("cosmicvaultcinematic.lua")
     end
@@ -54,6 +58,8 @@ end
 -- @param color (Color) The text color
 function CosmicVaultUI.displayFloatingText(player, entityId, text, color)
     if not valid(player) then return false end
+    if not entityId or type(text) ~= "string" then return false end
+    
     if not player:hasScript("cosmicvaultcinematic.lua") then
         player:addScriptOnce("cosmicvaultcinematic.lua")
     end

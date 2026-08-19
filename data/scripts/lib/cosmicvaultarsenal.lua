@@ -56,7 +56,9 @@ function CosmicVaultArsenal.GenerateTurret(config)
     turret:clearWeapons()
     turret:addWeapon(weapon)
 
-    turret.crew = math.floor(turret.slots * 1.5)
+    local crew = Crew()
+    crew:add(math.max(1, math.floor(turret.slots * 1.5)), CrewProfession(CrewProfessionType.Gunner))
+    turret.crew = crew
 
     -- Re-evaluate to lock in stats
     -- turret:updateStaticAttributes() -- Removed: improperly used method
@@ -69,10 +71,22 @@ end
 -- @param y (number) Y coordinate
 -- @param template (TurretTemplate) The turret template
 function CosmicVaultArsenal.SpawnLootTurret(sector, x, y, z, config)
-    if not x or not y or not config then return end
+    if not x or not y or type(config) ~= "table" then return end
     local turret = CosmicVaultArsenal.GenerateTurret(config)
     sector:dropTurret(vec3(x, y, z), nil, nil, turret)
     return turret
+end
+
+--- Spawns a system upgrade drop in the sector
+-- @param sector (Sector) The sector object
+-- @param x, y, z (number) Coordinates
+-- @param scriptPath (string) The path to the upgrade script
+-- @param rarity (Rarity) The rarity of the upgrade
+function CosmicVaultArsenal.SpawnLootUpgrade(sector, x, y, z, scriptPath, rarity)
+    if not sector or not scriptPath then return end
+    local upgrade = SystemUpgradeTemplate(scriptPath, rarity or Rarity(RarityType.Common), random():createSeed())
+    sector:dropUpgrade(vec3(x, y, z), nil, nil, upgrade)
+    return upgrade
 end
 
 if CosmicVaultFramework and CosmicVaultFramework.registerModule then
