@@ -1,6 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include("cosmicvaultdebug")
+include("randomext")
 
 -- namespace CosmicVaultDialogue
 CosmicVaultDialogue = {}

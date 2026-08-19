@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.1.7]
+
+### 🐛 Bug Fixes
+- [Bugfix] **API Crash Fixes:** Injected the missing `randomext` engine library into `economyupdater.lua` and `cosmicvaultdialogue.lua`. This prevents a fatal `nil` server crash when a sector experiences a famine and attempts to generate a relief cache, and fixes a silent UI crash in the NPC dialogue generator.
+
 ## [v3.1.6]
 
 ### ✨ Features & UI
