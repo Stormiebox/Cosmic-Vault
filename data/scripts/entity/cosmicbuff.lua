@@ -62,6 +62,14 @@ function terminateBuffById(targetId)
     end
 end
 
+function refreshBuffById(targetId)
+    if onServer() and buffId == targetId and targetId ~= "" then
+        timeActive = 0
+        return true
+    end
+    return false
+end
+
 function secure()
     return { targetStat = targetStat, statMultiplier = statMultiplier, duration = duration, timeActive = timeActive, buffId = buffId }
 end

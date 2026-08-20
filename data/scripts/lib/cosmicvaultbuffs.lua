@@ -33,8 +33,37 @@ function CosmicVaultBuffs.terminateBuff(entityId, buffId)
     local entity = Entity(entityId)
     if not entity then return end
     
-    -- Call the terminate function on all cosmicbuff scripts, but only the matching one will terminate
-    entity:invokeFunction("data/scripts/entity/cosmicbuff.lua", "terminateBuffById", buffId)
+    local scripts = entity:getScripts()
+    for index, path in pairs(scripts) do
+        if type(path) == "string" and string.find(path, "cosmicbuff.lua") then
+            entity:invokeFunction(index, "terminateBuffById", buffId)
+        end
+    end
+end
+
+--- Refreshes the duration of a specific buff by its unique ID
+-- @param entityId (string|Uuid) The target entity
+-- @param buffId (string) The unique ID of the buff to refresh
+-- @return (boolean) True if successfully refreshed, false otherwise
+function CosmicVaultBuffs.refreshBuff(entityId, buffId)
+    if not onServer() or type(buffId) ~= "string" or buffId == "" then return false end
+    
+    local entity = Entity(entityId)
+    if not entity then return false end
+    
+    local refreshed = false
+    local scripts = entity:getScripts()
+    for index, path in pairs(scripts) do
+        if type(path) == "string" and string.find(path, "cosmicbuff.lua") then
+            local status, matched = entity:invokeFunction(index, "refreshBuffById", buffId)
+            if status == 0 and matched then
+                refreshed = true
+                break
+            end
+        end
+    end
+    
+    return refreshed
 end
 
 --- Applies a permanent stat multiplier factor natively to an entity

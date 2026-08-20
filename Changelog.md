@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.2.1]
+### Fixed
+- Fixed an internal multi-script targeting flaw in `cosmicvaultbuffs.lua` that caused `refreshBuff` and `terminateBuff` to only execute on the first loaded `cosmicbuff.lua` instance, instead of properly targeting by buff ID.
+- Updated `cosmicbuff.lua` with a new internal `refreshBuffById` hook that safely resets timers without completely recalculating maximum entity shield stats (which interrupts natural out-of-combat regeneration).
+
 ## [v3.2.0]
 
 ### ✨ New Features & API Expansion
