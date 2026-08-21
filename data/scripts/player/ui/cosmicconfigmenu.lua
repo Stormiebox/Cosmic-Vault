@@ -82,16 +82,7 @@ function CosmicConfigMenu.onShow()
     invokeServerFunction("requestCCMSync", keysToRequest)
 end
 
-function CosmicConfigMenu.receiveCCMSync(data)
-    if not self.serverData then self.serverData = {} end
-    if type(data) == "table" then
-        for k, v in pairs(data) do
-            if type(k) == "string" then
-                self.serverData[k] = v
-            end
-        end
-    end
-    ccm.setClientCache(self.serverData)
+function CosmicConfigMenu.receiveCCMSync()
     self.refreshUI()
 end
 
@@ -168,10 +159,7 @@ function CosmicConfigMenu.refreshUI()
         desc = desc .. "\n\n[Only server Administrators can change this option!]"%_t
         label.tooltip = desc
 
-        local currentValue = nil
-        if self.serverData then
-            currentValue = self.serverData[namespace .. "_" .. opt.key]
-        end
+        local currentValue = binding.get(opt.key)
         if currentValue == nil then currentValue = opt.default end
 
         if opt.type == "bool" then
@@ -403,14 +391,21 @@ function CosmicConfigMenu.syncCCMSettings(settingsBatch)
 
     if admin and type(settingsBatch) == "table" then
         local s = Server()
-        local sanitizedBatch = {}
         for k, v in pairs(settingsBatch) do
             if type(k) == "string" and (type(v) == "boolean" or type(v) == "number" or type(v) == "string") then
                 s:setValue("ccm_" .. k, v)
-                sanitizedBatch[k] = v
             end
         end
-        invokeClientFunction(Player(callingPlayer), "receiveCCMSync", sanitizedBatch)
+        
+        -- Sync newly applied settings to all online players
+        for _, pl in pairs({s:getOnlinePlayers()}) do
+            for k, v in pairs(settingsBatch) do
+                if type(k) == "string" and (type(v) == "boolean" or type(v) == "number" or type(v) == "string") then
+                    pl:setValue("ccm_" .. k, v)
+                end
+            end
+            invokeClientFunction(pl, "receiveCCMSync")
+        end
     elseif p then
         p:sendChatMessage("Server", 1, "You must be a Server Administrator to modify Cosmic Config values."%_t)
     end
@@ -419,31 +414,24 @@ callable(CosmicConfigMenu, "syncCCMSettings")
 
 function CosmicConfigMenu.requestCCMSync(keys)
     local s = Server()
-    local data = {}
+    local p = Player(callingPlayer)
+    if not p then return end
+    
     if type(keys) == "table" then
         for _, item in ipairs(keys) do
             if type(item) == "table" and type(item.namespace) == "string" and type(item.key) == "string" then
                 local val = s:getValue("ccm_" .. item.namespace .. "_" .. item.key)
-                data[item.namespace .. "_" .. item.key] = val
+                if val ~= nil then
+                    p:setValue("ccm_" .. item.namespace .. "_" .. item.key, val)
+                end
             end
         end
     end
-    invokeClientFunction(Player(callingPlayer), "receiveCCMSync", data)
+    invokeClientFunction(p, "receiveCCMSync")
 end
 callable(CosmicConfigMenu, "requestCCMSync")
 
 
-function initialize(...)
-    if CosmicConfigMenu.initialize then return CosmicConfigMenu.initialize(...) end
-end
-
-
--- Global Event Callbacks
-function onPostRenderHud(...)
-    if CosmicConfigMenu.onPostRenderHud then return CosmicConfigMenu.onPostRenderHud(...) end
-end
-function onGalaxyMapUpdate(...)
-    if CosmicConfigMenu.onGalaxyMapUpdate then return CosmicConfigMenu.onGalaxyMapUpdate(...) end
-end
+-- Global wrappers removed to prevent shadowing of the namespace.
 
 return CosmicConfigMenu

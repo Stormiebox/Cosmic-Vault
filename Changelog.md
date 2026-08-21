@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.2.2]
+
+### 🐛 Bug Fixes
+- [Bugfix] **Config Menu Desync:** Fixed a critical bug in `cosmicconfigmenu.lua` and `ccm.lua` where configuration changes (like hotkeys or toggles) would revert to default values upon reloading a save or logging into a multiplayer server. The API now natively syncs via `Player():getValue(...)`, ensuring all UI elements flawlessly retain their settings across the network without relying on local caching, while restoring proper namespace routing.
+
 ## [v3.2.1]
 ### Fixed
 - Fixed an internal multi-script targeting flaw in `cosmicvaultbuffs.lua` that caused `refreshBuff` and `terminateBuff` to only execute on the first loaded `cosmicbuff.lua` instance, instead of properly targeting by buff ID.
