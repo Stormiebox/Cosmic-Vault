@@ -5,6 +5,7 @@ CCM = CCM or {}
 
 local registries = {}
 local bindings = {}
+local clientCache = {}
 local Keys = include("ccm_keycodes")
 
 CCM.keys = Keys
@@ -22,6 +23,12 @@ function CCM.getAllRegistries()
     return registries
 end
 
+
+function CCM.setClientCache(data)
+    if type(data) == "table" then
+        clientCache = data
+    end
+end
 
 
 local function readModifierState(c, kb)
@@ -82,13 +89,9 @@ function CCM.bind(namespace)
         end
         
         if onClient() then
-            local p = Player()
-            if p then
-                local dbKey = "ccm_" .. namespace .. "_" .. key
-                local val = p:getValue(dbKey)
-                if val ~= nil then
-                    return val
-                end
+            local dbKey = namespace .. "_" .. key
+            if clientCache[dbKey] ~= nil then
+                return clientCache[dbKey]
             end
         end
         
