@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.2.3]
+
+### 🪲 Bug Fixes
+- [Bugfix] **Cosmic Buffs API:** Fixed an issue where dynamically applied jump range buffs (`HyperspaceReach`) from events/weathers were incorrectly scaling as flat numbers (e.g., adding +0.5 sectors) instead of multiplying the ship's base jump range by a percentage.
+
 ## [v3.2.2]
 
 ### 🐛 Bug Fixes

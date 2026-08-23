@@ -48,7 +48,7 @@ function applyBuffs()
     elseif targetStat == "HyperspaceCooldown" then
         entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, statMultiplier)
     elseif targetStat == "HyperspaceReach" then
-        entity:addMultiplyableBias(StatsBonuses.HyperspaceReach, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, statMultiplier)
     elseif targetStat == "ShieldTimeUntilRechargeAfterHit" then
         entity:addBaseMultiplier(StatsBonuses.ShieldTimeUntilRechargeAfterHit, statMultiplier)
     elseif targetStat == "FireRate" then
