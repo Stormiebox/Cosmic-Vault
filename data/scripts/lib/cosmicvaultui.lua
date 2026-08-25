@@ -17,7 +17,8 @@ CosmicVaultUI = CosmicVaultUI or {}
 -- @param color (Color) Text color
 -- @param soundPath (string) Path to sound file
 -- @param duration (number) Duration of banner
-function CosmicVaultUI.ShowCinematicBanner(player, text, color, soundPath, duration)
+-- @param theme (string) Optional. Visual theme (e.g., "hazard", "info")
+function CosmicVaultUI.ShowCinematicBanner(player, text, color, soundPath, duration, theme)
     if not valid(player) then return false end
     if type(text) ~= "string" then return false end
     
@@ -32,7 +33,7 @@ function CosmicVaultUI.ShowCinematicBanner(player, text, color, soundPath, durat
         b = color.b or 1.0
     }
     
-    player:invokeFunction("cosmicvaultcinematic.lua", "showBanner", text, cInfo, soundPath, duration)
+    player:invokeFunction("cosmicvaultcinematic.lua", "showBanner", text, cInfo, soundPath, duration, theme)
     return true
 end
 

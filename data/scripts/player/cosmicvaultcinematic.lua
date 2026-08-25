@@ -13,21 +13,23 @@ local bannerText = ""
 local bannerColor = ColorRGB(1, 1, 1)
 local bannerTimer = 0
 local bannerDuration = 5
+local bannerTheme = ""
 
 function CosmicVaultCinematic.initialize()
     if onServer() then return end
     Player():registerCallback("onPreRenderHud", "onPreRenderHud")
 end
 
-function CosmicVaultCinematic.showBanner(text, cInfo, soundPath, duration)
+function CosmicVaultCinematic.showBanner(text, cInfo, soundPath, duration, theme)
     if onServer() then
-        invokeClientFunction(Player(), "showBanner", text, cInfo, soundPath, duration)
+        invokeClientFunction(Player(), "showBanner", text, cInfo, soundPath, duration, theme)
         return
     end
 
     bannerText = text
     bannerColor = ColorRGB(cInfo.r, cInfo.g, cInfo.b)
     bannerDuration = duration or 5
+    bannerTheme = theme or ""
     bannerTimer = bannerDuration
     bannerActive = true
 
@@ -85,27 +87,26 @@ function CosmicVaultCinematic.onPreRenderHud()
 
     local rect = Rect(0, resolution.y * 0.2, resolution.x, resolution.y * 0.3)
 
-    -- Draw background
+    -- Draw background based on theme
     local bgColor = ColorARGB(alpha * 0.8, 0, 0, 0)
+    
+    if bannerTheme == "hazard" or bannerTheme == "warning" then
+        bgColor = ColorARGB(alpha * 0.8, 0.4, 0.05, 0.05) -- Reddish hazard tint
+    elseif bannerTheme == "info" then
+        bgColor = ColorARGB(alpha * 0.8, 0.05, 0.2, 0.4) -- Sleek blue tint
+    end
+    
     drawRect(rect, bgColor)
+
+    -- Optional top and bottom border for style
+    local borderAlpha = alpha * 0.5
+    drawRect(Rect(0, resolution.y * 0.2, resolution.x, resolution.y * 0.2 + 2), ColorARGB(borderAlpha, bannerColor.r, bannerColor.g, bannerColor.b))
+    drawRect(Rect(0, resolution.y * 0.3 - 2, resolution.x, resolution.y * 0.3), ColorARGB(borderAlpha, bannerColor.r, bannerColor.g, bannerColor.b))
 
     -- Draw text
     local textColor = ColorARGB(alpha, bannerColor.r, bannerColor.g, bannerColor.b)
     drawTextRect(bannerText, rect, 1, textColor, 40, 1, 1, 2)
 end
 
-
-function initialize(...)
-    if CosmicVaultCinematic.initialize then return CosmicVaultCinematic.initialize(...) end
-end
-function updateClient(...)
-    if CosmicVaultCinematic.updateClient then return CosmicVaultCinematic.updateClient(...) end
-end
-
-
--- Global Event Callbacks
-function onPreRenderHud(...)
-    if CosmicVaultCinematic.onPreRenderHud then return CosmicVaultCinematic.onPreRenderHud(...) end
-end
 
 return CosmicVaultCinematic

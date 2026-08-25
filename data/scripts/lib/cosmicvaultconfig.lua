@@ -26,6 +26,7 @@ if ccm then
                     { key = "debugAscendancy", type = "bool", title = "Debug: Cosmic Ascendancy", description = "Print debug logs for Cosmic Ascendancy.", default = true },
                     { key = "debugStarfall", type = "bool", title = "Debug: Cosmic Starfall", description = "Print debug logs for Cosmic Starfall.", default = true },
                     { key = "debugSymphony", type = "bool", title = "Debug: Cosmic Symphony", description = "Print debug logs for Cosmic Symphony.", default = true },
+                    { key = "sectorLoadMetrics", type = "bool", title = "Sector Load Metrics", description = "Print sector generation and load times to console.", default = false },
                     { key = "diagnosticsEnabled", type = "bool", title = "Enable Diagnostics", description = "Runs periodic checks on Vault components.", default = true },
                     { key = "diagnosticsInterval", type = "number", title = "Diagnostics Interval (s)", description = "Time between diagnostic checks.", default = 300, min = 10, max = 3600 },
                     { key = "enableFrameworkStrictMode", type = "bool", title = "Strict Mode", description = "Enables strict bounds checking.", default = true },
@@ -44,6 +45,7 @@ local defaults = {
     debugAscendancy = true,
     debugStarfall = true,
     debugSymphony = true,
+    sectorLoadMetrics = false,
     debugPrefix = "[Cosmic]",
 
     diagnosticsEnabled = true,
@@ -104,6 +106,7 @@ local function build()
     out.debugAscendancy = readBool("debugAscendancy", defaults.debugAscendancy)
     out.debugStarfall = readBool("debugStarfall", defaults.debugStarfall)
     out.debugSymphony = readBool("debugSymphony", defaults.debugSymphony)
+    out.sectorLoadMetrics = readBool("sectorLoadMetrics", defaults.sectorLoadMetrics)
     out.debugPrefix = readString("debugPrefix", defaults.debugPrefix)
 
     out.diagnosticsEnabled = readBool("diagnosticsEnabled", defaults.diagnosticsEnabled)

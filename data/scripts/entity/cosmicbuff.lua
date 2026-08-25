@@ -17,6 +17,10 @@ function initialize(statName, multiplier, durationSeconds, id)
         buffId = id or ""
         timeActive = 0
         applyBuffs()
+        sync()
+    end
+    if onClient() then
+        sync()
     end
 end
 
@@ -82,5 +86,26 @@ function restore(data)
     buffId = data.buffId or ""
     if onServer() then
         applyBuffs()
+    end
+end
+
+function sync(data)
+    if onServer() then
+        broadcastInvokeClientFunction("sync", secure())
+    else
+        if data then
+            restore(data)
+        else
+            invokeServerFunction("sync")
+        end
+    end
+end
+callable(nil, "sync")
+
+function updateClient(timeStep)
+    timeActive = timeActive + timeStep
+    local player = Player()
+    if player and player.craftIndex == Entity().index then
+        player:invokeFunction("data/scripts/player/ui/cosmicbuff_hud.lua", "registerBuff", buffId, targetStat, duration - timeActive, duration)
     end
 end

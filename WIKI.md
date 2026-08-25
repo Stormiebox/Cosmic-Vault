@@ -41,6 +41,8 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultanomalies.lua`: Seamless API to inject persistent, interactive points-of-interest (POIs) natively into sectors.
 - `cv_weather_controller.lua`: Global Subspace Weather API allowing mods to natively trigger or clear localized environmental hazards (EMP storms, radiation, etc) combined with seamless UI integration via `addSectorProblem()`.
 - `cv_weather_generator.lua`: Defines all standard weather hazards, mapping keys to native Avorion icons, descriptions, and dynamic `isShipPrepared` protection callbacks.
+- `cosmicvaultconfig.lua`: Standardized global config bootloader ensuring that complex configuration states (such as metrics tracking) are safely loaded into server memory before logic executes.
+- `cosmicvaultmetrics_server.lua`: Dedicated global telemetry script utilizing native engine `onPlayerLogIn` and `onSectorEntered` callbacks to securely trace tracking data without causing cross-entity routing crashes.
 
 **Why it matters:**
 Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.

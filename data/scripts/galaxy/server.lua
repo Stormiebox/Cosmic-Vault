@@ -1,4 +1,3 @@
-
 local CosmicVault_old_init = initialize
 
 function initialize(...)
@@ -8,4 +7,5 @@ function initialize(...)
     Galaxy():addScriptOnce("data/scripts/server/cosmicvaultterritory_server.lua")
     Galaxy():addScriptOnce("data/scripts/server/cosmicvaultweather_server.lua")
     Galaxy():addScriptOnce("data/scripts/server/cosmicvaultriftescalation_server.lua")
+    Galaxy():addScriptOnce("data/scripts/server/cosmicvaultmetrics_server.lua")
 end

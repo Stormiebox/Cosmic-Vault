@@ -7,6 +7,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.3.0]
+
+### ✨ Features
+- [Feature] **UI Buff Tracker:** Added a new client-side HUD element that visually tracks active Cosmic Buff durations via a clean, non-intrusive progress bar.
+- [Feature] **Cinematic Banners:** The `ShowCinematicBanner` API now supports an optional `theme` argument (e.g. "hazard", "info") that dynamically alters the banner's background tint and styling.
+- [Feature] **Sector Load Metrics:** Added a new `sectorLoadMetrics` debug toggle to the Cosmic Config Menu. When enabled, the framework will log exact timestamps and coordinates whenever a sector is generated or entered by a player to help server admins monitor generation performance.
+
 ## [v3.2.3]
 
 ### 🪲 Bug Fixes

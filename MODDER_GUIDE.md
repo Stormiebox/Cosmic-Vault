@@ -21,6 +21,18 @@ Welcome to the **Cosmic Vault API Guide**! This document provides technical inst
 > **API Argument Validation & Docstrings**
 > All Cosmic Vault API functions now require strict argument validation (`if not arg then return end`). When calling them, ensure you pass all required parameters as detailed by the generated docstrings in each API file.
 
+> [!CAUTION]
+> **Namespace Architecture & RPC Registries (VFM Hooks)**
+> When replacing or appending to vanilla scripts that utilize a `-- namespace` declaration (e.g., `researchstation.lua`), you **must not** use global wrapper functions (e.g., `function initUI()`). The engine natively hooks into the namespace table and will ignore your global wrappers, silently breaking your interactions! Instead, store the old function and inject directly into the vanilla namespace table:
+> ```lua
+> local old_initUI = ResearchStation.initUI
+> function ResearchStation.initUI(...)
+>     if old_initUI then old_initUI(...) end
+>     -- Your code here
+> end
+> ```
+> Additionally, any RPC methods within a namespaced script must be registered explicitly to the namespace context using `callable(NamespaceName, "functionName")`. Using `callable(nil, ...)` will bypass the context and lead to silent multiplayer desyncs.
+
 > [!TIP]
 > **Event Loop Throttling**
 > When writing background simulation scripts (e.g., `updateServer` loops), **always** define `getUpdateInterval()` to throttle execution (e.g. `return 5.0`). Running logic every single frame (0s interval) should be strictly reserved for rendering UI fading or precise physical tracking.
