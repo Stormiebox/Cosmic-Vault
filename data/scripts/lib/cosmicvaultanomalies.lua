@@ -2,6 +2,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 local SectorGenerator = include("SectorGenerator")
+local PlanGenerator = include("plangenerator")
 
 local CosmicVaultAnomalies = {}
 
@@ -18,6 +19,11 @@ function CosmicVaultAnomalies.spawnAnomaly(x, y, anomalyType, position)
     local generator = SectorGenerator(x, y)
     position = position or generator:getPositionInSector(10000)
     
+    -- Ensure position is a Matrix, not a vec3
+    if type(position) == "userdata" and position.x then
+        position = MatrixLookUpPosition(-vec3(0, 1, 0), vec3(1, 0, 0), position)
+    end
+    
     local entity
     if anomalyType == "PrecursorWreck" then
         local faction = Galaxy():getNearestFaction(x, y) or Galaxy():getPirateFaction(0)
@@ -30,7 +36,7 @@ function CosmicVaultAnomalies.spawnAnomaly(x, y, anomalyType, position)
         -- Generate an invincible asteroid as the base for the rift
         local desc = AsteroidDescriptor()
         desc.position = position
-        desc:setPlan(generator:createAsteroidPlan(200, Material(MaterialType.Iron)))
+        desc:setPlan(PlanGenerator.makeBigAsteroidPlan(200, false, Material(MaterialType.Iron)))
         entity = sector:createEntity(desc)
         entity.title = "Unstable Spatial Rift"
         entity.invincible = true

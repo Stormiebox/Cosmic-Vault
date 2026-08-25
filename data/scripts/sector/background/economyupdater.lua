@@ -5,6 +5,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 include("callable")
 include("randomext")
 local FactoryMap = include("factorymap")
+local SectorGenerator = include("SectorGenerator")
 
 -- Don't remove or alter the following comment, it tells the game the namespace this script lives in. If you remove it, the script will break.
 -- namespace EconomyUpdater
@@ -211,22 +212,4 @@ function EconomyUpdater.getSupplyDemandPriceChange(good, ownSupplyType)
     return factor
 end
 
-
-function getUpdateInterval(...)
-    if EconomyUpdater.getUpdateInterval then return EconomyUpdater.getUpdateInterval(...) end
-end
-function initialize(...)
-    if EconomyUpdater.initialize then return EconomyUpdater.initialize(...) end
-end
-function updateClient(...)
-    if EconomyUpdater.updateClient then return EconomyUpdater.updateClient(...) end
-end
-function updateServer(...)
-    if EconomyUpdater.updateServer then return EconomyUpdater.updateServer(...) end
-end
-
-
--- Global Event Callbacks
-function onEntityCreated(...)
-    if EconomyUpdater.onEntityCreated then return EconomyUpdater.onEntityCreated(...) end
-end
+

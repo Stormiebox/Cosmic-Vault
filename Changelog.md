@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.3.2]
+
+### Fixed
+- **Anomaly Spawning Crash:** Fixed a crash occurring during the Bottan fight and Eclipse Boss events where spatial rifts and precursor wrecks would fail to spawn. This was caused by a vec3/Matrix mismatch and a missing `createAsteroidPlan` API reference in `cosmicvaultanomalies.lua`.
+- **Small tweaks & bugfixes:** Various bugfixes in some API files.
+
 ## [v3.3.1]
 
 ### 🪲 Bug Fixes

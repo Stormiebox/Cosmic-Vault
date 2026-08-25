@@ -124,19 +124,12 @@ if onServer() then
     function CosmicVaultTerritory.updateServer(timeStep)
         local zones = CosmicVaultTerritory.getContestedZones()
         local currentTime = Server().unpausedRuntime
-        local changed = false
 
         for key, zone in pairs(zones) do
             if currentTime >= zone.endTime then
                 -- The background siege timer completed! The AI won mathematically.
                 CosmicVaultTerritory.resolveSiege(zone.x, zone.y, zone.invader)
-                changed = true
             end
-        end
-
-        if changed then
-            -- Note: Server():setValue is automatically saved, but calling it forces a sync if necessary.
-            Server():setValue("CosmicVault_ContestedZones", serializeZones(zones))
         end
     end
 

@@ -19,6 +19,7 @@ CosmicVaultUI = CosmicVaultUI or {}
 -- @param duration (number) Duration of banner
 -- @param theme (string) Optional. Visual theme (e.g., "hazard", "info")
 function CosmicVaultUI.ShowCinematicBanner(player, text, color, soundPath, duration, theme)
+    if not onServer() then return false end
     if not valid(player) then return false end
     if type(text) ~= "string" then return false end
     
@@ -42,6 +43,7 @@ end
 -- @param text (string) The popup text
 -- @param title (string) The popup title
 function CosmicVaultUI.ShowPopup(player, title, message)
+    if not onServer() then return false end
     if not valid(player) then return false end
     if type(title) ~= "string" or type(message) ~= "string" then return false end
     
@@ -58,6 +60,7 @@ end
 -- @param text (string) The text to display
 -- @param color (Color) The text color
 function CosmicVaultUI.displayFloatingText(player, entityId, text, color)
+    if not onServer() then return false end
     if not valid(player) then return false end
     if not entityId or type(text) ~= "string" then return false end
     

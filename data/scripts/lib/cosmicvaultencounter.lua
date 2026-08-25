@@ -13,6 +13,8 @@ CosmicVaultEncounter = {}
 -- @param setAggressive (boolean) If true, the spawned ships will attack players immediately
 -- @return table List of spawned entities
 function CosmicVaultEncounter.spawnAmbush(factionId, volume, numShips, spawnMatrix, setAggressive)
+    if not onServer() then return {} end
+
     local faction = Faction(factionId)
     if not faction then return {} end
     
@@ -44,6 +46,8 @@ end
 -- @param message (string) The text message
 -- @param isRadio (boolean) If true, shows up as a popup transmission
 function CosmicVaultEncounter.broadcastEncounterMessage(sender, message, isRadio)
+    if not onServer() then return end
+
     local sector = Sector()
     if not sector then return end
     
