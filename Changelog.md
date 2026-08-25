@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.3.1]
+
+### 🪲 Bug Fixes
+- [Bugfix] **Matrix Math Crash:** Fixed a C++ API logic exception (invalid type 'Matrix' expected 'vec3') when calculating randomized ambush spawn coordinates in `cosmicvaultencounter.lua`, preventing ambush fleets from generating correctly.
+
 ## [v3.3.0]
 
 ### ✨ Features

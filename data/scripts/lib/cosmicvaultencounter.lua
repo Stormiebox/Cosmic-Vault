@@ -15,9 +15,6 @@ CosmicVaultEncounter = {}
 function CosmicVaultEncounter.spawnAmbush(factionId, volume, numShips, spawnMatrix, setAggressive)
     local faction = Faction(factionId)
     if not faction then return {} end
-
-    local sector = Sector()
-    if not sector then return {} end
     
     local spawnedShips = {}
     
@@ -36,7 +33,7 @@ function CosmicVaultEncounter.spawnAmbush(factionId, volume, numShips, spawnMatr
             table.insert(spawnedShips, ship)
         end
         -- Stagger spawns slightly
-        pos.translation = pos.translation + vec3(random():getInt(-50, 50), random():getInt(-50, 50), random():getInt(-50, 50))
+        pos.pos = pos.pos + vec3(random():getInt(-50, 50), random():getInt(-50, 50), random():getInt(-50, 50))
     end
 
     return spawnedShips
