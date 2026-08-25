@@ -12,6 +12,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ### Fixed
 - **Fleet Clash AI Scaling Bug:** Fixed a syntax error during dynamic AI Fleet battles where the backend script was checking for `Entity.isPlayer` (an invalid property) instead of `entity.playerOwned`, which caused the Fleet Clash event to fail scaling its defender strength and throw errors.
 - **Combat Server Hang / Freeze:** Fixed a massive server lag spike and 30-second sector freezing caused by an invalid `Uuid` string serialization error inside `cosmicdot.lua`. When sectors unloaded and reloaded, the Damage Over Time effect would corrupt its source ID, breaking the engine's durability calculation and hanging the server thread.
+- **Cosmic Buff API Nil Error:** Fixed a critical namespace error in `cosmicbuff.lua` where the script failed to `include("callable")`, causing an `attempt to call global 'callable' (a nil value)` crash when trying to register remote procedure calls.
 
 ## [v3.3.2]
 

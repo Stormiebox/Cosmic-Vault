@@ -1,4 +1,5 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
+include("callable")
 
 local targetStat = ""
 local statMultiplier = 1.0
