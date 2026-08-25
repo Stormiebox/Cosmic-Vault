@@ -26,8 +26,16 @@ function CosmicVaultCombat.applyTrueDamage(entityId, amount, sourceId)
     if newDurability <= 0 then
         entity.durability = 0
         -- entity will be destroyed next frame
-        if sourceId and valid(Entity(sourceId)) then
-            entity:destroy(sourceId)
+        if sourceId then
+            local src = sourceId
+            if type(src) == "string" then
+                src = Uuid(src)
+            end
+            if valid(Entity(src)) then
+                entity:destroy(src)
+            else
+                entity:destroy(entity.id)
+            end
         else
             entity:destroy(entity.id)
         end

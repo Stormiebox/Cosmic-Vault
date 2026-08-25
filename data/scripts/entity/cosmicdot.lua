@@ -50,7 +50,13 @@ function updateServer(timeStep)
     
     -- Apply damage
     local src = entity.id
-    if sourceId then src = sourceId end
+    if sourceId then
+        if type(sourceId) == "string" then
+            src = Uuid(sourceId)
+        else
+            src = sourceId
+        end
+    end
     
     durability:inflictDamage(damagePerTick, DamageSource.Arbitrary, damageType, src)
     
