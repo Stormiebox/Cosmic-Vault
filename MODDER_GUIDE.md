@@ -301,7 +301,7 @@ CosmicVaultDialogue.registerLine({
 Safely manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap. Includes native bindings to `CosmicVaultNews` and functions for background faction generation.
 
 > [!NOTE]
-> **Station Flip Queue:** Due to engine limits in Avorion 2.0+, stations in unloaded offline sectors cannot be physically flipped. The Territory API safely bypasses this by placing territory conquests into a global deferred queue. The actual station ownership transfer executes instantaneously the next time any player loads into that sector natively.
+> **Station Flip Queue (Progressive Materialization):** Due to engine limits in Avorion 2.0+, stations in unloaded offline sectors cannot be physically flipped without using `Galaxy():loadSector()`, which physically spins up the sector thread and causes massive server stutters. The Territory API safely bypasses this using a **Lazy Loading** architecture by placing territory conquests into a global deferred queue (`Server():setValue("CosmicVault_PendingExpansions")`). The actual station ownership transfer executes instantaneously during the loading screen the next time any player loads into that sector natively.
 
 > [!TIP]
 > **Precise Siege Progress:** The `setContestedZone()` API automatically injects an absolute `startTime` property (using `Server().unpausedRuntime`) into the serialized background simulation state. Client-side scripts like `cw_battlefieldhud.lua` can pass `zone.startTime` from the server down to the client to render 100% mathematically accurate siege progress bars even for players who join hours late.

@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.4.0]
+
+### 🛠️ Architecture & Optimization
+- [Optimized] **Progressive Materialization:** Completely overhauled the `CosmicVaultTerritory` API. `expandToSector()` and `resolveSiege()` no longer forcefully execute `Galaxy():loadSector()` in the background to physically generate stations. This completely eradicates server stutters during AI faction expansion and background siege resolutions.
+- [Feature] **Lazy Loading API:** Added new serialized global tracker strings (`CosmicVault_PendingExpansions` and `CosmicVault_PendingFlips`). Stations are now natively and instantly constructed during the player's hyperspace loading screen when they visit the affected sector.
+
 ## [v3.3.3]
 
 ### Fixed
