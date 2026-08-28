@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.4.1]
+
+### 🪲 Bug Fixes
+- [Bugfix] **Territory Injector Engine Parse Error:** Fixed a critical bug where a Virtual File System data type mismatch caused the background territory injector to completely fail when trying to flip station ownership during active sieges. The script now correctly parses the serialized string from the engine API.
+
 ## [v3.4.0]
 
 ### 🛠️ Architecture & Optimization
