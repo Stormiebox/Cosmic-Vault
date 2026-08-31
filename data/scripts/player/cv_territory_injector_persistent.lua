@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 function initialize()
     if onServer() then

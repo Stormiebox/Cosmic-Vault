@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 -- namespace CosmicVaultFleet
 CosmicVaultFleet = {}
@@ -42,7 +41,11 @@ function CosmicVaultFleet.orderEscort(entityId, targetId, clearPrevious)
     local target = Entity(targetId)
     if not entity or not target then return end
     
-    entity:invokeFunction("data/scripts/entity/orderchain.lua", "addEscortOrder", target.index.string, target.factionIndex, target.name)
+    -- OrderChain.addEscortOrder expects the raw Uuid (it calls .string on it
+    -- internally) - passing an already-stringified id here makes that
+    -- craftId.string lookup resolve to nil (Lua's string metatable has no
+    -- "string" field), silently breaking the escort target.
+    entity:invokeFunction("data/scripts/entity/orderchain.lua", "addEscortOrder", target.index, target.factionIndex, target.name)
     entity:invokeFunction("data/scripts/entity/orderchain.lua", "runOrders")
 end
 

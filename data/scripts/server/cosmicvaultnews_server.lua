@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 include("callable")
 include("randomext")
 
@@ -96,35 +95,6 @@ function CosmicVaultNewsServer.updateServer(timeStep)
             player:invokeFunction("data/scripts/player/ui/cc_newsboard.lua", "onNewsPublished")
         end
     end
-end
-
-function getUpdateInterval(...)
-    if CosmicVaultNewsServer.getUpdateInterval then return CosmicVaultNewsServer.getUpdateInterval(...) end
-end
-
-function initialize(...)
-    if CosmicVaultNewsServer.initialize then return CosmicVaultNewsServer.initialize(...) end
-end
-
-function updateServer(...)
-    if CosmicVaultNewsServer.updateServer then return CosmicVaultNewsServer.updateServer(...) end
-end
-
-
-function secure(...)
-    if CosmicVaultNewsServer.secure then return CosmicVaultNewsServer.secure(...) end
-end
-function restore(...)
-    if CosmicVaultNewsServer.restore then return CosmicVaultNewsServer.restore(...) end
-end
-
-
--- Global Event Callbacks
-function onSyncRequest(...)
-    if CosmicVaultNewsServer.onSyncRequest then return CosmicVaultNewsServer.onSyncRequest(...) end
-end
-function onPublishArticle(...)
-    if CosmicVaultNewsServer.onPublishArticle then return CosmicVaultNewsServer.onPublishArticle(...) end
 end
 
 return CosmicVaultNewsServer

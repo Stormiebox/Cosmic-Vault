@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 include("callable")
 
 local targetStat = ""
@@ -41,23 +40,30 @@ end
 function applyBuffs()
     local entity = Entity()
     entity:removeScriptBonuses()
-    
+
+    -- CosmicVaultBuffs.applyBuff() documents statMultiplier as "0.5 for half
+    -- speed, 2.0 for double damage" (a scale factor), but addBaseMultiplier
+    -- takes an ADDITIVE delta: Final = Base * (1 + delta). Passing the scale
+    -- factor directly would turn "half speed" into a +50% speed boost, so it
+    -- must be converted to a delta here to match the documented contract.
+    local delta = statMultiplier - 1.0
+
     if targetStat == "Velocity" then
-        entity:addBaseMultiplier(StatsBonuses.Velocity, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.Velocity, delta)
     elseif targetStat == "Shield" then
-        entity:addBaseMultiplier(StatsBonuses.ShieldDurability, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.ShieldDurability, delta)
     elseif targetStat == "Damage" then
-        entity:addBaseMultiplier(StatsBonuses.ArmedTurrets, statMultiplier) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
+        entity:addBaseMultiplier(StatsBonuses.ArmedTurrets, delta) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
     elseif targetStat == "Acceleration" then
-        entity:addBaseMultiplier(StatsBonuses.Acceleration, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.Acceleration, delta)
     elseif targetStat == "HyperspaceCooldown" then
-        entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, delta)
     elseif targetStat == "HyperspaceReach" then
-        entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, delta)
     elseif targetStat == "ShieldTimeUntilRechargeAfterHit" then
-        entity:addBaseMultiplier(StatsBonuses.ShieldTimeUntilRechargeAfterHit, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.ShieldTimeUntilRechargeAfterHit, delta)
     elseif targetStat == "FireRate" then
-        entity:addBaseMultiplier(StatsBonuses.FireRate, statMultiplier)
+        entity:addBaseMultiplier(StatsBonuses.FireRate, delta)
     end
 end
 

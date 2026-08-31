@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include("cosmicvaultframework")
 
@@ -24,7 +23,11 @@ function CosmicVaultUI.ShowCinematicBanner(player, text, color, soundPath, durat
     if type(text) ~= "string" then return false end
     
     if not player:hasScript("cosmicvaultcinematic.lua") then
-        player:addScriptOnce("cosmicvaultcinematic.lua")
+        -- addScriptOnce needs the full data/scripts/... path to resolve the
+        -- file via the VFS (unlike invokeFunction/hasScript below, which
+        -- match by trailing filename) - a bare filename here silently fails
+        -- to attach.
+        player:addScriptOnce("data/scripts/player/cosmicvaultcinematic.lua")
     end
 
     color = color or {}
@@ -48,7 +51,11 @@ function CosmicVaultUI.ShowPopup(player, title, message)
     if type(title) ~= "string" or type(message) ~= "string" then return false end
     
     if not player:hasScript("cosmicvaultcinematic.lua") then
-        player:addScriptOnce("cosmicvaultcinematic.lua")
+        -- addScriptOnce needs the full data/scripts/... path to resolve the
+        -- file via the VFS (unlike invokeFunction/hasScript below, which
+        -- match by trailing filename) - a bare filename here silently fails
+        -- to attach.
+        player:addScriptOnce("data/scripts/player/cosmicvaultcinematic.lua")
     end
 
     player:invokeFunction("cosmicvaultcinematic.lua", "showPopup", title, message)
@@ -65,7 +72,11 @@ function CosmicVaultUI.displayFloatingText(player, entityId, text, color)
     if not entityId or type(text) ~= "string" then return false end
     
     if not player:hasScript("cosmicvaultcinematic.lua") then
-        player:addScriptOnce("cosmicvaultcinematic.lua")
+        -- addScriptOnce needs the full data/scripts/... path to resolve the
+        -- file via the VFS (unlike invokeFunction/hasScript below, which
+        -- match by trailing filename) - a bare filename here silently fails
+        -- to attach.
+        player:addScriptOnce("data/scripts/player/cosmicvaultcinematic.lua")
     end
     
     color = color or {}

@@ -1,0 +1,325 @@
+[i]Version 3.5.0[/i]
+[hr][/hr]
+[h1]v3.5.0 🛠️STABILITY & COMPATIBILITY UPDATE!🛠️[/h1]
+[hr][/hr]
+[b]🛠️ MAJOR STABILITY PASS[/b]
+[i]After weeks of deep audit of the entire Vault library turned up (and fixed) a long list of quiet bugs — some of which meant entire features were silently doing nothing.[/i]
+
+[b]🪲 BUGFIXES[/b]
+[list]
+[*]💪 [b]Permanent Buffs Fixed:[/b] Permanent stat buffs (used heavily by Cosmic Ascendancy's boss/relic systems) could be applied but never properly removed or refreshed, silently building up over time. Fixed for good.
+[*]🚀 [b]Fleet Escort Orders Fixed:[/b] Ordering an AI ship to escort a target quietly failed to actually track that target. Escort orders now work correctly.
+[*]📦 [b]Custom Loot Drops Fixed:[/b] Custom item/good drops from events and missions were dropping [b]zero[/b] units regardless of the amount requested. Loot now drops the correct quantity.
+[*]🔫 [b]Custom Turret Loot Fixed:[/b] Turrets generated through the Vault's turret-generation tool were silently ignoring their intended rarity and material, always falling back to defaults. Rarity and material now apply correctly.
+[*]🖼️ [b]Cinematic Banners/Popups:[/b] Fixed a rare case where cinematic banner and popup messages could fail to display for a player.
+[*]☀️ [b]Solar Flare Weather Fixed:[/b] The Solar Flare hazard's shield/hull damage and its "heavily armored ships take less damage" resistance check were both broken and could crash the sector. Solar Flares now correctly damage ships and correctly reward tanky ship designs with reduced damage.
+[*]⚖️ [b]Buff Strength Values Corrected:[/b] Temporary stat buffs/debuffs applied via the Vault's buff system were doing the [i]opposite[/i] of what was intended in some cases (e.g. a "half speed" slow could accidentally act as a speed boost). Buff strength now behaves exactly as advertised.
+[*]🌩️ [b]Weather System Fully Restored:[/b] A deeper namespace bug meant the entire server-side weather-triggering system wasn't reachable at all — any mod trying to start or clear a weather hazard through the Vault's API was silently doing nothing. Fully repaired.
+[*]🛡️ [b]Crash Prevention:[/b] Closed off several additional rare crash and freeze risks in the sector-scaling, faction-index, and progression/settings systems, found during this audit.
+[*]🤝 [b]Custom Faction Traits Now Actually Show Up:[/b] Turns out the Custom Faction Traits feature has never actually appeared in the vanilla diplomacy window — the hook was wired into the wrong function the whole time. Fixed for real this time, and other mods' custom traits (like Cosmic War's) will now correctly display.
+[*]⚠️ [b]Weather Warning Icons Restored:[/b] The little warning icon/tooltip that's supposed to appear when you're flying through a weather hazard (Ion Storm, Solar Flare, etc.) was calling into a UI hook that doesn't exist in the game, so it never actually showed up. Rebuilt using the same real system vanilla uses for its own ship warnings.
+[*]⌨️ [b]Chat-Safe Hotkeys, For Real This Time:[/b] The "don't fire hotkeys while typing in chat" protection has quietly never worked since it was first introduced, because it leaned on an engine function that doesn't exist. Replaced with an actual working chat-detection system.
+[*]🗺️ [b]Territory Flips Restored:[/b] When another Cosmic mod (like Cosmic War) told the Vault "this siege is over, flip this sector," the request was being saved in the wrong internal format and silently ignored — meaning conquered sectors could fail to actually change hands, and could also wipe out any of the Vault's own pending territory changes. Fixed so flips reliably go through.
+[*]🚀 [b]Custom Ship/Station Spawner Fixed:[/b] The tool used to spawn custom ships and stations from a blueprint would crash outright whenever a target size was specified, and always failed to give the new ship or station a proper crew. Both are now fixed.
+[*]📖 [b]Codex Info Pages Restored:[/b] The Cosmic Vault info section of the in-game Codex (the "What is Cosmic Vault?" pages) has been silently failing to load due to a file-path issue. Fixed.
+[*]💹 [b]Price Hook API Implemented:[/b] The documented tool for letting mods hook into and adjust good prices dynamically was referenced in the guide but never actually built. It's now implemented and working.
+[*]🧯 [b]Famine Relief Cache No Longer Requires Chronicles:[/b] The "Famine Relief Cache" reward that can spawn in starving territories was quietly depending on a Cosmic Chronicles file that isn't part of the Vault. Installs without Chronicles now spawn the cache safely instead of hitting an error.
+[/list]
+
+[i]Version 3.4.1[/i]
+[hr][/hr]
+[h1]v3.4.1 🐛CRITICAL BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets a critical territory flip failure![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Territory Injector Engine Parse Error:[/b] Fixed a critical bug where a Virtual File System data type mismatch caused the background territory injector to completely fail when trying to flip station ownership during active sieges.
+[/list]
+
+[i]Version 3.4.0[/i]
+[hr][/hr]
+[h1]v3.4.0 🛠️ARCHITECTURE & OPTIMIZATION UPDATE!🛠️[/h1]
+[hr][/hr]
+[b]🛠️ CORE ARCHITECTURE PATCH[/b]
+[i]This update implements Progressive Materialization to eliminate massive lag spikes![/i]
+
+[b]🛠️ ARCHITECTURE & OPTIMIZATION[/b]
+[list]
+[*]⚡ [b]Progressive Materialization (Lag Fix):[/b] Completely overhauled the [i]CosmicVaultTerritory[/i] API. When AI factions expand or background sieges are won, the game no longer forcefully loads the sector into memory to generate stations (which caused brutal server stutters).
+[*]⚡ [b]Lazy Loading API:[/b] Stations and sector flips are now queued mathematically. When a player jumps into the affected sector, the game seamlessly intercepts the loading screen and instantly materializes the stations. Zero stutter!
+[/list]
+
+[i]Version 3.3.3[/i]
+[hr][/hr]
+[h1]v3.3.3 🐛CRITICAL BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets a critical server hanging issue during combat and a Fleet Clash scaling bug![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Fleet Clash AI Scaling Bug:[/b] Fixed a syntax error during dynamic AI Fleet battles where the backend script was checking for [code]Entity.isPlayer[/code] (an invalid property) instead of [code]entity.playerOwned[/code], which caused the Fleet Clash event to fail scaling its defender strength and throw errors.
+[*]🐛 [b]Combat Server Hang / Freeze:[/b] Fixed a massive server lag spike and 30-second sector freezing caused by an invalid [code]Uuid[/code] string serialization error inside [i]cosmicdot.lua[/i]. When sectors unloaded and reloaded, the Damage Over Time effect would corrupt its source ID, breaking the engine's durability calculation and hanging the server thread.
+[/list]
+
+[i]Version 3.3.2[/i]
+[hr][/hr]
+[h1]v3.3.2 🐛BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets an anomaly spawning crash![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Anomaly Spawning Crash:[/b] Fixed a crash occurring during the Bottan fight and Eclipse Boss events where spatial rifts and precursor wrecks would fail to spawn. This was caused by a vec3/Matrix mismatch and a missing `createAsteroidPlan` API reference in `cosmicvaultanomalies.lua`.
+[*]🐛 [b]Small Bugfixes:[/b] Various smaller bugfixes across some API's.
+[/list]
+
+[i]Version 3.3.1[/i]
+[hr][/hr]
+[h1]v3.3.1 🐛BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets a Matrix math crash![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Matrix Math Crash:[/b] Fixed a C++ API logic exception (invalid type 'Matrix' expected 'vec3') when calculating randomized ambush spawn coordinates in [i]cosmicvaultencounter.lua[/i], preventing ambush fleets from generating correctly.
+[/list]
+
+[i]Version 3.3.0[/i]
+[hr][/hr]
+[h1]v3.3.0 ✨FEATURE UPDATE!✨[/h1]
+[hr][/hr]
+[b]🛠️ MINOR EXPANSION PATCH[/b]
+[i]Minor Features expansion![/i]
+
+[b]✨FEATURES[/b]
+[list]
+[*]🔥 [b]UI Buff Tracker:[/b] Added a new client-side HUD element that visually tracks active Cosmic Buff durations via a clean, non-intrusive progress bar.
+[*]🔥 [b]Cinematic Banners:[/b] The `ShowCinematicBanner` API now supports an optional `theme` argument (e.g. "hazard", "info") that dynamically alters the banner's background tint and styling.
+[*]🔥 [b]Sector Load Metrics:[/b] Added a new `sectorLoadMetrics` debug toggle to the Cosmic Config Menu. When enabled, the framework will log exact timestamps and coordinates whenever a sector is generated or entered by a player to help server admins monitor generation performance.
+[/list]
+
+[i]Version 3.2.3[/i]
+[hr][/hr]
+[h1]v3.2.3 🐛BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets an internal API math error![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Cosmic Buffs API:[/b] Fixed an issue where dynamically applied jump range buffs (`HyperspaceReach`) from events/weathers were incorrectly scaling as flat numbers (e.g., adding +0.5 sectors) instead of multiplying the ship's base jump range by a percentage.
+[/list]
+
+[i]Version 3.2.2[/i]
+[hr][/hr]
+[h1]v3.2.2 🐛BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets a critical configuration sync issue![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 Fixed a major bug in the Cosmic Configuration Menu where custom hotkeys, sliders, and toggles would fail to save and unexpectedly revert to default values whenever you reloaded a singleplayer save or logged into a multiplayer server. The API has been overhauled to natively sync across the network, ensuring flawless configuration retention.
+[/list]
+
+[i]Version 3.2.1[/i]
+[hr][/hr]
+[h1]v3.2.1 🐛BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets a logic error affecting how buffs are tracked and refreshed![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 Fixed an internal multi-script targeting flaw in [i]cosmicvaultbuffs.lua[/i] that caused buffs to fail to properly refresh or terminate if multiple buffs were active simultaneously.
+[*]🐛 Fixed [i]cosmicbuff.lua[/i] internal logic so buffs can now safely refresh their timers without forcing the game engine to recalculate max shield capacity (which was accidentally blocking natural shield regeneration).
+[/list]
+
+[i]Version 3.2.0[/i]
+[hr][/hr]
+[h1]v3.2.0 🗃️API EXPANSION & BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ API LIBRARY PATCH[/b]
+[i]This update adds new features to current API's while patching them up![/i]
+
+[b]🗃️NEW FEATURES:[/b]
+[list]
+[*]✨ Added new commands for AI ships, allowing mods to safely order them to mine and salvage automatically without breaking vanilla AI.
+[*]✨ Expanded the Mission system to allow mods to easily handle mission failures and grant physical item rewards safely.
+[*]✨ Added new tools for spawning physical upgrade drops dynamically into space.
+[*]✨ Added a permanent buffs system to allow mods to safely multiply ship stats indefinitely without causing lag or stat-stacking exploits.
+[*]✨ Upgraded the station interaction menus to support custom distances, preventing UI exploits from too far away.
+[*]✨ Implemented aggressive "type-checking" across the framework. If another mod sends bad data to Cosmic Vault, it will now catch it and block it rather than crashing your server!
+[/list]
+
+[b]🪲 BUGFIXES[/b]
+[list]
+[*]🐛 Fixed a severe crash in the Scaling system where attempting to calculate the defender strength of a sector would violently crash the server if the game returned a Faction object instead of a number.
+[/list]
+
+[i]Version 3.1.7[/i]
+[hr][/hr]
+[h1]v3.1.7 🐛BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets some obscure server crashes![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]API Crash Fixes:[/b] Injected a missing engine library into the economy and dialogue scripts. This prevents a fatal server crash when a sector experiences a famine, and fixes a silent client crash in the NPC dialogue generator.
+[/list]
+
+[i]Version 3.1.6[/i]
+[hr][/hr]
+[h1]v3.1.6 ✨QUALITY OF LIFE UPDATE!✨[/h1]
+[hr][/hr]
+[b]✨ FEATURES & UI[/b]
+[i]This small update adds dynamic permission tooltips to the Cosmic Configuration Menu to prevent multiplayer confusion![/i]
+
+[list]
+[*]✨ [b]CCM Permission Tooltips:[/b] Added a dynamic tooltip to all Cosmic Configuration Menu options globally. When hovering over any settings widget (checkboxes, sliders, text boxes), the UI will now explicitly warn players that "Only Server Administrators can change this option". This provides immediate feedback to players on dedicated servers regarding why their changes are being rejected by the server permissions.
+[/list]
+
+[b]🪲 BUGFIXES[/b]
+[list]
+[*]🐛 [b]Rift Escalation Crash & Sync:[/b] Patched `cosmicvaultriftescalation_server.lua`. Added the missing `stringutility` library to prevent fatal text formatting crashes when the server broadcasts escalation warnings. Also removed legacy global wrapper functions that were shadowing the script's namespace and causing native event hook synchronization failures.
+[/list]
+
+[i]Version 3.1.5[/i]
+[hr][/hr]
+[h1]v3.1.5 🐛BUGFIX PATCH UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This small patch fixes critical crashes on Linux based systems![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 Fixed a critical crash on Linux Dedicated Servers where territory and anomaly scripts failed to load due to case-sensitivity issues.
+[/list]
+
+[i]Version 3.1.4[/i]
+[hr][/hr]
+[h1]🐛V3.1.4 CRITICAL BUGFIX PATCH UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This patch addresses a severe engine-crashing API overload in dynamic mission rewards.[/i]
+[*]🐛 [b]Dynamic Reward Payout Crash:[/b] Proactively fixed a severe bug in the `cosmicvaultmission.lua` backend where the dynamic bounty reward for missions utilized the highly unstable `player:receive()` API overload. The engine would fatally crash upon attempting to award credits to the player. This has been completely replaced with direct property assignment, permanently securing the reward payout.
+
+[i]Version 3.1.3[/i]
+[hr][/hr]
+[h1]📦v3.1.3 TEXTURE PACK UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ TEXTURE UPDATE[/b]
+[i]This small update adds in new textures for the cosmic series.[/i]
+[*]🖼️ Added over 16 textures in which the cosmic series utilizes.
+
+[i]Version 3.1.2[/i]
+[hr][/hr]
+[h1]🐛V3.1.2 CRITICAL BUGFIX PATCH UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This small patch addresses a critical server API crash.[/i]
+[*]🐛 [b]API Crash Fix:[/b] Fixed a critical bug in `cosmicvaultfaction.lua` where `cvf.changeRelations` attempted to read the `allianceIndex` property directly from a C++ Faction object instead of casting it to a Player object first. This caused fatal crashes on servers when external mods invoked the relation mirroring function.
+
+[i]Version 3.1.1[/i]
+[hr][/hr]
+[h1]⚙️V3.1.1 HOTFIX PATCH UPDATE!⚙️[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This small patch addresses UI keybind overlaps.[/i]
+[*]⚙️ [b]Keybind Adjustments:[/b] Unbound the default keys for the Cosmic Vault UI tabs (Cosmic Codex, Config Menu). They now default to unbound to allow players to set their own custom shortcuts without overlapping with other mods.
+
+[i]Version 3.1.0[/i]
+[hr][/hr]
+[h1]🛠️V3.1.0 ARCHITECTURE & OPTIMIZATION UPDATE!🛠️[/h1]
+[hr][/hr]
+[b]🛠️ API & UI UPDATE[/b]
+[i]This minor update completely overhauls the Cosmic Vault Weather API to integrate natively with Avorion's UI and data structures! Note: Dedicated servers will require client version matching due to the API restructuring.[/i]
+[list]
+[*]⚙️ [b]Native UI Integration:[/b] Completely refactored the Weather HUD to utilize Avorion's native `addSectorProblem()` API instead of drawing custom floating text rectangles. Weather warnings now seamlessly hook into your vanilla UI layout with standard icons and hover tooltips.
+[*]⚙️ [b]Weather Data Dictionary:[/b] Replaced hardcoded weather logic with a centralized data dictionary (`cosmicvaultweatherdictionary.lua`). Modders can now easily inject custom weather hazards complete with native UI bindings!
+[*]⚖️ [b]Dynamic Hazard Protection:[/b] Added a dynamic `isShipPrepared()` callback to the Weather API. Players caught in a Solar Flare who possess a heavily armored ship (Trinium or above) will now natively resist 50% of the physical hull damage.
+[*]🐛 [b]API Crash Fix:[/b] Fixed a critical server crash in the Weather API's synchronization loop where an invalid engine function (server:getPlayers()) was used instead of server:getOnlinePlayers(). This resolves a severe crash when players log in or weather is created.
+[/list]
+
+[i]Version 3.0.3[/i]
+[hr][/hr]
+[h1]🛠️V3.0.3 API & OPTIMIZATION PATCH!🛠️[/h1]
+[hr][/hr]
+[b]🛠️ API UPDATE[/b]
+[i]This patch synchronizes precision siege timer data for cross-mod UI displays![/i]
+[*]🛠️ [b]Precise Siege Timers:[/b] Upgraded `CosmicVaultTerritory.setContestedZone()` to securely store `startTime` inside the serialized sector strings. This guarantees flawless absolute progression tracking and perfectly synchronized visual HUD splitters for joining players, eliminating the visual jump glitch previously seen when joining sieges mid-way. Existing active sieges are backward-compatible.
+
+[i]Version 3.0.2[/i]
+[hr][/hr]
+[h1]🐛V3.0.2 BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This small patch fixes issues regarding keybinds![/i]
+[*]🐛 [b]Config Unbind Bug:[/b] Fixed an issue where the Cosmic Config Menu would close itself when players tried to use Escape to unbind a hotkey. Re-mapped the unbind action to the `Delete` or `Backspace` keys, properly displaying this instruction in the capture prompt.
+[*]🐛 [b]Chat Hotkey Bleed:[/b] Fixed a highly disruptive bug where CCM hotkeys would randomly fire and open menus while a player was trying to type a sentence in the chat window. The `ccm.lua` API now leverages the `checkInputFocus()` check to block inputs if the player is currently typing in a text field.
+
+[i]Version 3.0.1[/i]
+[hr][/hr]
+[h1]🐛V3.0.1 BUGFIX & OPTIMIZATION PATCH UPDATE!🛠️[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This small patch fixes issues regarding the Dynamic Weather API![/i]
+[*]🐛 Fixed a synchronization bug in the Dynamic Weather controller where clients would always default to rendering the "Ion Storm" UI warning regardless of the actual weather type. Weather types are now correctly synchronized and displayed.
+[*]🛠️ Added high-priority chat warnings for players entering hazard zones (Solar Flares, Dark Matter Fog, etc.).
+
+[h1]⭐ [THE ASCENSION ERA] - Cosmic Vault Update 3.0.0! ⭐[/h1]
+
+[hr][/hr]
+
+[h3]📡 What's New in The Ascension Era?[/h3]
+The ultimate architectural overhaul has arrived! Version 3.0.0 completely rewrites the Vault to support the massive Cosmic Ascendancy endgame crisis, while heavily optimizing server performance and resolving critical multiplayer bugs.
+
+[b]⚠️ NEW SAVE FILE HARD REQUIRED ⚠️[/b]
+The core architecture has changed significantly. You must start a new galaxy!
+
+[hr][/hr]
+
+✅ [b]NEW FEATURES & ARCHITECTURE[/b]
+[list]
+[*]📖 [b]Cosmic Codex Integration:[/b] Built a massive new 3-level UI framework (Category -> Chapter -> Article). Players can now read all deep lore, stat blocks, and dynamic recipes directly in-game.
+[*]⌨️ [b]Cosmic Configuration Menu (CCM):[/b] A universal mod configuration API! Set custom keybinds, utilize global hotkeys (ALT+P for Codex, ALT+O for Config), and easily revert with dedicated reset buttons.
+[*]⚙️ [b]Ascendancy Architecture:[/b] Designed and deployed the global API hooks required to support [b]Cosmic Ascendancy's[/b] Megastructures, Stellar Forge, and The Eclipse faction.
+[*]🌐 [b]Universal Persistence API (ARCC):[/b] Rewrote the database into a high-performance system. UI configurations now persist seamlessly across sessions.
+[*]🌦️ [b]Dynamic Weather API & UI:[/b] New native HUD indicators dynamically render active debuff icons. Dark Matter Fogs and Ion Storms dynamically impact sieges and commands globally.
+[*]🤝 [b]Custom Faction Traits API:[/b] Easily inject custom faction traits that render beautifully in the native Avorion diplomacy UI!
+[*]📉 [b]Deep Economy Warfare:[/b] Track faction resource starvation! Famine scores exceeding 100 natively force starvation-driven invasions. Famine Relief Anomalies now dynamically spawn in starving territories.
+[*]⚔️ [b]Dynamic Combat & Scaling APIs:[/b] Calculates defensive arrays to spawn mathematically balanced invasion fleets. Fortified factions globally multiply defensive volume by 1.3x! Plus, native floating combat text for DoTs.
+[*]🗺️ [b]Territory & Faction Generation APIs:[/b] Allows background border shifting, station captures, and natively instantiating civilized/pirate outposts into uncharted sectors.
+[*]🌌 [b]Global Rift Escalation:[/b] The Vault now tracks global Rift Guardian kills. As the Escalation Level rises, severe Xsotan attack swarms have a chance to converge on all online players!
+[*]📡 [b]Unified News API:[/b] Consolidated ambient galactic news into a single, validated API that prevents destroyed ghost empires from broadcasting.
+[/list]
+
+⚙️ [b]CHANGED & BALANCED[/b]
+[list]
+[*]🤝 [b]Alliance PvP Mirroring:[/b] Dynamically mirrors reputation shifts to the player's active Alliance, destroying the PvP safe-harbor exploit globally across all Cosmic mods.
+[*]🎨 [b]UI Polish & Notifications:[/b] Revamped Config Menu with a cleaner 3-column layout, text-wrapping, and upgraded success notifications using proper overlay channels.
+[*]📚 [b]LDoc Standardization:[/b] Auto-generated docstrings injected across all 28 exposed library functions to heavily enhance modder readability.
+[*]⚖️ [b]Scaling Sanity Check:[/b] Added a hard cap to defensive volume scaling (500 million) to mathematically prevent Avorion shipyard generation crashes.
+[*]🌑 [b]Eclipse Immunity:[/b] Adjusted the Dark Matter Fog debuff to natively ignore Eclipse ships.
+[*]🔗 [b]Core Dependencies:[/b] Core 5 mods are now hard requirements for each other.
+[/list]
+
+🐛 [b]BUG FIXES & OPTIMIZATION[/b]
+[list]
+[*]⚡ [b]Massive Engine Optimization:[/b] Conducted a massive quality upgrade across 28 core library files. Fixed severe server thread GC spikes by replacing 2,500 consecutive C++ boundary creations with native engine property checks.
+[*]🔒 [b]Multiplayer Desync Fix (CRITICAL):[/b] Systematically purged all unstable Lua `math.random` calls, replacing them with deterministic `random():getInt()` generation to prevent cascading dedicated server desyncs!
+[*]🛡️ [b]Arbitrary Code Execution (ACE) Patch:[/b] Hardened UI and background scripts. Malicious clients can no longer spoof remote calls or inject structural payloads into the server.
+[*]💥 [b]Critical Engine Crash Prevention:[/b] Injected robust guard clauses across 13 core Vault APIs, permanently eliminating a class of Lua crashes when uninitialized variables or raw tables are passed to C++ bindings.
+[*]🚀 [b]VFS Crash Fix:[/b] Migrated to namespace-aware Virtual File System logic, permanently preventing engine crashes caused by mod overlap.
+[*]❤️ [b]DoT & HoT Persistence:[/b] Completely rewrote volatile ghost scripts into persistent update loops. HoTs and DoTs now reliably survive across sector reloads!
+[*]🖥️ [b]UI & Codex Crash Protection:[/b] Hardened the parsing engine so missing categories safely skip rendering instead of crashing to desktop. Fixed blank panels and invisible UI sliders in the Config Menu.
+[*]🌦️ [b]Weather & Event Logic Fixes:[/b] Fixed permanent storm debuff loops, weather client desynchronization, Rift Escalation math crashes, and Ambush spawn mutations.
+[*]🐞 [b]Vanilla Bug Fixes:[/b] Patched a massive vanilla bug where Scout Missions skipped Faction Headquarters, and removed raw translator comments (e.g., `/* faction name */`) rendering in Galactic News.
+[*]📈 [b]Economy & Faction Hardening:[/b] Fixed fatal Famine engine crashes, Custom Trait UI exceptions, and strictly guarded against self-relation modifications.
+[/list]

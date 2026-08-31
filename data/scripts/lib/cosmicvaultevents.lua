@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 -- namespace CosmicVaultEvents
 CosmicVaultEvents = {}

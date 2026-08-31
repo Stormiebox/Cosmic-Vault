@@ -39,7 +39,7 @@ A massive expansion introduced in v2.0.0, the Vault provides a complete suite of
 - `cosmicvaultcombat.lua`: Exposes `applyDoT` and native logic to render floating combat text for DOTs dynamically.
 - `cosmicvaultscaling.lua`: Dynamic native OM/Volume math for spawning accurately scaled invasion fleets matching defender strength.
 - `cosmicvaultanomalies.lua`: Seamless API to inject persistent, interactive points-of-interest (POIs) natively into sectors.
-- `cv_weather_controller.lua`: Global Subspace Weather API allowing mods to natively trigger or clear localized environmental hazards (EMP storms, radiation, etc) combined with seamless UI integration via `addSectorProblem()`.
+- `cv_weather_controller.lua`: Global Subspace Weather API allowing mods to natively trigger or clear localized environmental hazards (EMP storms, radiation, etc) combined with seamless UI integration via Avorion's native `addShipProblem()` warning system.
 - `cv_weather_generator.lua`: Defines all standard weather hazards, mapping keys to native Avorion icons, descriptions, and dynamic `isShipPrepared` protection callbacks.
 - `cosmicvaultconfig.lua`: Standardized global config bootloader ensuring that complex configuration states (such as metrics tracking) are safely loaded into server memory before logic executes.
 - `cosmicvaultmetrics_server.lua`: Dedicated global telemetry script utilizing native engine `onPlayerLogIn` and `onSectorEntered` callbacks to securely trace tracking data without causing cross-entity routing crashes.
@@ -246,7 +246,7 @@ Provides universal, cached data payloads to the global `Server()` object to prev
 **Current Contracts:**
 
 - **Faction Index API:** Safely scans and caches active faction indices, perfectly preserving dynamically generated High-ID factions (Pirates, Xsotan, DLC).
-  - `Server():getValue("factions")` (string): A comma-separated string containing the canonical list of active AI, player, and alliance faction indices. Consumer scripts must unpack this string into a table.
+  - `Server():getValue("factions")` (string): A comma-separated string containing the canonical list of active AI faction indices (player and alliance factions are intentionally excluded, since consumers use this list for AI-targeting logic like famine wars and market events). Consumer scripts must unpack this string into a table.
   - `Server():getValue("factions_ready")` (boolean): Safety flag indicating the indexer has completed its first warm-up cycle.
   - `Server():getValue("factions_count")` (number): The total number of indexed factions.
   - `Server():getValue("factions_last_refresh")` (number): The unpaused server runtime when the cache was last rebuilt.
@@ -455,7 +455,7 @@ All deep lore, stat blocks, and dynamic recipes have been fully integrated into 
 ### Cosmic Configuration Menu (CCM) & Keybinds
 As of v3.0.0, the Cosmic Vault introduces a fully standalone, 3-column UI Cosmic Configuration Menu (CCM). Modders can effortlessly expose their settings and keybinds to players.
 - **Dynamic Hotkeys:** Fully supports modifier keys (CTRL, ALT, SHIFT).
-- **Intelligent Input Safeties:** The keybind engine now actively respects Avorion's native UI focus state (`checkInputFocus()`), securely preventing any hotkeys from triggering or bleeding through while a player is typing in the chat or text boxes.
+- **Intelligent Input Safeties:** The keybind engine tracks chat-open state via a verified Enter-toggle/Escape-close heuristic (Avorion exposes no direct textbox-focus API), securely preventing any hotkeys from triggering or bleeding through while a player is typing in the chat.
 - **Clean Unbinding:** Players can seamlessly unbind their configured hotkeys using the `Delete` or `Backspace` keys, cleanly avoiding Avorion's hardcoded engine-level `Escape` behavior.
 - **Reset Functionality:** Every single configuration option natively receives an `anticlockwise-rotation` reset button to instantly restore schema defaults.
 

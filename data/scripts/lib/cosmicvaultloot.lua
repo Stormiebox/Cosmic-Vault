@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 include("goods")
 
 -- namespace CosmicVaultLoot
@@ -19,21 +18,26 @@ function CosmicVaultLoot.dropCustomLoot(entityId, lootType, payload, amount, own
     local sector = Sector()
     if not sector then return end
     local position = entity.translationf
-    
+
+    -- reservedFor/deniedFor take nil | Faction, never a raw index - vanilla
+    -- always passes a Faction object or nil (see cargostash.lua, stash.lua).
+    local reservedFaction = owner and Faction(owner) or nil
+
     if lootType == "good" then
         local g = goods[payload]
         if g then
-            sector:dropCargo(position, owner or 0, owner or 0, g:good(), amount or 1, 0)
+            -- Sector:dropCargo(position, reservedFor, deniedFor, good, owner, amount)
+            sector:dropCargo(position, reservedFaction, nil, g:good(), owner or 0, amount or 1)
         end
     elseif lootType == "weapon" or lootType == "turret" then
         -- payload must be an InventoryTurret or Weapon object
         if payload then
-            sector:dropTurret(position, owner or 0, owner or 0, payload)
+            sector:dropTurret(position, reservedFaction, nil, payload)
         end
     elseif lootType == "system" then
         -- payload must be an SystemUpgradeTemplate
         if payload then
-            sector:dropUpgrade(position, owner or 0, owner or 0, payload)
+            sector:dropUpgrade(position, reservedFaction, nil, payload)
         end
     end
 end

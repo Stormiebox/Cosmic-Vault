@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local totalHeal = 0
 local durationSeconds = 0

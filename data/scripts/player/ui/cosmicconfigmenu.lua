@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include("utility")
 local ccm = include("ccm")
@@ -8,6 +7,17 @@ include("callable")
 -- namespace CosmicConfigMenu
 CosmicConfigMenu = {}
 local self = CosmicConfigMenu
+
+-- Each Cosmic mod's config registry is optional from Vault's perspective (a
+-- player may have only some of the Core 5 installed), so a missing sister
+-- mod must not break the whole config menu - include() throws "module not
+-- found" for a file that plain doesn't exist anywhere in the VFS.
+local function loadSisterConfigs()
+    pcall(include, "cosmicoverhaulconfig")
+    pcall(include, "cosmicwarconfig")
+    pcall(include, "cosmicvaultconfig")
+    pcall(include, "cosmicascendancyconfig")
+end
 
 if onClient() then
 
@@ -43,10 +53,7 @@ function CosmicConfigMenu.initialize()
     self.applyBtn.active = false
 
     -- Load configuration registries silently
-    include("cosmicoverhaulconfig")
-    include("cosmicwarconfig")
-    include("cosmicvaultconfig")
-    include("cosmicascendancyconfig")
+    loadSisterConfigs()
 
     -- Request initial sync for keybindings and cached settings
     local keysToRequest = {}
@@ -98,10 +105,7 @@ end
 function CosmicConfigMenu.fillTree()
     self.tree:clear()
     self.elements = {}
-    include("cosmicoverhaulconfig")
-    include("cosmicwarconfig")
-    include("cosmicvaultconfig")
-    include("cosmicascendancyconfig")
+    loadSisterConfigs()
 
     local registries = ccm.getAllRegistries()
 

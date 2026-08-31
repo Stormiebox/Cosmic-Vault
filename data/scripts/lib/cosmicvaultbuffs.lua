@@ -1,7 +1,19 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 -- namespace CosmicVaultBuffs
 CosmicVaultBuffs = {}
+
+-- addMultiplyableBias/addBaseMultiplier return an opaque bonus handle; the
+-- engine has no removeMultiplyableBias/removeBaseMultiplier method (only the
+-- universal entity:removeBonus(key)), so the handle returned by the add call
+-- must be tracked here to ever remove it again. Handles are only valid for
+-- the current server session (they reset on restart), so this table is
+-- intentionally in-memory only and never persisted.
+local _biasKeys = {}
+local _baseMultiplierKeys = {}
+
+local function _bonusKeyId(entity, statName)
+    return entity.id.string .. "|" .. tostring(statName)
+end
 
 --- Applies a temporary stat buff or debuff natively to an entity
 -- @param entityId (string|Uuid) The target entity
@@ -77,8 +89,12 @@ function CosmicVaultBuffs.applyPermanentFactor(entityId, statName, factor)
     
     local entity = Entity(entityId)
     if not entity then return end
-    
-    entity:addMultiplyableBias(statName, factor)
+
+    -- Remove any prior bias for this stat first so re-applying never stacks.
+    CosmicVaultBuffs.removePermanentFactor(entityId, statName)
+
+    local key = entity:addMultiplyableBias(statName, factor)
+    _biasKeys[_bonusKeyId(entity, statName)] = key
 end
 
 --- Removes a permanent stat multiplier factor natively from an entity
@@ -87,11 +103,16 @@ end
 function CosmicVaultBuffs.removePermanentFactor(entityId, statName)
     if not onServer() then return end
     if type(statName) ~= "number" then return end
-    
+
     local entity = Entity(entityId)
     if not entity then return end
-    
-    entity:removeMultiplyableBias(statName)
+
+    local id = _bonusKeyId(entity, statName)
+    local key = _biasKeys[id]
+    if key then
+        entity:removeBonus(key)
+        _biasKeys[id] = nil
+    end
 end
 
 --- Applies a permanent base multiplier natively to an entity
@@ -105,8 +126,12 @@ function CosmicVaultBuffs.addPermanentBaseMultiplier(entityId, statName, factor)
     
     local entity = Entity(entityId)
     if not entity then return end
-    
-    entity:addBaseMultiplier(statName, factor)
+
+    -- Remove any prior multiplier for this stat first so re-applying never stacks.
+    CosmicVaultBuffs.removePermanentBaseMultiplier(entityId, statName)
+
+    local key = entity:addBaseMultiplier(statName, factor)
+    _baseMultiplierKeys[_bonusKeyId(entity, statName)] = key
 end
 
 --- Removes a permanent base multiplier natively from an entity
@@ -115,11 +140,16 @@ end
 function CosmicVaultBuffs.removePermanentBaseMultiplier(entityId, statName)
     if not onServer() then return end
     if type(statName) ~= "number" then return end
-    
+
     local entity = Entity(entityId)
     if not entity then return end
-    
-    entity:removeBaseMultiplier(statName)
+
+    local id = _bonusKeyId(entity, statName)
+    local key = _baseMultiplierKeys[id]
+    if key then
+        entity:removeBonus(key)
+        _baseMultiplierKeys[id] = nil
+    end
 end
 
 --- Removes all active Cosmic Buffs natively from an entity
@@ -129,12 +159,16 @@ function CosmicVaultBuffs.clearBuffs(entityId)
     
     local entity = Entity(entityId)
     if not entity then return end
-    
-    -- Natively remove the script from the entity block
-    local safety = 0
-    while entity:hasScript("data/scripts/entity/cosmicbuff.lua") and safety < 100 do
-        entity:removeScript("data/scripts/entity/cosmicbuff.lua")
-        safety = safety + 1
+
+    -- removeScript is deferred, so polling hasScript() in a loop never sees it
+    -- take effect within the same frame and would either spin needlessly or
+    -- hang. Instead, take one snapshot of the actual attached script indices
+    -- and remove each matching one exactly once.
+    local scripts = entity:getScripts()
+    for index, path in pairs(scripts) do
+        if type(path) == "string" and string.find(path, "cosmicbuff.lua") then
+            entity:removeScript(index)
+        end
     end
 end
 

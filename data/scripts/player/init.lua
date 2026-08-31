@@ -1,5 +1,4 @@
 
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 if onServer() then
     local player = Player()

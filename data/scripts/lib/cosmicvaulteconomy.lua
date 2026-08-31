@@ -1,7 +1,11 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/?.lua"
 
-local cw_bridge = include("cosmicwarbridge")
+-- Cosmic War is an optional sister mod from Vault's perspective (Vault is the
+-- foundational dependency; nothing here requires War to be installed), so this
+-- must be a soft include - a bare include("cosmicwarbridge") would throw
+-- "module not found" and break this entire library on any install that has
+-- Vault without War (e.g. Vault + Overhaul only).
+local cw_ok, cw_bridge = pcall(include, "cosmicwarbridge")
+if not cw_ok then cw_bridge = nil end
 local FactionEradicationUtility = include("factioneradicationutility")
 local CosmicVaultEconomy = {}
 
@@ -114,9 +118,31 @@ function CosmicVaultEconomy.TriggerMarketEvent(goodName, x, y, radius, eventType
     if not onServer() then return end
     local server = Server()
     if not server then return end
-    
+
     server:broadcastChatMessage("Server"%_T, ChatMessageType.Economy, "Market event %s for %s started near (%d, %d)."%_T, eventType, goodName, x, y)
     -- In a full implementation this would attach a script to the sector or register it globally
+end
+
+-- Registers a dynamic price hook for a good. economyupdater.lua's
+-- getSupplyDemandPriceChange() reads this same "CVE_PriceHook_<good>" key
+-- (pipe-separated "scriptName::functionName" entries) every time it computes
+-- that good's price, and invokes each registered hook with (good, factor),
+-- multiplying the result into the final price change factor.
+function CosmicVaultEconomy.registerPriceHook(goodName, scriptName, functionName)
+    if not onServer() then return end
+    if type(goodName) ~= "string" or type(scriptName) ~= "string" or type(functionName) ~= "string" then return end
+    local server = Server()
+    if not server then return end
+
+    local key = "CVE_PriceHook_" .. string.gsub(goodName, "%s+", "_")
+    local entry = scriptName .. "::" .. functionName
+    local hooksStr = server:getValue(key) or ""
+
+    for hook in string.gmatch(hooksStr, "([^|]+)") do
+        if hook == entry then return end
+    end
+
+    server:setValue(key, hooksStr == "" and entry or (hooksStr .. "|" .. entry))
 end
 
 return CosmicVaultEconomy

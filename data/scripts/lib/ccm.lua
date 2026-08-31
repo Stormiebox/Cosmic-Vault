@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 -- namespace CCM
 CCM = CCM or {}
@@ -10,6 +9,43 @@ local Keys = include("ccm_keycodes")
 
 CCM.keys = Keys
 CCM.UNBOUND = Keys.UNBOUND
+
+-- Avorion does not expose direct textbox/chat-focus state to Lua (no
+-- "checkInputFocus" API exists anywhere in the engine). Enter toggles chat,
+-- Escape force-closes it, and a stuck-state fallback closes it automatically
+-- once the mouse cursor is no longer shown (chat capture always shows the
+-- cursor). Built only on confirmed Keyboard()/GameInput() APIs.
+local chatOpen = false
+local chatOpenAge = 0
+local chatTickInstalled = false
+
+local function updateChatState(kb)
+    if kb:keyDown(Keys.Enter) then
+        chatOpen = not chatOpen
+        if chatOpen then chatOpenAge = 0 end
+    end
+    if kb:keyDown(Keys.Escape) then
+        chatOpen = false
+    end
+    if chatOpen then
+        chatOpenAge = chatOpenAge + 1
+        if chatOpenAge > 3 and not GameInput():getShowMouse() then
+            chatOpen = false
+        end
+    end
+end
+
+-- Installed lazily on first real hotkey poll (guaranteed active client
+-- gameplay context with a valid Player()), never at include/bind time.
+local function installChatTick()
+    if chatTickInstalled then return end
+    chatTickInstalled = true
+    local player = Player()
+    if not player then return end
+    _G.ccmChatTick = function() updateChatState(Keyboard()) end
+    player:registerCallback("onPostRenderHud", "ccmChatTick")
+    player:registerCallback("onGalaxyMapUpdate", "ccmChatTick")
+end
 
 function CCM.register(namespace, configDef)
     registries[namespace] = configDef
@@ -111,7 +147,8 @@ function CCM.bind(namespace)
 
     function binding.isKeyComboDown(key, mode)
         if not onClient() then return false end
-        if checkInputFocus and checkInputFocus() then return false end
+        installChatTick()
+        if chatOpen then return false end
         local packed = binding.get(key)
         if not packed or packed < 0 then return false end
         local c = Keys.unpack(packed)
@@ -123,7 +160,8 @@ function CCM.bind(namespace)
 
     function binding.isKeyComboHeld(key, mode)
         if not onClient() then return false end
-        if checkInputFocus and checkInputFocus() then return false end
+        installChatTick()
+        if chatOpen then return false end
         local packed = binding.get(key)
         if not packed or packed < 0 then return false end
         local c = Keys.unpack(packed)

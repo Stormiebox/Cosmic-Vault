@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local CosmicVaultScaling = {}
 
@@ -31,11 +30,17 @@ function CosmicVaultScaling.calculateSectorDefenderStrength(invaderFactionIndex)
         if entity.factionIndex and entity.factionIndex > 0 then
             -- Determine if this entity is hostile or neutral to the invader.
             -- If the invader hates them, they are a defender.
-            local rel = galaxy:getFactionRelations(Faction(invaderFactionIndex), Faction(entity.factionIndex))
-            if rel < -10000 or entity.playerOwned or entity.allianceOwned then
-                count = count + 1
-                totalVolume = totalVolume + (entity.volume or 0)
-                totalFirePower = totalFirePower + (entity.firePower or 0)
+            -- Faction() can return nil for an eradicated/invalid index, and
+            -- passing nil into getFactionRelations crashes, so both sides
+            -- must be guarded before the call.
+            local defenderFaction = Faction(entity.factionIndex)
+            if invaderFaction and defenderFaction then
+                local rel = galaxy:getFactionRelations(invaderFaction, defenderFaction)
+                if rel < -10000 or entity.playerOwned or entity.allianceOwned then
+                    count = count + 1
+                    totalVolume = totalVolume + (entity.volume or 0)
+                    totalFirePower = totalFirePower + (entity.firePower or 0)
+                end
             end
         end
     end

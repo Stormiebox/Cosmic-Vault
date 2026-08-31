@@ -1,5 +1,3 @@
-package.path = package.path .. ";data/scripts/?.lua"
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local RiftObjects = include("dlc/rift/lib/riftobjects")
 local AsteroidFieldGenerator = include ("asteroidfieldgenerator")

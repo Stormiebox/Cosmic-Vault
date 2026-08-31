@@ -1,5 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/?.lua"
 
 local cv_weather_type = "None"
 local cv_weather_time = 0
@@ -55,12 +53,16 @@ function updateServer(timeStep)
                 local isPrepared, damageMultiplier = weatherData.isShipPrepared(entity)
                 
                 -- Deal max shield/hull damage per 5-sec tick
-                local maxShield = entity.shieldMax or 0
+                -- Entity:inflictDamage(damage, damageSource, damageType, index, location, inflictorId) -
+                -- index is a block index (0 = whole-ship generic hit per vanilla
+                -- convention) and location is a vec3, not the entity's own
+                -- position/id, which were previously passed in those slots.
+                local maxShield = entity.shieldMaxDurability or 0
                 if maxShield > 0 then
-                    entity:inflictDamage(maxShield * 0.02 * damageMultiplier, 1, DamageType.Energy, entity.translationf, entity.id)
+                    entity:inflictDamage(maxShield * 0.02 * damageMultiplier, DamageSource.Arbitrary, DamageType.Energy, 0, vec3(), entity.id)
                 else
                     local maxHull = entity.maxDurability or 0
-                    entity:inflictDamage(maxHull * 0.005 * damageMultiplier, 1, DamageType.Physical, entity.translationf, entity.id)
+                    entity:inflictDamage(maxHull * 0.005 * damageMultiplier, DamageSource.Arbitrary, DamageType.Physical, 0, vec3(), entity.id)
                 end
                 
                 ::continue::

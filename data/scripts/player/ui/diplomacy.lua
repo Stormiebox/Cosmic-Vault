@@ -4,25 +4,18 @@
 
 local cvf = include("cosmicvaultfaction")
 
-local cv_old_updateFactionInformation = Diplomacy.updateFactionInformation
+-- Vanilla's real trait-rendering function is Diplomacy:updateTraits(faction) -
+-- there is no "updateFactionInformation" anywhere in diplomacy.lua, so hooking
+-- that name silently did nothing (nobody ever called it).
+local cv_old_updateTraits = Diplomacy.updateTraits
 
-function Diplomacy:updateFactionInformation()
+function Diplomacy:updateTraits(faction)
     -- 1. Let vanilla Avorion render its hardcoded traits
-    if cv_old_updateFactionInformation then
-        cv_old_updateFactionInformation(self)
+    if cv_old_updateTraits then
+        cv_old_updateTraits(self, faction)
     end
 
-    if not self.factionListBox or not self.factions or not self.traits then return end
-
-    -- 2. Inject our custom traits at the end of the text block
-    local index = self.factionListBox.selected
-    if type(index) ~= "number" or index < 0 then return end
-
-    local relation = self.factions[index + 1]
-    if type(relation) ~= "table" or not relation.factionIndex then return end
-
-    local faction = Faction(relation.factionIndex)
-    if not faction then return end
+    if not faction or not self.traits then return end
 
     if cvf then
         local customTraits = cvf.getCustomTraits()

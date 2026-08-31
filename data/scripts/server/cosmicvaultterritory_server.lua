@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local CosmicVaultTerritory = include("cosmicvaultterritory")
 
@@ -31,14 +30,15 @@ end
 -- This function is called by the API when a sector is briefly loaded to flip its stations
 function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
     if type(x) ~= "number" or type(y) ~= "number" or type(newFactionIndex) ~= "number" then return end
-    
-    -- Queue the territory flip for the next time a player enters the sector
-    local pending = Server():getValue("CosmicVault_PendingFlips")
-    if type(pending) ~= "table" then pending = {} end
-    
-    local key = tostring(x) .. "_" .. tostring(y)
-    pending[key] = newFactionIndex
-    Server():setValue("CosmicVault_PendingFlips", pending)
+
+    -- Queue the territory flip for the next time a player enters the sector.
+    -- Server():setValue() only supports bool/number/string/nil, and every reader
+    -- (CosmicVaultTerritory.resolveSiege and cv_territory_injector_persistent.lua)
+    -- expects the "x__y__factionIndex," string queue format - delegate to the
+    -- shared implementation instead of maintaining a second, incompatible format.
+    if CosmicVaultTerritory and CosmicVaultTerritory.resolveSiege then
+        CosmicVaultTerritory.resolveSiege(x, y, newFactionIndex)
+    end
 
     local sectorName = "\\s(" .. x .. ":" .. y .. ")"
     local factionName = Faction(newFactionIndex) and Faction(newFactionIndex).name or "an Unknown Faction"
@@ -55,18 +55,5 @@ function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
     end
 end
 
-
-function initialize(...)
-    if CosmicVaultTerritoryServer.initialize then return CosmicVaultTerritoryServer.initialize(...) end
-end
-function onPlayerLogIn(...)
-    if CosmicVaultTerritoryServer.onPlayerLogIn then return CosmicVaultTerritoryServer.onPlayerLogIn(...) end
-end
-function getUpdateInterval(...)
-    if CosmicVaultTerritoryServer.getUpdateInterval then return CosmicVaultTerritoryServer.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if CosmicVaultTerritoryServer.updateServer then return CosmicVaultTerritoryServer.updateServer(...) end
-end
 
 return CosmicVaultTerritoryServer

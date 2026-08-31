@@ -1,5 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/?.lua"
 
 local CosmicVaultWeatherDictionary = include("cosmicvaultweatherdictionary")
 
@@ -44,32 +42,41 @@ function setWeatherType(wType)
     end
 end
 
+-- Avorion has no "addSectorProblem"/"removeSectorProblem" API - it doesn't
+-- exist anywhere in the stubs or vanilla source. The real, confirmed
+-- mechanism (see vanilla player/ui/badcargoshipproblem.lua) is the ship-level
+-- addShipProblem(type, shipUuid, text, icon, color)/removeShipProblem(type,
+-- shipUuid) pair, keyed by a constant "type" string per problem slot.
+local WEATHER_PROBLEM_TYPE = "CosmicVaultWeather"
+
 function updateSectorProblem()
+    local player = Player()
+    local craft = player and player.craft
+    if not craft then return end
+
     -- Remove the old problem if it existed
     if cv_last_weather_type ~= "None" then
-        local oldData = CosmicVaultWeatherDictionary.data[cv_last_weather_type]
-        if oldData then
-            removeSectorProblem(oldData.name)
-        end
+        removeShipProblem(WEATHER_PROBLEM_TYPE, craft.index)
     end
-    
+
     -- Add the new problem
     if cv_weather_type ~= "None" then
         local data = CosmicVaultWeatherDictionary.data[cv_weather_type]
         if data then
             local tooltip = data.detailedName .. "\n\n" .. data.description
-            addSectorProblem(data.name, tooltip, data.icon, data.color)
+            addShipProblem(WEATHER_PROBLEM_TYPE, craft.index, tooltip, data.icon, data.color)
         end
     end
-    
+
     cv_last_weather_type = cv_weather_type
 end
 
 function onRemove()
     if cv_weather_type ~= "None" then
-        local data = CosmicVaultWeatherDictionary.data[cv_weather_type]
-        if data then
-            removeSectorProblem(data.name)
+        local player = Player()
+        local craft = player and player.craft
+        if craft then
+            removeShipProblem(WEATHER_PROBLEM_TYPE, craft.index)
         end
     end
 end

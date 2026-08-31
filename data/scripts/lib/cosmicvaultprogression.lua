@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 -- namespace CosmicVaultProgression
 CosmicVaultProgression = {}
@@ -26,6 +25,8 @@ end
 -- @return int Current XP
 function CosmicVaultProgression.getXP(playerIndex, skillTreeName)
     if not playerIndex or type(skillTreeName) ~= "string" then return 0 end
+    -- Player():getValue() is server-only; calling it on the client crashes.
+    if not onServer() then return 0 end
     local player = Player(playerIndex)
     if not player then return 0 end
     
@@ -52,6 +53,7 @@ end
 -- @return boolean True if unlocked
 function CosmicVaultProgression.hasPerk(playerIndex, perkId)
     if not playerIndex or type(perkId) ~= "string" then return false end
+    if not onServer() then return false end
     local player = Player(playerIndex)
     if not player then return false end
     

@@ -1,7 +1,6 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/?.lua"
 
-local CosmicVaultWeatherServer = {}
+-- namespace CosmicVaultWeatherServer
+CosmicVaultWeatherServer = {}
 CosmicVaultWeatherServer.activeWeathers = {} -- table mapping "x_y" -> {x, y, type, expiry}
 
 function CosmicVaultWeatherServer.initialize()
@@ -106,21 +105,4 @@ function CosmicVaultWeatherServer.restore(data)
     CosmicVaultWeatherServer.activeWeathers = type(data.activeWeathers) == "table" and data.activeWeathers or {}
 end
 
-function initialize(...)
-    if CosmicVaultWeatherServer.initialize then return CosmicVaultWeatherServer.initialize(...) end
-end
-function onPlayerLogIn(...)
-    if CosmicVaultWeatherServer.onPlayerLogIn then return CosmicVaultWeatherServer.onPlayerLogIn(...) end
-end
-function getUpdateInterval(...)
-    if CosmicVaultWeatherServer.getUpdateInterval then return CosmicVaultWeatherServer.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if CosmicVaultWeatherServer.updateServer then return CosmicVaultWeatherServer.updateServer(...) end
-end
-function secure(...)
-    if CosmicVaultWeatherServer.secure then return CosmicVaultWeatherServer.secure(...) end
-end
-function restore(...)
-    if CosmicVaultWeatherServer.restore then return CosmicVaultWeatherServer.restore(...) end
-end
+return CosmicVaultWeatherServer

@@ -1,5 +1,3 @@
-package.path = package.path .. ";data/scripts/?.lua"
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local SectorSpecifics = include("sectorspecifics")
 local EnvironmentalEffectUT = include("dlc/rift/sector/effects/environmentaleffectutility")

@@ -1,7 +1,4 @@
 
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/?.lua"
-
 include("callable")
 include("randomext")
 local FactoryMap = include("factorymap")
@@ -62,7 +59,10 @@ function EconomyUpdater.updateServer(timeStep)
                     local beacon = generator:createBeacon(generator:getPositionInSector(), Faction(factionIndex), "EMERGENCY RELIEF CACHE")
                     if beacon then
                         beacon.title = "Famine Relief Cache"
-                        beacon:addScriptOnce("data/scripts/entity/cc_blackbox.lua")
+                        -- cc_blackbox.lua only exists in Cosmic Chronicles; Cosmic
+                        -- Vault has no dependencies and must keep working without
+                        -- it, so this attach is best-effort only.
+                        pcall(function() beacon:addScriptOnce("data/scripts/entity/cc_blackbox.lua") end)
                         beacon:setValue("is_famine_relief", factionIndex)
                     end
                 end

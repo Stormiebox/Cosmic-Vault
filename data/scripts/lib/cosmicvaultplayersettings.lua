@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 include("cosmicvaultdebug")
 
 -- namespace CosmicVaultPlayerSettings
@@ -36,6 +35,9 @@ end
 -- @param default (any) Default value
 -- @return (any) The setting value
 function CosmicVaultPlayerSettings.get(player, modId, key, fallback)
+    -- Player():getValue()/setValue() are server-only; calling them on the
+    -- client crashes with "invalid userobject of type Player".
+    if not onServer() then return fallback end
     if not valid(player) then return fallback end
 
     local storageKey = getStorageKey(modId, key)
@@ -61,6 +63,7 @@ end
 -- @param key (string) The setting key
 -- @param val (any) The value to set
 function CosmicVaultPlayerSettings.set(player, modId, key, value)
+    if not onServer() then return end
     if not valid(player) then return end
 
     local storageKey = getStorageKey(modId, key)

@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include("cosmicvaultframework")
 
@@ -34,15 +33,22 @@ function CosmicVaultArsenal.GenerateTurret(config)
         }
     ]]
 
+    -- turret.rarity/turret.material/turret.weaponName are all read-only on
+    -- InventoryTurret (writes are silently discarded) - rarity and material
+    -- are actually set on the Weapon object below, which does have writable
+    -- rarity/material fields. Note: Weapon() takes no constructor argument
+    -- (vanilla always calls it bare and configures the weapon's identity via
+    -- Weapon:setProjectile()/:setBeam() plus manual physics fields), so
+    -- config.weaponType currently has no effect on the generated weapon's
+    -- actual type - it is not wired up to anything the engine reads.
     local turret = InventoryTurret()
-    turret.rarity = config.rarity or Rarity(RarityType.Common)
-    turret.material = config.material or Material(MaterialType.Iron)
-    turret.weaponName = config.weaponType or WeaponType.ChainGun
     turret.coaxial = config.coaxial or false
     turret.size = config.size or 1.0
     turret.slots = config.slots or 1
 
-    local weapon = Weapon(config.weaponType or WeaponType.ChainGun)
+    local weapon = Weapon()
+    weapon.rarity = config.rarity or Rarity(RarityType.Common)
+    weapon.material = config.material or Material(MaterialType.Iron)
     weapon.damage = config.damage or 10
     weapon.fireRate = config.fireRate or 5
     weapon.reach = config.range or 5000

@@ -1,5 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/?.lua"
 
 local cv_active_weathers = {}
 

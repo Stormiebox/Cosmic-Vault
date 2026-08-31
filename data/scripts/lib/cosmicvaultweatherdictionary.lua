@@ -1,5 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/?.lua"
 
 local CosmicVaultWeatherDictionary = {}
 
@@ -36,7 +34,11 @@ CosmicVaultWeatherDictionary.data = {
             for i = 0, numBlocks - 1 do
                 local block = plan:getNthBlock(i)
                 if block.material.value >= safeMaterialValue then
-                    volumeSafeBlocks = volumeSafeBlocks + block.volume
+                    -- BlockPlanBlock has no .volume property (reading it would
+                    -- throw "Property not found or not readable"); derive it
+                    -- from the block's bounding box instead.
+                    local size = block.box.size
+                    volumeSafeBlocks = volumeSafeBlocks + (size.x * size.y * size.z)
                 end
             end
             

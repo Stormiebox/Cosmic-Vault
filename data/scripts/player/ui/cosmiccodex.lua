@@ -1,5 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/player/ui/?.lua"
 
 include("stringutility")
 include("utility")
@@ -133,18 +131,6 @@ function CosmicCodex.addArticle(chapterId, id, title, text, picturePath)
     self.articles[articleIndex] = { title = title, text = text, picture = picturePath, chapterId = chapterId }
 end
 
-function addCategory(...)
-    if CosmicCodex.addCategory then return CosmicCodex.addCategory(...) end
-end
-
-function addChapter(...)
-    if CosmicCodex.addChapter then return CosmicCodex.addChapter(...) end
-end
-
-function addArticle(...)
-    if CosmicCodex.addArticle then return CosmicCodex.addArticle(...) end
-end
-
 function CosmicCodex.onEntrySelected(index)
     self.tree.selectedIndex = index
     self.refreshUI()
@@ -201,10 +187,5 @@ function CosmicCodex.onPostRenderHud(state, timeStep)
 end
 
 end -- onClient
-
-
-function initialize(...)
-    if CosmicCodex.initialize then return CosmicCodex.initialize(...) end
-end
 
 return CosmicCodex

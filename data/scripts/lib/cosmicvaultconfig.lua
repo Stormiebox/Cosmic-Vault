@@ -1,4 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local ccm = include("ccm")
 local config = ccm and ccm.bind("CosmicVault") or nil

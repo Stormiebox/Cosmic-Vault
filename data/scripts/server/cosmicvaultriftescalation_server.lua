@@ -1,5 +1,3 @@
-package.path = package.path .. ";data/scripts/lib/?.lua"
-package.path = package.path .. ";data/scripts/?.lua"
 
 include("callable")
 include("randomext")
@@ -66,9 +64,8 @@ function CosmicVaultRiftEscalation.updateServer(timeStep)
         if random():test(chance) then
             -- Trigger random alien attack for online players
             for _, player in pairs({server:getOnlinePlayers()}) do
-                local attackType = random():getInt(1, 3)
                 -- 3 is also a valid type but is less common. Use 0, 1, or 2 for standard attacks.
-                attackType = random():getInt(0, 2)
+                local attackType = random():getInt(0, 2)
                 player:addScriptOnce("data/scripts/player/events/alienattack.lua", attackType)
             end
             server:broadcastChatMessage("System"%_T, ChatMessageType.Warning, "CRITICAL: Global Rift Escalation Threshold Reached. Xsotan swarms converging galaxy-wide!"%_T)
