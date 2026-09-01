@@ -41,9 +41,17 @@ function CosmicConfigMenu.initialize()
     local titleLabel = self.tab:createLabel(hsplit.top, "Cosmic Configuration Menu"%_t, 24)
     titleLabel.centered = true
 
+    -- Thin accent rule under the title so the header reads as a distinct band
+    -- rather than bleeding straight into the tree/options panes below it.
+    local titleRuleRect = Rect(hsplit.top.lower.x + 10, hsplit.top.upper.y - 6, hsplit.top.upper.x - 10, hsplit.top.upper.y - 4)
+    local titleRule = self.tab:createFrame(titleRuleRect)
+    titleRule.backgroundColor = ColorARGB(0.6, 0.4, 0.75, 0.95)
+
     local vsplit = UIVerticalSplitter(hsplit.bottom, 10, 0, 0.3)
 
     self.tree = self.tab:createTree(vsplit.left)
+    self.tree:setLevelStyle(0, 32, 17)
+    self.tree:setLevelStyle(1, 26, 14)
 
     local bottomSplit = UIHorizontalSplitter(vsplit.right, 10, 0, 0.9)
 
@@ -70,6 +78,9 @@ function CosmicConfigMenu.initialize()
 
     Player():registerCallback("onPostRenderHud", "onPostRenderHud")
     Player():registerCallback("onGalaxyMapUpdate", "onGalaxyMapUpdate")
+
+    -- Shows the "select a mod" hint on first open, before anything has been picked in the tree.
+    self.showEmptyState()
 end
 
 function CosmicConfigMenu.onShow()
@@ -128,33 +139,60 @@ function CosmicConfigMenu.onEntrySelected(index)
     self.refreshUI()
 end
 
+-- Shown in the options pane whenever nothing is selected in the tree yet, so the panel
+-- never just sits there blank on first open (mirrors the Cosmic Codex's own welcome text).
+function CosmicConfigMenu.showEmptyState()
+    local hint = self.container:createLabel(Rect(20, 20, self.container.size.x - 20, 80),
+        "Select a mod on the left to view and change its settings."%_t, 16)
+    hint.color = ColorRGB(0.6, 0.6, 0.6)
+    hint:setTopLeftAligned()
+end
+
 function CosmicConfigMenu.refreshUI()
     self.container:clear()
     self.elements = {}
     self.applyBtn.active = false
+    self.applyBtn.caption = "Apply Changes"%_t
 
     local selected = self.tree.selectedIndex
-    if not selected then return end
+    if not selected then self.showEmptyState() return end
 
     local nodeValue = self.selectedValue
-    if not nodeValue then return end
+    if not nodeValue then self.showEmptyState() return end
 
     local parts = string.split(nodeValue, "::")
-    if #parts ~= 2 then return end
+    if #parts ~= 2 then self.showEmptyState() return end
 
     local namespace = parts[1]
     local pageIndex = tonumber(parts[2])
 
     local reg = ccm.getRegistry(namespace)
-    if not reg or not reg.pages or not reg.pages[pageIndex] then return end
+    if not reg or not reg.pages or not reg.pages[pageIndex] then self.showEmptyState() return end
 
     local page = reg.pages[pageIndex]
     local binding = ccm.bind(namespace)
 
-    local lister = UIVerticalLister(Rect(vec2(0, 0), self.container.size), 10, 0)
+    -- Breadcrumb header identifying the currently selected mod + settings page, so it's
+    -- always clear what the list of toggles below actually belongs to.
+    local headerLabel = self.container:createLabel(Rect(4, 0, self.container.size.x - 4, 22), namespace .. "  >  " .. page.title, 16)
+    headerLabel.color = ColorRGB(0.55, 0.85, 1.0)
+    headerLabel:setTopLeftAligned()
 
+    local headerRule = self.container:createFrame(Rect(4, 24, self.container.size.x - 4, 25))
+    headerRule.backgroundColor = ColorARGB(0.5, 0.55, 0.85, 1.0)
+
+    local lister = UIVerticalLister(Rect(vec2(0, 32), self.container.size), 8, 0)
+
+    local rowIndex = 0
     for _, opt in ipairs(page.options) do
-        local rect = lister:placeCenter(vec2(self.container.size.x, 30))
+        local rect = lister:placeCenter(vec2(self.container.size.x, 32))
+
+        -- Zebra-striped row background so a long options list stays easy to scan.
+        if rowIndex % 2 == 1 then
+            local rowBg = self.container:createFrame(rect)
+            rowBg.backgroundColor = ColorARGB(0.15, 1.0, 1.0, 1.0)
+        end
+        rowIndex = rowIndex + 1
 
         -- 3 column layout: Label (40%), Control (50%), Reset Button (10%)
         local split1 = UIVerticalSplitter(rect, 10, 0, 0.4)
@@ -211,6 +249,7 @@ end
 
 function CosmicConfigMenu.onValueChanged()
     self.applyBtn.active = true
+    self.applyBtn.caption = "Apply Changes *"%_t
 end
 
 function CosmicConfigMenu.onResetOption(btn)
@@ -264,6 +303,7 @@ function CosmicConfigMenu.onApplyPressed()
     invokeServerFunction("syncCCMSettings", settingsBatch)
 
     self.applyBtn.active = false
+    self.applyBtn.caption = "Apply Changes"%_t
     displayChatMessage("Settings applied successfully."%_t, "Cosmic Config"%_t, 3)
 end
 
