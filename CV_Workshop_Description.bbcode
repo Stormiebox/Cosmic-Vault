@@ -3,35 +3,49 @@
 
 [hr][/hr]
 
-[h2]🚀 Version 2.0.0: The Vanilla+ Modding APIs[/h2]
-Vault v2.0.0 brings a massive suite of [b]16 native Modding APIs![/b] From Dynamic Encounters and Economy crashes to custom Blueprint spawning and temporary Buffs, modders can now execute complex mechanics seamlessly—without ever performing dangerous, destructive hard-overrides on vanilla files.
+[h2]🛠️ Version 3.5.0: Stabilization Update[/h2]
+This release is a full pass through the Vault's bug tracker, not a new feature drop. Permanent buffs that could never be removed, escort orders with no target, loot drops that dropped zero units, custom faction traits that never actually rendered in the diplomacy window, and two anomaly types that spawned with no behavior attached are all fixed. Every include that reaches into a sister mod's files is now soft-guarded, so [b]Cosmic Vault runs cleanly on its own[/b] even without the rest of the series installed.
 
 [hr][/hr]
 
 [h2]What is Cosmic Vault?[/h2]
-Every great structure begins with a solid foundation. [b]Cosmic Vault[/b] serves as the essential, highly optimized backbone for the [b]Cosmic Series[/b] ([i]Cosmic Overhaul, Cosmic War and Cosmic Chronicles[/i]). It prevents memory bloat, eliminates duplicate code, and keeps your load order smooth by centralizing reusable code and assets.
+Every great structure begins with a solid foundation. [b]Cosmic Vault[/b] is the shared backbone for the [b]Cosmic Series[/b] ([i]Cosmic Overhaul, Cosmic War, Cosmic Chronicles, and Cosmic Ascendancy[/i], plus the standalone installment [i]Cosmic Starfall[/i]). It centralizes reusable code and assets so the other mods in the series don't duplicate the same logic five times over, and so your load order stays lean.
 
-[b]⚠️ REQUIRED DEPENDENCY:[/b] You [b]must[/b] be subscribed to Cosmic Vault to use any other Cosmic Series mod.
+[b]⚠️ REQUIRED DEPENDENCY:[/b] You [b]must[/b] be subscribed to Cosmic Vault to run any other Cosmic Series mod.
 
 [hr][/hr]
 
 [h2]Core Features[/h2]
 [list]
-[*]🛠️ [b]16 Vanilla+ Modding APIs:[/b] Effortlessly spawn custom XML ships, build missions, trigger cinematic UI banners, inject trade goods, and create dynamic encounters natively without hard overrides.
-[*]💾 [b]Player Settings API:[/b] A robust engine-native storage API replacing crash-prone file systems, permanently solving UI and save corruption issues.
-[*]📈 [b]Server Data Contracts:[/b] A highly-performant Faction Index API that prevents background loops from freezing your server.
-[*]🗣️ [b]Shared Dialogue API:[/b] A narrative engine storing context-aware dialogue and rumors based on live simulations (like War Heat).
-[*]🎨 [b]Shared Assets & UI Layouts:[/b] Hosts reusable textures and Proportional UI Splitters to decouple mods from legacy dependencies.
-[*]🔧 [b]Unified Configuration:[/b] Centralized MCM support for the Cosmic ecosystem.
+[*]🛠️ [b]Vanilla+ Modding APIs:[/b] spawn custom XML ships, build missions, trigger cinematic UI banners, inject trade goods, and drop custom loot and turrets, all without a destructive hard override.
+[*]💾 [b]Player Settings API:[/b] engine-native storage replacing crash-prone file I/O for UI settings and preferences.
+[*]📰 [b]Galactic News API:[/b] a global news buffer any Cosmic mod can publish to, with a dedicated flag for galaxy-shaking events worth interrupting the player for.
+[*]📈 [b]Server Data Contracts:[/b] a cached Faction Index API so background scripts stop re-scanning thousands of faction IDs on every tick.
+[*]🗣️ [b]Shared Dialogue API:[/b] context-aware dialogue and rumors that react to live simulation state (War Heat, faction wealth, and more).
+[*]🎨 [b]Shared Assets & UI Layouts:[/b] reusable textures and proportional UI splitters, replacing legacy third-party UI dependencies.
+[*]🔧 [b]Unified Configuration:[/b] one Cosmic Configuration Menu (CCM) other Cosmic mods register their settings and hotkeys into.
 [/list]
 
-👉 [b][url=https://github.com/Stormiebox/Cosmic-Vault/wiki]Click here for the Technical Documentation on the Wiki![/url][/b]
-👉 [b][url=https://github.com/Stormiebox/Cosmic-Vault/wiki/Modder%E2%80%90Guide]Modder's Guide To Cosmic Vault[/url][/b]
+👉 [b][url=https://github.com/Stormiebox/Cosmic-Vault/wiki]Technical documentation on the Wiki[/url][/b]
+👉 [b][url=https://github.com/Stormiebox/Cosmic-Vault/wiki/Modder%E2%80%90Guide]Modder's Guide to Cosmic Vault[/url][/b]
+
+[hr][/hr]
+
+[h2]🌌 What You'll See In-Game[/h2]
+Cosmic Vault is infrastructure, but a lot of what it enables is directly visible once the rest of the Cosmic Series is installed alongside it:
+[list]
+[*]🗞️ A Galactic News feed that broadcasts wars, invasions, and economic shifts as they happen across the galaxy.
+[*]🤝 Custom faction traits (Industrious, Fortified, and more) shown right in the vanilla diplomacy window.
+[*]🌩️ Subspace Weather hazards — Ion Storms, Dark Matter Fog, Solar Flares — with native HUD warnings and ship-specific protection.
+[*]💀 Famine Relief Caches that appear when a faction's territory collapses under starvation, lootable or donatable by any player nearby.
+[*]💎 Spatial Rifts and Precursor Wrecks scattered as one-time, interactive salvage sites after major galaxy events.
+[/list]
 
 [hr][/hr]
 
 [h2]The Cosmic Series[/h2]
 [i]Expand your galaxy with the full interconnected ecosystem:[/i]
+- [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3778706754]Cosmic Ascendancy[/url]
 - [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3732507615]Cosmic Chronicles[/url]
 - [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3315794988]Cosmic Overhaul[/url]
 - [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3727546093]Cosmic Starfall[/url]

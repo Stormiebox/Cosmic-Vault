@@ -1,6 +1,6 @@
-# 🌌 Cosmic Vault - Modder Guide
+# 🌌 Cosmic Vault — Modder Guide
 
-Welcome to the **Cosmic Vault API Guide**! This document provides technical instructions for modders who wish to safely hook into the Cosmic series' shared systems.
+Technical reference for modders building on top of Cosmic Vault's shared systems: architecture rules that will crash your mod if you ignore them, function signatures, and code examples for every public API. If you want prose explanations of what each system does and why, see `WIKI.md` instead.
 
 ## 🏗️ Architecture & Best Practices
 
@@ -37,6 +37,18 @@ Welcome to the **Cosmic Vault API Guide**! This document provides technical inst
 > **Event Loop Throttling**
 > When writing background simulation scripts (e.g., `updateServer` loops), **always** define `getUpdateInterval()` to throttle execution (e.g. `return 5.0`). Running logic every single frame (0s interval) should be strictly reserved for rendering UI fading or precise physical tracking.
 
+> [!CAUTION]
+> **Rogue Globals in Library Files**
+> Library files (`data/scripts/lib/*.lua`) that other scripts `include()` must not define global Avorion engine callbacks (`function updateServer(...)`, `function getUpdateInterval(...)`, etc.). When a script calls `include("yourlibrary")`, any global function defined in that library gets injected directly into the calling script's Lua VM. If the calling script also has its own `updateServer()` loop, the library's version silently overwrites it — a failure mode that's brutal to debug because nothing errors, the calling script's own loop just stops running.
+> ```lua
+> -- Correct library structure: return a table, never define global engine callbacks
+> local MyCustomLib = {}
+> function MyCustomLib.doSomething()
+>     -- Logic here
+> end
+> return MyCustomLib
+> ```
+
 > [!WARNING]
 > **Common Native API Errors**
 > Be highly cautious of incorrectly used API method names when using native C++ userdata objects.
@@ -45,17 +57,21 @@ Welcome to the **Cosmic Vault API Guide**! This document provides technical inst
 > - **Wealth:** Factions do NOT have a `getWealth()` method. You must use the native property `faction.money`.
 > - **Stats & Entities:** Use `statModifier:addBaseMultiplier()` (not `modifyBaseMultiplier`). Use `entity:addMultiplyableBias()` (not `addMultiplyableFactor`).
 > - **Sectors:** `Galaxy()` does NOT have a `setFaction()` or `tryUnloadSector()` method. Sector borders are natively controlled by the stations inside them.
-> - **InvokeFunction:** Pay strict attention to where scripts are attached. Use `Server():invokeFunction("script.lua", ...)` for scripts in `data/scripts/server/`. Use `Galaxy():invokeFunction("script.lua", ...)` ONLY for scripts in `data/scripts/galaxy/`.
+> - **InvokeFunction:** Routing depends on what object a script is actually attached to, not which `data/scripts/` folder it lives in. `cosmicvaultnews_server.lua` and `cosmicvaultweather_server.lua` both live under `data/scripts/server/`, but `galaxy/server.lua` attaches both with `Galaxy():addScriptOnce(...)`, so they're only reachable through `Galaxy():invokeFunction(...)` — calling `Server():invokeFunction()` on either one fails. Check where a script is actually attached (`addScript`/`addScriptOnce`) before assuming its folder tells you the right object to call.
 > - **Client Functions:** When communicating from a server script to a player script, use the global `invokeClientFunction(Player(), "functionName", args...)` to safely cross the server-client boundary.
 > - **Blueprints:** `BlockPlan` does NOT have `plan:fromString()`. Use the global `LoadPlanFromString()`.
 > - **Loot Drops:** Use `Sector():dropTurret()` for weapons and `Sector():dropUpgrade()` specifically for SystemUpgradeTemplate objects. Mismatching these will crash the sector.
 > Stormbox: This is from my personal findings and debugging often.
+
+> [!NOTE]
+> **Cosmic Vault Runs Standalone**
+> Every `include()` inside Cosmic Vault that reaches into a sister mod's files — the Cosmic War economy bridge, the three sister config menus (Overhaul/War/Ascendancy), and Chronicles' Famine Relief Cache spawn — is wrapped in `pcall` as of v3.5.0. A Vault-only install, or Vault plus a subset of the Core 4, simply skips those cross-mod hooks instead of crashing. If you build a similar cross-mod hook in your own mod, follow the same pattern: `pcall(include, "someOtherModsLib")` rather than a bare `include()`.
 ---
 
 ## 📑 The API Library
 
 ### ⚙️ 1. Player Settings API (`cosmicvaultplayersettings.lua`)
-Provides a robust, fail-safe wrapper around Avorion's `Player():setValue()` system, replacing direct `.json` file I/O which is highly prone to server locks.
+A fail-safe wrapper around Avorion's `Player():setValue()` system, replacing direct `.json` file I/O, which is prone to server locks.
 ```lua
 local PlayerSettings = include("cosmicvaultplayersettings")
 PlayerSettings.set(Player(), "MyMod", "FeatureEnabled", true)
@@ -63,16 +79,30 @@ local isEnabled = PlayerSettings.get(Player(), "MyMod", "FeatureEnabled", true)
 ```
 
 ### 📰 2. Galactic News API (`cosmicvaultnews.lua`)
-Inject breaking news into the centralized server-wide buffer, which broadcasts to all clients natively.
+Publish news articles into the centralized server-wide buffer, which broadcasts to all connected clients.
 ```lua
 local CosmicVaultNews = include("cosmicvaultnews")
 if onServer() then
-    CosmicVaultNews.publishArticle({title="Crisis", category="War", content="Invasion!"})
+    CosmicVaultNews.publishArticle({
+        title = "Crisis",
+        category = "War",
+        content = "Invasion!",
+        breaking = true, -- optional; coerced to a real boolean as of v3.5.0
+    })
 end
 ```
+`breaking` defaults to `false` and marks an article as worth interrupting the player for — a dedicated UI banner, an immediate chat alert, whatever the consuming UI decides to do with it. As of v3.5.0 the API normalizes whatever you pass into a real `true`/`false`, so a consuming UI can trust the field's type rather than treating any truthy value as breaking. Reserve it for genuinely rare events; a breaking article every few minutes defeats the point.
+
+`CosmicVaultNews.getPublishedNews()` was a documented stub through v3.4.x — present, but returned nothing useful. As of v3.5.0 it's implemented and works from any server-side script:
+```lua
+if onServer() then
+    local articles = CosmicVaultNews.getPublishedNews() -- returns the live article list
+end
+```
+It's still server-only. There's no synchronous client/server call in Avorion, so a client can't call this directly — request a sync with `invokeServerFunction()` and receive the result back through `invokeClientFunction()`, the same pattern Cosmic Chronicles' News Board already uses.
 
 ### 🗃️ 3. Faction API & Custom Traits (`cosmicvaultfaction.lua`)
-A robust background cache of generated factions, and a revolutionary API to bypass Avorion's hardcoded UI and inject **Custom Faction Traits** natively into the diplomacy window!
+A cached list of generated factions, plus an API for injecting custom faction traits into the vanilla diplomacy window without touching Avorion's hardcoded UI.
 
 **Retrieving all factions:**
 ```lua
@@ -100,14 +130,14 @@ cvf.setTrait(faction.index, "industrial", 1.0)
 ```
 
 ### 🖥️ 4. Cosmic UI Components (`cosmicvaultui.lua`)
-Allows triggering cinematic screen overlays, banners, and creating flexible UI partitions without custom renderers.
+Triggers cinematic screen overlays and banners, and provides flexible UI partitions, without writing a custom renderer.
 ```lua
 local CosmicVaultUI = include("cosmicvaultui")
 CosmicVaultUI.ShowCinematicBanner(Player(), "CRITICAL WARNING", ColorRGB(1, 0, 0), "data/sounds/siren.ogg", 5)
 ```
 
 ### ⏳ 5. Task Scheduler API (`cosmicvaulttask.lua`)
-An Async Task Scheduler. Runs intensive Lua operations across multiple server ticks using Coroutines, completely preventing massive TPS drops.
+Runs intensive Lua operations across multiple server ticks using coroutines, instead of stalling one frame and dropping server TPS.
 ```lua
 local CosmicVaultTask = include("cosmicvaulttask")
 CosmicVaultTask.RunAsync("MyHeavyScan", function()
@@ -118,7 +148,7 @@ end)
 ```
 
 ### 💾 6. Data Serialization API (`cosmicvaultdata.lua`)
-Natively stores complex Lua tables onto Entities and applies tags for fast grouping and querying using `dkjson`.
+Stores complex Lua tables on entities and applies tags for fast grouping and querying, using `dkjson`.
 ```lua
 local CosmicVaultData = include("cosmicvaultdata")
 CosmicVaultData.SetTable(entity, "MyCustomData", {isBoss = true})
@@ -131,9 +161,10 @@ Generates properly balanced, custom `Weapon`/`InventoryTurret` objects dynamical
 local CosmicVaultArsenal = include("cosmicvaultarsenal")
 local turret = CosmicVaultArsenal.GenerateTurret({rarity = Rarity(RarityType.Legendary), weaponType = WeaponType.Bolter, damage = 500})
 ```
+As of v3.5.0, `rarity` and `material` are written to the generated `Weapon` object and actually take effect — earlier versions wrote them to `InventoryTurret` instead, which silently discards both since they're read-only there. **`weaponType` still does nothing.** It isn't wired to anything the engine reads; giving a weapon a real per-type identity (Bolter vs. Laser vs. Cannon, etc.) needs the manual physics setup vanilla's own `weapongenerator.lua` does — `Weapon:setProjectile()`/`:setBeam()`, `fireDelay`, `pvelocity`, and related fields — which this helper doesn't implement. Pass it if you like for readability, but don't expect it to change the result.
 
 ### 💹 8. Economy API (`cosmicvaulteconomy.lua` & `cosmicvaultgoods.lua`)
-Reads live market data, natively broadcasts economic events, and injects custom trade goods into the 5 global vanilla economy arrays dynamically!
+Reads live market data, broadcasts economic events, and injects custom trade goods into the five global vanilla economy arrays.
 ```lua
 local CosmicVaultGoods = include("cosmicvaultgoods")
 local CosmicVaultEconomy = include("cosmicvaulteconomy")
@@ -151,7 +182,7 @@ CosmicVaultEconomy.registerPriceHook("Contraband", "mymod.lua", "onCalculateCont
 ```
 
 ### 🏴‍☠️ 9. Encounter API (`cosmicvaultencounter.lua`)
-Injects custom ambushes or anomalies natively when a player enters a sector.
+Injects custom ambushes or anomalies when a player enters a sector.
 ```lua
 local CosmicVaultEncounter = include("cosmicvaultencounter")
 CosmicVaultEncounter.spawnAmbush(Faction().index, 5000, 3, nil, true)
@@ -159,7 +190,7 @@ CosmicVaultEncounter.broadcastEncounterMessage("Pirate Lord", "You picked the wr
 ```
 
 ### 📜 10. Mission API (`cosmicvaultmission.lua`)
-Builds and posts standard bulletin boards natively.
+Builds and posts standard bulletin-board missions.
 ```lua
 local CosmicVaultMission = include("cosmicvaultmission")
 local bulletin = CosmicVaultMission.createBulletin("Bounty Target", "Kill the pirate lord", "Hard", "150,000 Cr", "script.lua", {})
@@ -185,6 +216,7 @@ Wraps native custom XP, skills, and perks.
 local CosmicVaultProgression = include("cosmicvaultprogression")
 CosmicVaultProgression.addXP(playerIndex, 50, "combat")
 ```
+`getXP()` and `hasPerk()` are server-only and guard against being called on the client as of v3.5.0 — earlier versions crashed with `invalid userobject of type Player` if a client-side script (a HUD widget, say) called either one directly. The same fix applies to `cosmicvaultplayersettings.lua`'s `get`/`set` (section 1).
 
 ### 🎖️ 13. Fleet Command API (`cosmicvaultfleet.lua`)
 Safe interface to issue vanilla AI orders without rewriting `craftorders.lua`.
@@ -195,17 +227,21 @@ CosmicVaultFleet.orderJump(entityId, 15, -20)
 -- Automates mining and salvaging behaviors for AI ships safely
 CosmicVaultFleet.orderMine(entityId, clearPrevious)
 CosmicVaultFleet.orderSalvage(entityId, clearPrevious)
+
+-- Orders a ship to escort another entity
+CosmicVaultFleet.orderEscort(entityId, targetId, clearPrevious)
 ```
+`orderEscort` only actually tracks a target as of v3.5.0. Earlier versions passed a plain string where the underlying `OrderChain.addEscortOrder` expects a raw `Uuid`, so the order was accepted but the ship never had anything to escort.
 
 ### 🧬 14. Goods API (`cosmicvaultgoods.lua`)
-Natively injects custom trade goods.
+Registers custom trade goods.
 ```lua
 local CosmicVaultGoods = include("cosmicvaultgoods")
 CosmicVaultGoods.registerGood({name = "Cosmic Matter", price = 50000, size = 5.0})
 ```
 
 ### 💎 15. Loot API (`cosmicvaultloot.lua`)
-Drops custom loot natively.
+Drops custom loot.
 ```lua
 local CosmicVaultLoot = include("cosmicvaultloot")
 CosmicVaultLoot.dropCustomLoot(entityId, "good", "Cosmic Matter", 10)
@@ -213,13 +249,17 @@ CosmicVaultLoot.dropCustomLoot(entityId, "good", "Cosmic Matter", 10)
 -- Specifically spawns upgrade templates as physical drops in space
 CosmicVaultLoot.SpawnLootUpgrade(Sector(), x, y, z, "data/scripts/systems/bossupgrade.lua", Rarity(RarityType.Legendary))
 ```
+As of v3.5.0, `dropCustomLoot` passes the reservation slots as real `Faction` objects and the correct argument order for the `"good"` branch. Before that fix, every custom good drop requested zero units regardless of the `amount` argument — if you called this in an earlier version and it looked like it silently did nothing, that's why.
 
 ### 🏗️ 16. Blueprint API (`cosmicvaultblueprint.lua`)
-Spawns custom ships, stations, and turrets natively.
+Spawns custom ships and stations from XML plans.
 ```lua
 local CosmicVaultBlueprint = include("cosmicvaultblueprint")
 local ship = CosmicVaultBlueprint.spawnShip(factionId, "data/plans/boss.xml", Matrix(), 5000)
 ```
+The `volume` argument (`5000` above) scales the loaded plan to that volume. **This only works as of v3.5.0.** Earlier versions called `plan:scale(aNumber)` with a plain number, but `BlockPlan:scale()` takes a `vec3`, so every call that passed `volume` — including this exact example — crashed immediately. If you're on an older Vault version, omit the argument or update.
+
+`createTurretFromPlan(xmlPlan, weaponType, rarity, material)` **is not implemented and never has been.** `InventoryTurret.rarity`/`.material`/`.weaponPrefix` are all read-only, and there's no `customTurretDesign` field or any other documented way to attach a block Plan as a turret's visual model anywhere in the engine. Calling it logs an error and returns `nil` — it won't silently hand you a broken turret, but it also won't build one from your plan. Use `CosmicVaultArsenal.GenerateTurret()` for programmatic turret generation instead.
 
 ### 🛰️ 17. Station Interaction API (`cosmicvaultstation.lua`)
 Adds safe UI tabs to stations.
@@ -234,14 +274,14 @@ if CosmicVaultStation.isInteractionPossible(500) then ... end
 ```
 
 ### ⏰ 18. Global Events API (`cosmicvaultevents.lua`)
-Manages galaxy-wide timers natively.
+Manages galaxy-wide timers that persist across server reboots.
 ```lua
 local CosmicVaultEvents = include("cosmicvaultevents")
 CosmicVaultEvents.startEvent("xsotan_invasion", 3600)
 ```
 
 ### 🚀 19. Buffs API (`cosmicvaultbuffs.lua`)
-Applies self-terminating buffs, tracks global faction-wide buff tiers, and calculates dynamic "Living Relic" modifiers securely. Supported native buff mappings include: `Velocity`, `Shield`, `Damage`, `Acceleration`, and `HyperspaceCooldown`.
+Applies self-terminating buffs, tracks global faction-wide buff tiers, and calculates dynamic "Living Relic" modifiers. Supported buff mappings: `Velocity`, `Shield`, `Damage`, `Acceleration`, `HyperspaceCooldown`.
 ```lua
 local CosmicVaultBuffs = include("cosmicvaultbuffs")
 -- Apply a 30 second -50% speed debuff
@@ -252,10 +292,14 @@ local finalMultiplier = CosmicVaultBuffs.getDynamicRelicMultiplier(entity.id)
 
 -- Permanently multiply base stats, safely utilizing C++ callbacks without infinitely stacking
 CosmicVaultBuffs.addPermanentBaseMultiplier(entityId, "Damage", 0.15)
+
+-- Removing a permanent factor/multiplier only actually works as of v3.5.0
+CosmicVaultBuffs.removePermanentBaseMultiplier(entityId, "Damage")
 ```
+Before v3.5.0, `removePermanentFactor`/`removePermanentBaseMultiplier` called engine methods that don't exist, and the `apply`/`add` functions threw away the bonus key needed to remove anything even after that was fixed. Permanent buffs could be applied but never removed, and reapplying one stacked indefinitely. Removal is now tracked per entity/stat and is safe to call repeatedly.
 
 ### 🔥 20. Combat & DoTs API (`cosmicvaultcombat.lua`)
-Renders floating combat text and applies Damage-over-Time effects natively.
+Renders floating combat text and applies Damage-over-Time effects.
 ```lua
 local CosmicVaultCombat = include("cosmicvaultcombat")
 -- applyDoT(entityId, damageType, totalDamage, durationSeconds, sourceId)
@@ -270,7 +314,7 @@ local isHardMode = CosmicVaultConfig.get("HardMode")
 ```
 
 ### 🐛 22. Debug API (`cosmicvaultdebug.lua`)
-Provides robust trace logging, error catching, and performance metrics.
+Provides trace logging, error catching, and performance metrics.
 ```lua
 local CosmicVaultDebug = include("cosmicvaultdebug")
 CosmicVaultDebug.log("System initialized successfully in 12ms.")
@@ -298,10 +342,10 @@ CosmicVaultDialogue.registerLine({
 ```
 
 ### 🗺️ 24. Territory API (`cosmicvaultterritory.lua`)
-Safely manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap. Includes native bindings to `CosmicVaultNews` and functions for background faction generation.
+Manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap (loading a sector just to flip a station's owner). Includes bindings to `CosmicVaultNews` and functions for background faction generation.
 
 > [!NOTE]
-> **Station Flip Queue (Progressive Materialization):** Due to engine limits in Avorion 2.0+, stations in unloaded offline sectors cannot be physically flipped without using `Galaxy():loadSector()`, which physically spins up the sector thread and causes massive server stutters. The Territory API safely bypasses this using a **Lazy Loading** architecture by placing territory conquests into a global deferred queue (`Server():setValue("CosmicVault_PendingExpansions")`). The actual station ownership transfer executes instantaneously during the loading screen the next time any player loads into that sector natively.
+> **Station Flip Queue (Progressive Materialization):** Due to engine limits in Avorion 2.0+, stations in unloaded offline sectors cannot be physically flipped without using `Galaxy():loadSector()`, which physically spins up the sector thread and causes massive server stutters. The Territory API safely bypasses this using a **Lazy Loading** architecture by placing territory conquests into a global deferred queue (`Server():setValue("CosmicVault_PendingExpansions")`). The actual station ownership transfer happens during the loading screen the next time any player loads into that sector.
 
 > [!TIP]
 > **Precise Siege Progress:** The `setContestedZone()` API automatically injects an absolute `startTime` property (using `Server().unpausedRuntime`) into the serialized background simulation state. Client-side scripts like `cw_battlefieldhud.lua` can pass `zone.startTime` from the server down to the client to render 100% mathematically accurate siege progress bars even for players who join hours late.
@@ -325,7 +369,7 @@ CosmicVaultFramework.assertType(playerIndex, "number", "playerIndex")
 ```
 
 ### 🤝 26. Faction & Diplomacy API (`cosmicvaultfaction.lua`)
-Safely manages faction properties and diplomacies, specifically designed to safely mirror reputation gains to player alliances without causing crashes or double-penalties. It also features a custom semantic trait registry (like "Aggressive" or "Industrial") for other mods to interact with vanilla factions.
+Manages faction properties and diplomacy, including mirroring reputation gains to player alliances without causing crashes or double-penalties. Also provides a custom trait registry ("Aggressive", "Industrial", etc.) for other mods to tag vanilla factions.
 ```lua
 local CosmicVaultFaction = include("cosmicvaultfaction")
 
@@ -339,19 +383,21 @@ if CosmicVaultFaction.getTrait(factionIndex, "industrial") then
     -- Do something specific for industrial factions
 end
 ```
+Custom traits registered this way only actually render in the diplomacy window as of v3.5.0. Every version before that hooked `Diplomacy.updateFactionInformation`, a function name that has never existed anywhere in vanilla `diplomacy.lua` — the real trait-rendering function is `Diplomacy:updateTraits(faction)`. Traits were computed correctly the whole time; they just never drew.
 
 
 ---
 
 ### 🎮 27. Cosmic Configuration Menu (CCM) Keybind API (`ccm.lua` & `ccm_keycodes.lua`)
-Provides a native, user-configurable keybind framework fully integrated into the UI.
+A user-configurable keybind framework integrated into the CCM UI.
 ```lua
+local ccm = include("ccm")
 local cvcfg = ccm.bind("CosmicVault")
 if cvcfg.isKeyComboDown("hotkeyCodex") then
     -- Execute action when ALT+P (default) is pressed
 end
 ```
-You can register keybinds dynamically by using `type = "keybind"` in your `ccm.register` options array! The API automatically filters out inputs while players are typing in chat, and natively supports user-friendly unbinding via the `Delete` and `Backspace` keys.
+Register keybinds dynamically by using `type = "keybind"` in your `ccm.register` options array. The API filters out inputs while players are typing in chat, and supports unbinding via the `Delete` and `Backspace` keys.
 
 ### 🌾 28. Economy Famine API (`cosmicvaulteconomy.lua`)
 Exposes `addFamineScore` and `getFamineLevel` to track faction starvation, creating dynamic resource shortages and inflation across an entire empire's territory.
@@ -362,46 +408,24 @@ local severity = CosmicVaultEconomy.getFamineLevel(factionIndex)
 ```
 
 ### 🛠️ 29. Anomalies API (`cosmicvaultanomalies.lua`)
-Exposes logic for generating permanent, interactive points of interest natively.
+Exposes logic for generating permanent, interactive points of interest.
 ```lua
 local CosmicVaultAnomalies = include("cosmicvaultanomalies")
-CosmicVaultAnomalies.spawnAnomaly(x, y, "Void_Rupture")
+CosmicVaultAnomalies.spawnAnomaly(x, y, "SpatialRift")
+CosmicVaultAnomalies.spawnAnomaly(x, y, "PrecursorWreck")
 ```
+Both anomaly types have called `entity:addScriptOnce()` against `data/scripts/entity/cv_anomaly_rift.lua` and `cv_anomaly_wreck.lua` since this API launched in v3.0.0 — but neither file existed until v3.5.0. Anything spawned before that update sat in the sector with no interaction and no behavior attached. Both are now implemented: each offers a one-time Salvage/Channel interaction that drops a scaled reward, then leaves the entity behind as a permanent landmark.
 
 ### 🛠️ 30. Subspace Weather API (`cv_weather_controller.lua`)
-Exposes logic for safely attaching dynamic, localized environmental hazards (EMP storms, radiation, etc) to a sector, combined with seamless UI integration natively through Avorion's problem system.
+Exposes logic for attaching dynamic, localized environmental hazards (EMP storms, radiation, etc.) to a sector, integrated with Avorion's own ship-problem UI system.
 
 > [!TIP]
-> Do not attempt to use `Sector():addScript()` manually for weather, use the vault API `addScriptOnce` to prevent duplicated hazards on server restarts. Modders can review `cv_weather_generator.lua` to easily inject their own custom hazards with dynamically linked descriptions and UI icons.
+> Do not attempt to use `Sector():addScript()` manually for weather, use the vault API `addScriptOnce` to prevent duplicated hazards on server restarts. Modders can review `cosmicvaultweatherdictionary.lua` to add their own custom hazards with linked descriptions and UI icons.
 
 ```lua
 -- Attach Dark Matter Fog to the current sector indefinitely (-1 duration)
 Sector():addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
 ```
 
-## 10. Library Development Best Practices & Rogue Globals
-When building modular APIs or extending Cosmic Vault, you may create library files (`data/scripts/lib/*.lua`) that other scripts can `include()`. You **MUST** ensure that these library files do not define global Avorion engine callbacks (such as `function updateServer(...)` or `function getUpdateInterval(...)`).
-
-Because of how Avorion's Virtual File System operates, when a script calls `include("yourlibrary")`, any global functions defined in that library are injected directly into the calling script's Lua VM. If the calling script also has an `updateServer()` loop, the library's update loop will overwrite it, causing impossible-to-debug logic failures.
-
-**Correct Library Structure:**
-```lua
-local MyCustomLib = {}
-
-function MyCustomLib.doSomething()
-    -- Logic here
-end
-
-return MyCustomLib
-```
-
-Never append global VM hooks at the bottom of these files!
-
-## 🌌 Cosmic Vault Synergy
-- **Deep Economy Warfare:** The CosmicVaultEconomy API now bridges the economy simulation with the diplomatic war simulation. Factions with extreme Famine Scores can invoke CosmicWarBridge.forceDeclareWar() directly.
-- **Faction Trait Scaling:** The CosmicVaultScaling engine reads Cosmic War traits natively. An entrenched defending faction automatically triggers a 30% bonus in defensive scaling against invaders.
-- **Unified News API:** Centralized and fortified CosmicVaultNews handles global UI validation across all interconnected mods.
-## CosmicVaultFaction API
-CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
-Safely modifies relations without resetting them completely, clamping to valid values (-100000 to 100000). Use this instead of Galaxy():setFactionRelations to prevent engine crashes from out-of-bounds math logic. As of the Pre-Launch Push, this function also automatically detects if the modified faction is a Player in an Alliance, and mirrors the reputation delta onto the Alliance's relations to prevent multiplayer PvP safe-harbor exploits.
+For how these APIs interact with sister mods (Cosmic War, Cosmic Chronicles) when they're installed alongside Cosmic Vault, see `WIKI.md`'s Cross-Mod Synergy section.
 

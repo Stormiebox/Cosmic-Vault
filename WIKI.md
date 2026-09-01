@@ -1,475 +1,260 @@
-# ⚙️ Cosmic Vault - Detailed Features
+# ⚙️ Cosmic Vault — Wiki
 
-Welcome to the **Cosmic Vault** official wiki! This page contains the full, detailed documentation for the shared foundation layer of the **Cosmic** mod series.
+Technical reference for **Cosmic Vault**, the shared foundation layer of the **Cosmic** mod series. This document covers every system the Vault exposes: what it does, which files implement it, and what changed in the most recent stabilization pass (v3.5.0).
 
-**Cosmic Vault** is intended to centralize reusable code, configuration patterns, and shared assets so other mods in the series can:
-
-- Avoid duplicate implementations.
-- Stay behavior-consistent.
-- Integrate faster with lower maintenance costs.
-
-
-### 11) Shared Modding APIs (Vanilla+)
-
-<details>
-<summary><b>Click to expand details</b></summary>
-
-**What it does:**
-A massive expansion introduced in v2.0.0, the Vault provides a complete suite of standalone APIs (Task Scheduling, Arsenal Generation, Entity Data Tagging, Cinematic UI, and Economy Hooks) designed explicitly to allow modders to create "Vanilla+" mechanics without ever having to use dangerous "hard overrides" on core Avorion scripts.
-
-**Included Libraries:**
-- `cosmicvaulttask.lua`: Lua Coroutine manager for running heavy operations over multiple server ticks without hanging the server.
-- `cosmicvaultdata.lua`: Natively store complex JSON tables and Entity Tags directly into the Avorion engine via `dkjson`.
-- `cosmicvaultui.lua`: Trigger highly immersive cinematic UI overlays, banners, and sounds on client screens effortlessly.
-- `cosmicvaultnews.lua`: A centralized and validated global news broadcasting API for injecting custom faction and event articles natively into the bulletin systems.
-- `cosmicvaultarsenal.lua`: Mathematical generator for spitting out perfectly balanced custom `Weapon` and `InventoryTurret` drops on the fly.
-- `cosmicvaulteconomy.lua`: Natively read market data, trigger economic Booms and Crashes, and hook custom dynamic price multipliers securely across the entire galaxy.
-- `cosmicvaultencounter.lua`: Inject custom ambushes, anomalies, or boss spawns safely when players enter sectors without touching `sectorspecifics.lua`.
-- `cosmicvaultmission.lua`: Streamlined creation and injection of custom missions into native Bulletin Boards without overriding station logic. Features comprehensive UI-handling for `failMission` events and physical `grantItemReward` automation.
-- `cosmicvaultprogression.lua`: Standardized custom XP, levels, and skill-tree perks synced securely across client and server.
-- `cosmicvaultfleet.lua`: Safe command injection for pushing complex AI orders (patrol, escort, automated mining/salvaging) without hard overriding `craftorders.lua`.
-- `cosmicvaultfaction.lua`: A revolutionary API to bypass Avorion's hardcoded UI and inject Custom Faction Traits natively into the diplomacy window, as well as safely mirror relationship changes to Player Alliances without crashing.
-- `cosmicvaultgoods.lua`: Safely inject custom Trade Goods (with properties like illegal, dangerous) directly into the 5 global economy arrays without overwriting the hardcoded `goods.lua`.
-- `cosmicvaultloot.lua`: Hook into native destruction sequences to drop custom loot and specifically spawn dynamic `SystemUpgradeTemplate` objects directly into space natively.
-- `cosmicvaultblueprint.lua`: Safely load and dynamically spawn custom XML ships, stations, and custom turrets with native AI and crew generation.
-- `cosmicvaultstation.lua`: Safely append custom dialogue or interaction tabs to vanilla stations cleanly, featuring custom maximum-distance overrides for UI security.
-- `cosmicvaultevents.lua`: A server-safe timer for tracking galaxy-wide events (e.g. "Xsotan Invasions") that persist across server reboots.
-- `cosmicvaultbuffs.lua`: Safely inject temporary stat modifiers (Speed, Shields, Damage) directly onto ships via tiny, self-terminating scripts. Allows persistent tracking of global faction-wide buff tiers across the galaxy, and features C++-safe `addPermanentBaseMultiplier` integrations.
-- `cosmicvaultterritory.lua`: Native background mathematical border shifting and background physical station generation for native, dynamic AI faction expansion. Securely tracks absolute `startTime` for synchronized HUD integration across client bounds.
-- `cosmicvaultcombat.lua`: Exposes `applyDoT` and native logic to render floating combat text for DOTs dynamically.
-- `cosmicvaultscaling.lua`: Dynamic native OM/Volume math for spawning accurately scaled invasion fleets matching defender strength.
-- `cosmicvaultanomalies.lua`: Seamless API to inject persistent, interactive points-of-interest (POIs) natively into sectors.
-- `cv_weather_controller.lua`: Global Subspace Weather API allowing mods to natively trigger or clear localized environmental hazards (EMP storms, radiation, etc) combined with seamless UI integration via Avorion's native `addShipProblem()` warning system.
-- `cv_weather_generator.lua`: Defines all standard weather hazards, mapping keys to native Avorion icons, descriptions, and dynamic `isShipPrepared` protection callbacks.
-- `cosmicvaultconfig.lua`: Standardized global config bootloader ensuring that complex configuration states (such as metrics tracking) are safely loaded into server memory before logic executes.
-- `cosmicvaultmetrics_server.lua`: Dedicated global telemetry script utilizing native engine `onPlayerLogIn` and `onSectorEntered` callbacks to securely trace tracking data without causing cross-entity routing crashes.
-
-**Why it matters:**
-Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.
-</details>
+Cosmic Vault centralizes reusable code, configuration patterns, and shared assets so the other Cosmic mods can avoid duplicate implementations, stay behavior-consistent, and integrate without extra maintenance cost. If you're building a mod on top of these APIs rather than just reading about them, see `MODDER_GUIDE.md` instead — it has code examples and function signatures.
 
 ---
 
-## 📑 Table of Contents
+## 📑 Contents
 
-- [Mod Identity & Purpose](#mod-identity--purpose)
+- [Mod Identity & Purpose](#-mod-identity--purpose)
 - [Core Design Principles](#core-design-principles)
-- [Foundation Scope & Features](#foundation-scope--features)
-- [Integration Guidelines](#integration-guidelines)
-- [Ecosystem & Architecture](#ecosystem--architecture)
-- [Installation & Troubleshooting](#installation--troubleshooting)
-- [Development Status](#development-status)
+- [Foundation Scope & Features](#-foundation-scope--features)
+  1. [Galactic News API](#1-galactic-news-api)
+  2. [Cosmic UI Proportional Splitters](#2-cosmic-ui-proportional-splitters)
+  3. [Cosmic Configuration Menu & Keybinds](#3-cosmic-configuration-menu--keybinds)
+  4. [Shared Utility / Library Hub](#4-shared-utility--library-hub)
+  5. [Shared Diagnostics Pattern](#5-shared-diagnostics-pattern)
+  6. [Shared Visual/Asset Layer](#6-shared-visualasset-layer)
+  7. [Dependency Contract for the Cosmic Series](#7-dependency-contract-for-the-cosmic-series)
+  8. [Faction Index API](#8-faction-index-api)
+  9. [Dialogue API](#9-dialogue-api)
+  10. [Player Settings API](#10-player-settings-api)
+  11. [Vanilla+ Modding API Catalog](#11-vanilla-modding-api-catalog)
+  12. [Cross-Mod Synergy & Series Integration](#12-cross-mod-synergy--series-integration)
+- [Integration Guidelines](#-integration-guidelines)
+- [Ecosystem & Architecture](#-ecosystem--architecture)
+- [Installation & Troubleshooting](#-installation--troubleshooting)
+- [Development Status](#-development-status)
 
 ---
 
 ## 🧬 Mod Identity & Purpose
 
-**Cosmic Vault** is an infrastructure-first module.
+**Cosmic Vault** is an infrastructure mod, not a gameplay mod. It focuses on:
 
-Unlike feature-heavy gameplay mods, **Cosmic Vault** focuses exclusively on:
+- Shared utility libraries other Cosmic mods `include()` directly.
+- Common debug and diagnostics conventions.
+- Reusable, series-wide architectural patterns (Highlander-safe shims, namespace routing, safe includes).
 
-- Shared utilities.
-- Common debug and diagnostics standards.
-- Modular helper libraries.
-- Reusable, series-wide architectural patterns.
+It has no dependencies of its own beyond Avorion — every other Cosmic mod depends on it, not the other way around.
 
-### Primary Dependents (Current Direction)
+### Dependents
 
-- **Cosmic Overhaul**
-- **Cosmic War**
-- **Cosmic Starfall**
-- **Cosmic Chronicles**
+- **Cosmic Overhaul**, **Cosmic War**, **Cosmic Chronicles**, and **Cosmic Ascendancy** — the Core 4, which also require each other and are developed for cross-compatibility.
+- **Cosmic Starfall** — an optional installment that requires only Cosmic Vault, not the Core 4.
 
 ---
 
 ## Core Design Principles
 
-1. **Single Source of Truth:** Centralize shared helpers.
-2. **Safe Inclusions:** Utilize optional, safe include patterns wherever possible.
-3. **Consistent Diagnostics:** Establish uniform logging and diagnostics conventions.
-4. **Minimal Duplication:** Reduce code duplication across all **Cosmic** mods.
-5. **Backward Compatibility:** Provide extensible, backward-compatible utility APIs.
+1. **Single source of truth.** Centralize shared helpers instead of reimplementing them per mod.
+2. **Safe inclusion.** Every cross-mod `include()` that isn't guaranteed to exist is wrapped in `pcall`, so a missing sister mod degrades a feature instead of crashing the library.
+3. **Consistent diagnostics.** One logging and debug-prefix convention across the whole series.
+4. **Minimal duplication.** If two Cosmic mods need the same math or the same UI pattern, it belongs in the Vault.
+5. **Backward compatibility.** Vault APIs are extended, not broken, across versions.
 
 ---
 
 ## ⚙️ Foundation Scope & Features
 
-### 📰 1) Galactic News API (Broadcasting Hub)
+### 1) Galactic News API
 
-<details>
-<summary><b>Click to expand details</b></summary>
+**Files:** `data/scripts/lib/cosmicvaultnews.lua`, `data/scripts/server/cosmicvaultnews_server.lua`
 
-**Primary files:**
-- `data/scripts/lib/cosmicvaultnews.lua`
-- `data/scripts/server/cosmicvaultnews_server.lua`
+Any mod in the Cosmic series can publish a news article to a global server-side buffer, which broadcasts to all connected clients for UI boards such as Cosmic Chronicles' Galactic News Board.
 
-**What it does:**
-Acts as the central nervous system for galactic broadcasting. Any mod in the Cosmic series can use this API to instantly publish dynamic news articles to the global server buffer.
-
-**Key Methods:**
-- `CosmicVaultNews.publishArticle(article)`: Safely pipes a formatted article (title, category, content) into the server via the native `Server():sendCallback()` global event bus. If no author is provided, it automatically assigns one of 35 randomized reporter names to enhance immersion.
-- **Server Sync:** Automatically manages memory by holding the latest 30 articles and seamlessly broadcasting updates to all connected players for custom UI rendering (e.g., *Cosmic Chronicles'* Galactic News Board).
-- **Client Callbacks:** Broadcasts `onCosmicVaultNewsUpdated` directly to clients so custom UI boards can refresh in real-time.
-
-</details>
-
+- `CosmicVaultNews.publishArticle(article)` takes `{title, content, category, breaking}`. `category` defaults to `"General"` and accepts any free-text value, since consuming UIs are expected to group categories themselves. As of v3.5.0, `breaking` is coerced to a real boolean (`article.breaking == true`) instead of trusting whatever truthy value a caller passed in, so a consuming UI can rely on the field's type when deciding whether to fire a banner or an interrupt-worthy chat alert. If no author is set, the server assigns one of 35 randomized reporter names.
+- The server keeps the latest 30 articles and pushes `onCosmicVaultNewsUpdated` to clients whenever the buffer changes.
+- `CosmicVaultNews.getPublishedNews()` was a documented stub through v3.4.x — it existed, but did nothing. v3.5.0 implemented it: called from a server-side script, it now reads the live article list straight out of `cosmicvaultnews_server.lua` via `Galaxy():invokeFunction`. It's still server-only; there's no synchronous client/server call in Avorion, so a client that needs the news list has to request a sync (`invokeServerFunction`) and receive it back through `invokeClientFunction`, the same pattern Cosmic Chronicles' News Board already uses.
 
 ### 2) Cosmic UI Proportional Splitters
 
-<details>
-<summary><b>Click to expand details</b></summary>
+**File:** `data/scripts/lib/cosmicui_proportionalsplitter.lua`
 
-**Primary files:**
-- data/scripts/lib/cosmicui_proportionalsplitter.lua
+`CosmicUIVerticalProportionalSplitter()` and `CosmicUIHorizontalProportionalSplitter()` let a UI mix absolute pixel measurements with fluid percentage-based regions, replacing the need for legacy UI dependencies like AzimuthLib.
 
-**What it does:**
-Provides native UI layout tools that allow developers to design complex interfaces by mixing absolute pixel measurements with fluid percentage-based proportions. Completely removes the need for external legacy UI dependencies like AzimuthLib.
+### 3) Cosmic Configuration Menu & Keybinds
 
-**Key Methods:**
-- CosmicUIVerticalProportionalSplitter()
-- CosmicUIHorizontalProportionalSplitter()
+**Files:** `data/scripts/lib/ccm.lua`, `data/scripts/lib/ccm_keycodes.lua`, `data/scripts/player/ui/cosmicconfigmenu.lua`
 
-</details>
+The CCM is a standalone, three-column (Label | Control | Reset) configuration UI that any Cosmic mod can register settings and hotkeys into.
 
-### 3) Shared Configuration Baseline (CCM)
+- **Baseline controls:** `debugEnabled` (defaults on), `debugPrefix`, `diagnosticsEnabled`, `diagnosticsInterval`.
+- **Hotkey capture:** full modifier support (Ctrl/Alt/Shift) via `ccm_keycodes.lua`.
+- **Chat-focus safety:** Avorion exposes no direct textbox-focus API — there is no `checkInputFocus()` function anywhere in the engine, despite older versions of this menu gating hotkeys behind exactly that call. v3.5.0 replaced the dead no-op with a working heuristic: Enter toggles chat, Escape force-closes it, and a cursor-visibility fallback closes it automatically if the state gets stuck. Hotkeys no longer fire while a player is typing.
+- **Unbinding:** players clear a bound key with `Delete` or `Backspace` rather than `Escape`, which Avorion reserves for closing the menu.
+- **Reset buttons:** every option gets an `anticlockwise-rotation` button that restores its schema default.
+- **Sister-mod configs:** `initialize()`/`fillTree()` pull in `cosmicoverhaulconfig`, `cosmicwarconfig`, and `cosmicascendancyconfig` so their settings appear in the same menu. As of v3.5.0 all four sister-config includes go through a shared `loadSisterConfigs()` helper that wraps each one in `pcall` — previously any install missing one of those three mods (e.g. Vault on its own) crashed the whole CCM UI the moment it opened.
+- **Sync:** settings persist through `Player():getValue()`/`setValue()`, so they survive save reloads and stay identical across a multiplayer session instead of reverting to defaults.
 
-<details>
-<summary><b>Click to expand details</b></summary>
+### 4) Shared Utility / Library Hub
 
-**Primary file:**
+**Path:** `data/scripts/lib/`
 
-- `ccm.lua`
-
-**What it does:**
-Provides a base configuration schema for shared Cosmic-level utility controls.
-
-**Current Baseline Controls (Planned/Active Pattern):**
-
-- `debugEnabled` (Defaults to `true` to ensure comprehensive logging from the get-go unless disabled by an admin)
-- `debugPrefix`
-- `diagnosticsEnabled`
-- `diagnosticsInterval`
-
-**Why it matters:**
-A centralized configuration baseline helps dependent mods align behavior without duplicating per-mod boilerplate.
-</details>
-
-### 4) Shared Utility / Library Hub (Series Foundation)
-
-<details>
-<summary><b>Click to expand details</b></summary>
-
-**Primary path target:**
-
-- `data/scripts/lib/`
-
-**Intended Content:**
-
-- Shared config adapters.
-- Shared debug and log wrappers.
-- Shared utility helpers.
-- Common data normalization helpers.
-- Compatibility helpers utilized by multiple Cosmic mods.
-
-**Why it matters:**
-Prevents the repeated reimplementation of near-identical helper code in each individual mod.
-</details>
+Home for shared config adapters, debug/log wrappers, data-normalization helpers, and compatibility shims used by more than one Cosmic mod. Section 11 below catalogs everything currently in this directory.
 
 ### 5) Shared Diagnostics Pattern
 
-<details>
-<summary><b>Click to expand details</b></summary>
-
-**Primary path targets:**
-
-- `data/scripts/lib/` and optional server helpers
-
-**What it does:**
-Defines a common diagnostics convention for:
-
-- Periodic snapshots.
-- Standardized debug prefixes.
-- Consistent opt-in verbosity.
-
-**Why it matters:**
-Makes troubleshooting across mixed Cosmic mod stacks significantly easier and more uniform.
-</details>
+Every Vault library that logs uses the same convention: a per-module debug prefix, opt-in verbosity through `cosmicvaultdebug.lua`, and periodic diagnostic snapshots where relevant. Keeping this consistent is what makes it possible to read a log from a mixed Cosmic-mod server without guessing which mod a given line came from.
 
 ### 6) Shared Visual/Asset Layer
 
-<details>
-<summary><b>Click to expand details</b></summary>
+**Path:** `data/textures/`
 
-**Primary path target:**
+Reusable icons and textures shared across Cosmic mods, so dependent mods don't ship duplicate copies of the same art.
 
-- `data/textures/`
+### 7) Dependency Contract for the Cosmic Series
 
-**What it does:**
-Hosts reusable visual resources (such as icons and textures) used by multiple Cosmic mods.
+Cosmic Vault is the formal dependency target every other Cosmic mod declares in its own `modinfo.lua`. A dependent mod is expected to:
 
-**Why it matters:**
-
-- Ensures a consistent visual identity.
-- Eliminates repeated asset copies to save memory and disk space.
-- Enables easier, coordinated graphical updates.
-
-</details>
-
-### 7) Dependency Contract for Cosmic Series
-
-<details>
-<summary><b>Click to expand details</b></summary>
-
-**What it does:**
-Acts as a formal dependency target that future Cosmic modules can safely reference in their `modinfo.lua`.
-
-*(Note: As of v1.4.0, Cosmic Vault's robust APIs have completely replaced the need for legacy third-party library dependencies like AzimuthLib across the entire Cosmic Series).*
-
-**Typical Dependent Behavior:**
-
-- Declare **Cosmic Vault** as a dependency.
-- Include shared configuration and debug libraries directly from the Vault.
+- Declare Cosmic Vault as a dependency.
+- Pull shared config and debug libraries from the Vault rather than reimplementing them.
 - Route diagnostics through Vault conventions.
 
-**Why it matters:**
-Stabilizes cross-mod expectations and drastically reduces maintenance fragmentation over time.
-</details>
+Cosmic Vault itself declares no dependencies other than Avorion — see `modinfo.lua`. Its `dependencies` table is entirely `incompatible = true` entries against a handful of unrelated Workshop mods (legacy overhaul frameworks and total-conversion mods such as Xavorion), not requirements.
 
-### 🌐 8) Shared Server Data Contracts (Faction Index API)
+### 8) Faction Index API
 
-<details>
-<summary><b>Click to expand details</b></summary>
+Caches active AI faction indices in `Server()` so background scripts don't re-scan thousands of potential faction IDs on every tick. Warms up 15 seconds after server boot, then refreshes every 5 minutes.
 
-**What it does:**
-Provides universal, cached data payloads to the global `Server()` object to prevent expensive API loops across multiple mods. Features a rapid 15-second warm-up delay on initial server boot before falling back to a 5-minute refresh cycle to rapidly catch new galaxy generations.
+- `Server():getValue("factions")` — comma-separated string of active AI faction indices. Player and alliance factions are intentionally excluded; consumers use this list for AI-targeting logic (famine wars, market events) and have to unpack the string themselves.
+- `Server():getValue("factions_ready")` — boolean, true once the first warm-up cycle finishes.
+- `Server():getValue("factions_count")` — number of indexed factions.
+- `Server():getValue("factions_last_refresh")` — unpaused server runtime at the last rebuild.
 
-**Current Contracts:**
+### 9) Dialogue API
 
-- **Faction Index API:** Safely scans and caches active faction indices, perfectly preserving dynamically generated High-ID factions (Pirates, Xsotan, DLC).
-  - `Server():getValue("factions")` (string): A comma-separated string containing the canonical list of active AI faction indices (player and alliance factions are intentionally excluded, since consumers use this list for AI-targeting logic like famine wars and market events). Consumer scripts must unpack this string into a table.
-  - `Server():getValue("factions_ready")` (boolean): Safety flag indicating the indexer has completed its first warm-up cycle.
-  - `Server():getValue("factions_count")` (number): The total number of indexed factions.
-  - `Server():getValue("factions_last_refresh")` (number): The unpaused server runtime when the cache was last rebuilt.
+**File:** `data/scripts/lib/cosmicvaultdialogue.lua`
 
-**Why it matters:**
-Prevents background scripts from repeatedly running expensive calculations (e.g., iterating through thousands of potential faction IDs) by providing a single, highly performant source of truth for all Cosmic mods.
-</details>
+A registry for narrative mods (Cosmic Chronicles in particular) to store and retrieve contextual dialogue, rumors, and lore strings.
 
-### 9) Shared Dialogue API Contract
+- `CosmicVaultDialogue.registerLine(entry)` — registers a `category`, `text`, and optional `conditions`.
+- `CosmicVaultDialogue.getValidLine(category, currentContext)` — returns a random line whose conditions match the given context.
+- **Supported context filters:** `minWarHeat`, `maxWarHeat`, `factionTrait`, `factionWealth`, `stationType`, `minDistanceToCenter`, `maxDistanceToCenter`, `minReputation`, `maxReputation`.
 
-<details>
-<summary><b>Click to expand details</b></summary>
+### 10) Player Settings API
 
-**Primary path target:**
+**File:** `data/scripts/lib/cosmicvaultplayersettings.lua`
 
-- `data/scripts/lib/cosmicvaultdialogue.lua`
+Stores per-player UI settings, filter states, and preferences through `Player():getValue()`/`setValue()`, replacing fragile file-based `.json` storage as a source of settings loss and corruption on dedicated servers.
 
-**What it does:**
-Provides a centralized registry for narrative mods (like **Cosmic Chronicles**) to safely store, filter, and retrieve contextual dialogue, rumors, and lore strings utilizing short-circuit evaluation for maximum performance.
-
-**Core Methods:**
-
-- `CosmicVaultDialogue.registerLine(entry)`: Registers a dialogue entry with a specific `category`, `text`, and optional contextual `conditions`.
-- `CosmicVaultDialogue.getValidLine(category, currentContext)`: Safely parses the registered lines and returns a random valid string that perfectly matches the provided `currentContext` table.
-
-**Supported Context Filters:**
-
-- `minWarHeat`, `factionTrait`, `factionWealth`, `stationType`, `minDistanceToCenter`, `maxDistanceToCenter`, `minReputation`.
-
-**Why it matters:**
-Standardizes how narrative text is injected into the game. It allows multiple mods to contribute lore to the same ambient pools without overwriting each other, while ensuring dialogue strictly reacts to dynamic background simulations (like War Heat or Economy changes).
-</details>
-
-### 10) Shared Player Settings API
-
-<details>
-<summary><b>Click to expand details</b></summary>
-
-**Primary path target:**
-
-- `data/scripts/lib/cosmicvaultplayersettings.lua`
-
-**What it does:**
-A centralized API for storing and retrieving persistent player-specific UI settings, filter states, and preferences natively through the engine.
-
-**Core Methods:**
-
-- Operates directly via the highly performant `Player():getValue()` and `Player():setValue()` bindings.
-
-**Why it matters:**
-Completely eliminates the need for fragile, file-based I/O operations (like legacy `moddata.lua` scripts), which were a primary source of crashes on fresh dedicated servers. This ensures UI preferences and mod settings are saved flawlessly and persistently across sessions without risking file corruption.
-</details>
+**v3.5.0:** `get()`/`set()` called those bindings with no `onServer()` guard. `Player():getValue()`/`setValue()` are server-only — any client-side caller (a HUD widget built on this API, for instance) crashed with `invalid userobject of type Player`. Both functions now bail out safely on the client.
 
 ---
 
+### 11) Vanilla+ Modding API Catalog
 
-### 11) Shared Modding APIs (Vanilla+)
+The Vault's largest surface: standalone APIs for task scheduling, item generation, data tagging, cinematic UI, economy hooks, and more, built so mods never need a destructive hard override of a vanilla script. Every file below lives in `data/scripts/lib/` unless noted otherwise.
 
-<details>
-<summary><b>Click to expand details</b></summary>
+- **`cosmicvaulttask.lua`** — coroutine-based scheduler for spreading heavy operations across multiple server ticks instead of stalling one frame.
+- **`cosmicvaultdata.lua`** — stores structured Lua tables on entities via `dkjson`, plus tag-based grouping and querying.
+- **`cosmicvaultui.lua`** — cinematic banners, popups, and sounds on the client. **v3.5.0:** the fallback `addScriptOnce("cosmicvaultcinematic.lua")` call (used only when a player is somehow missing the script) used a bare filename instead of the full `data/scripts/...` path `addScriptOnce` requires to resolve through the VFS, so it silently failed to attach. Fixed across all three call sites.
+- **`cosmicvaultnews.lua`** / **`cosmicvaultnews_server.lua`** — see section 1.
+- **`cosmicvaultarsenal.lua`** — generates balanced custom `Weapon`/`InventoryTurret` objects. **v3.5.0:** `GenerateTurret` used to write `rarity`/`material` onto the `InventoryTurret` object, both of which are read-only there, so the engine silently discarded every write. Both now write to the `Weapon` object instead, where they're genuinely writable. **Known limitation:** `config.weaponType` still has no effect on the generated weapon's actual damage type or behavior — the field isn't wired to anything the engine reads, and giving a weapon a real per-type identity needs the same manual physics setup vanilla's own `weapongenerator.lua` does (`setProjectile()`/`setBeam()`, `fireDelay`, `pvelocity`, etc.), which this helper doesn't implement.
+- **`cosmicvaulteconomy.lua`** — reads live market data, triggers economic booms/crashes, tracks per-faction Famine Score (0 = normal, 1-100 = struggling, 100+ = famine), and exposes `registerPriceHook` for dynamic price fluctuations. **v3.5.0:** the unguarded `include("cosmicwarbridge")` at module load meant any install running Vault without Cosmic War (or Vault + Overhaul only) crashed the whole economy library the instant anything included it, since Vault declares no dependency on War. Now soft-included via `pcall`.
+- **`cosmicvaultgoods.lua`** — registers custom trade goods (with flags like `illegal`/`dangerous`) into the five vanilla economy arrays; `volume` aliases to `size` in `registerGood()`.
+- **`cosmicvaultencounter.lua`** — injects custom ambushes, anomalies, or boss spawns on sector entry without touching `sectorspecifics.lua`.
+- **`cosmicvaultmission.lua`** — builds and posts bulletin-board missions, with `failMission()` for UI-handled failure and `grantItemReward()` for physical item payouts.
+- **`cosmicvaultprogression.lua`** — custom XP, levels, and skill-tree perks synced across client and server. **v3.5.0:** same client-crash class as the Player Settings API above — `getXP`/`hasPerk` now guard against being called on the client.
+- **`cosmicvaultfleet.lua`** — pushes AI orders (patrol, escort, mine, salvage) without rewriting `craftorders.lua`. **v3.5.0:** `orderEscort` passed a plain Lua string where `OrderChain.addEscortOrder` expects a raw `Uuid` (it calls `.string` on the argument internally); indexing `.string` on an already-stringified id resolves through Lua's string metatable to `nil`, so every escort order's target silently came back empty — ships accepted the order but never tracked anything. Now passes the raw `Uuid`.
+- **`cosmicvaultfaction.lua`** — custom faction traits rendered in the vanilla diplomacy window, plus relation changes that mirror to a player's alliance. **v3.5.0:** the diplomacy shim hooked `Diplomacy.updateFactionInformation`, a function name that has never existed in vanilla `diplomacy.lua`. The real trait-rendering function is `Diplomacy:updateTraits(faction)` — every custom trait registered since this API launched in v3.0.0 has been computed correctly and simply never drawn. Re-pointed at the real function.
+- **`cosmicvaultframework.lua`** — internal bootstrapper the other libraries build on: module registration, `assertType()`, `safeNumber()`/`safeBool()` coercion, `requireCompat()`. Not usually called directly by dependent mods.
+- **`cosmicvaultloot.lua`** — drops custom cargo, weapons, turrets, or system upgrades via `dropCustomLoot()`. **v3.5.0:** `Sector:dropCargo/dropTurret/dropUpgrade` strictly expect `nil | Faction` in their reservation slots, but this call was passing a raw faction-index integer (or `0`). The `"good"` branch also had `amount` and a literal `0` swapped into the wrong positional argument slots, so every custom good drop requested zero units regardless of what the caller asked for. Both bugs are fixed; `owner` is now wrapped in `Faction(owner)`.
+- **`cosmicvaultblueprint.lua`** — spawns custom ships, stations, and (in principle) turrets from XML plans. **v3.5.0** fixed two guaranteed crashes: `spawnShip`'s volume-scaling path called `plan:scale(aNumber)`, but `BlockPlan:scale()` takes a `vec3`, not a number, so every caller that passed the documented `volume` argument (including the Modder Guide's own example) crashed immediately; and both `spawnShip`/`spawnStation` called `ShipUtility.addMinimumCrew(...)`, a function that has never existed in `shiputility.lua`. Volume scaling now passes `vec3(factor)`, and crew is set directly via `ship.crew = ship.minCrew`. **`createTurretFromPlan` remains not implemented** — `InventoryTurret.rarity`/`.material`/`.weaponPrefix` are all read-only and there's no `customTurretDesign` field anywhere in the engine, so there's no way to build a turret from a block Plan at all. Since nothing in the Cosmic series calls it, it now logs a clear error and returns `nil` instead of silently returning an unconfigured default.
+- **`cosmicvaultstation.lua`** — safely appends dialogue or interaction tabs to vanilla stations, with `maxDistance` overrides for interaction range.
+- **`cosmicvaultevents.lua`** — persistent galaxy-wide timers (e.g. tracking an ongoing "Xsotan Invasion") that survive server reboots.
+- **`cosmicvaultbuffs.lua`** — temporary self-terminating stat buffs, permanent multipliers, and global per-faction buff tiers. **v3.5.0 fixed two long-standing bugs:** `removePermanentFactor`/`removePermanentBaseMultiplier` called `entity:removeMultiplyableBias`/`entity:removeBaseMultiplier`, neither of which exists — only the universal `entity:removeBonus(key)` does — and the corresponding `apply*`/`add*` functions discarded the bonus key the engine returns, so there was nothing to pass to `removeBonus` even after fixing the method name. Permanent buffs could never be removed and stacked indefinitely on reapplication; the API now tracks the bonus key per entity/stat in memory so add/remove/reapply is idempotent. Separately, `clearBuffs` looped `while entity:hasScript(...) do entity:removeScript(...) end` bounded by a manual 100-iteration safety counter; `removeScript` is deferred, so `hasScript` never reflected the removal within the same tick, and the loop always ran its full 100 iterations no matter how many buff scripts actually existed. Replaced with a single snapshot of `entity:getScripts()`.
+- **`cosmicvaultcombat.lua`** — `applyDoT()` plus native floating combat text rendering for damage-over-time effects.
+- **`cosmicvaultscaling.lua`** — computes total defender Volume/Omicron in a sector via `calculateSectorDefenderStrength()`, for scaling invasions or events to match defender strength. Hard-capped at 500,000,000 total volume (uncapped values previously crashed shipyard generation).
+- **`cosmicvaultanomalies.lua`**, **`data/scripts/entity/cv_anomaly_rift.lua`**, **`data/scripts/entity/cv_anomaly_wreck.lua`** — spawns persistent, interactive points of interest. **v3.5.0 implemented both entity scripts.** `spawnAnomaly`'s `"SpatialRift"` and `"PrecursorWreck"` branches have called `addScriptOnce()` against these two files since the API launched in v3.0.0, but neither file existed anywhere in the codebase — spawned rifts and wrecks sat in the sector with no attached behavior at all. Both now offer a one-time Salvage/Channel interaction (built on the same `ScriptUI():registerInteraction()` + `callable()` RPC pattern vanilla's own `cargostash.lua` uses) that drops a scaled credit/resource reward, with a chance at a bonus turret or system upgrade, then removes the interaction while leaving the entity itself behind as a permanent landmark.
+- **`cosmicvaultweather.lua`** / **`server/cosmicvaultweather_server.lua`** — the trigger API: `triggerStorm(x, y, stormType, duration)`, `clearStorm(x, y)`, `getWeatherAt(x, y)`. **v3.5.0:** the server half had no `-- namespace` pragma and used a plain local table, so `Galaxy():invokeFunction()` — the only way the client-facing wrapper can reach it — had no name to resolve any of the three calls against. The entire trigger API was dead from the moment it shipped. Fixed by adding the missing namespace pragma.
+- **`sector/cv_weather_controller.lua`** — the sector-attached hazard script itself; attach with `Sector():addScriptOnce("data/scripts/sector/cv_weather_controller.lua", stormType, duration)`, never a manual `addScript()`, or restarts will duplicate the hazard.
+- **`cosmicvaultweatherdictionary.lua`** — hazard definitions (Ion Storm, Dark Matter Fog, Solar Flare, etc.), mapped to native icons, descriptions, and `isShipPrepared()` protection callbacks. **v3.5.0:** the Solar Flare `isShipPrepared` check read `block.volume` on a `BlockPlanBlock`, a property that doesn't exist there — reading an undefined property on engine userdata throws a fatal exception rather than returning `nil`, so any ship carrying Trinium-or-above blocks crashed the weather tick the first time it ran. Volume is now derived from `block.box.size`.
+- **`cosmicvaultconfig.lua`** — server-to-client configuration sync bootloader; ensures config state is loaded before dependent logic runs.
+- **`cosmicvaultdebug.lua`** — shared logging: `log()`, `info()`, `warn()`, `error()`, all namespaced per calling module.
+- **`server/cosmicvaultmetrics_server.lua`** — telemetry via native `onPlayerLogIn`/`onSectorEntered` callbacks.
+- **`server/cosmicvaultriftescalation_server.lua`** — tracks global Rift Guardian kills and Depth 50+ extractions for the Rift DLC escalation system (see section 12).
+- **`player/cosmicvaultcodex.lua`**, **`player/codex/infoCv.lua`** — injects Cosmic Vault's own explanatory pages ("What is Cosmic Vault?") into the in-game Cosmic Codex UI. **v3.5.0:** `onCosmicCodexGatherData` called `include("player/codex/infoCv")`, a subdirectory-qualified path, but `include()` only searches `data/scripts/lib/` by default without the `package.path` mutation vanilla's own subdirectory includes require. Every Codex data-gather request threw `module not found`, so these pages never actually loaded. Fixed by adding the missing `package.path` entry at file scope.
 
-**What it does:**
-A massive expansion introduced in v2.0.0, the Vault provides a complete suite of standalone APIs (Task Scheduling, Arsenal Generation, Entity Data Tagging, Cinematic UI, and Economy Hooks) designed explicitly to allow modders to create "Vanilla+" mechanics without ever having to use dangerous "hard overrides" on core Avorion scripts.
+### 12) Cross-Mod Synergy & Series Integration
 
-**Included Libraries:**
-- `cosmicvaulttask.lua`: Lua Coroutine manager for running heavy operations over multiple server ticks without hanging the server.
-- `cosmicvaultdata.lua`: Natively store complex JSON tables and Entity Tags directly into the Avorion engine via `dkjson`.
-- `cosmicvaultui.lua`: Trigger highly immersive cinematic UI overlays, banners, and sounds on client screens effortlessly.
-- `cosmicvaultarsenal.lua`: Mathematical generator for spitting out perfectly balanced custom `Weapon` and `InventoryTurret` drops on the fly.
-- `cosmicvaulteconomy.lua`: Natively read market data and trigger economic Booms and Crashes that automatically link up to the Galactic News Network.
+How the Vault's systems talk to the rest of the Core 4 when those mods are installed alongside it. Every hook in this section degrades gracefully when the other mod is absent — see the compatibility note below.
 
-**Why it matters:**
-Modders no longer need to destructively overwrite vanilla code (which causes huge mod conflicts). They can just drop in these APIs and call them directly, keeping their mods lightweight and 100% compatible with the rest of the community.
-</details>
+- **Deep Economy Warfare:** `CosmicVaultEconomy` can trigger `CosmicWarBridge.forceDeclareWar()` when a faction's Famine Score exceeds 100, turning sustained famine into starvation-driven invasions.
+- **Faction trait scaling:** `CosmicVaultScaling` reads Cosmic War's diplomatic traits. An entrenched (Fortified) defending faction gets its calculated defensive volume and firepower multiplied by 1.3x.
+- **Alliance PvP mirroring:** `CosmicVaultFaction.changeRelations` mirrors reputation shifts to a player's active Alliance, so switching to a personal ship no longer bypasses alliance-wide consequences for hostile actions.
+- **Unified News:** `CosmicVaultNews` accepts and validates broadcasts from Cosmic Chronicles, Cosmic War, and Cosmic Overhaul through the same API described in section 1.
+- **Famine Relief Anomalies:** severely starving factions (Famine Score 100+) can spawn a Famine Relief Cache in their territory. Players who interact with it can loot it or donate it, instantly reducing the famine score by 50 and granting 25,000 reputation. Spawning the cache attaches `cc_blackbox.lua`, a file that only exists in Cosmic Chronicles; **v3.5.0** wrapped that attach in `pcall` so a Vault install without Chronicles (Vault + Starfall, say) doesn't fail every time a faction hits Famine Score 100.
+- **Rift DLC interoperability:** the Vault tracks global Rift Guardian kills and Depth 50+ successful extractions. As the resulting Escalation Level rises, vanilla Xsotan attack swarms gain an increased chance to converge on all online players simultaneously.
+- **Codex integration:** deep lore, stat blocks, and dynamic recipe data across the series live in the in-game Cosmic Codex rather than external wiki pages, so players can read them without leaving the game.
+
+**Compatibility:** as of v3.5.0, every `include()` that reaches into a sister mod's files — the Cosmic War bridge, the three sister config menus, and Chronicles' `cc_blackbox.lua` — is wrapped in `pcall`. Cosmic Vault runs standalone; it simply skips the cross-mod features whose target mod isn't installed instead of crashing.
+
+---
 
 ## 🔗 Integration Guidelines
 
-### 🔗 Integration Contract (For Dependent Mods)
+### Integration Contract (For Dependent Mods)
 
-When integrating with **Cosmic Vault**, dependent mods should generally follow these steps:
+1. Declare the dependency in `modinfo.lua`.
+2. Use shared includes where available, e.g. `include("cosmicvaultconfig")`, `include("cosmicvaultdebug")`, `include("cosmicvaultdialogue")`, `include("cosmicvaultplayersettings")`.
+3. Follow the Vault's debug-prefix and diagnostics conventions.
+4. Keep fallback behavior safe if an optional helper is absent during a migration window.
 
-1. Declare dependency in `modinfo.lua`.
-2. Use shared includes where available, e.g.:
-   - `include("cosmicvaultconfig")`
-   - `include("cosmicvaultdebug")`
-   - `include("cosmicvaultdialogue")`
-   - `include("cosmicvaultplayersettings")`
-3. Follow Vault's debug prefix and diagnostics conventions.
-4. Keep fallback behaviors safe if optional helpers are absent during transitional phases.
+### Example Integration Pattern
 
-### 🔗 Example Integration Pattern (High-Level)
-
-A dependent mod can adopt this approach for safe integration:
-
-1. Load the Vault helper using a guarded `include` (especially useful during migration windows).
+1. Load the Vault helper with a guarded `include`, especially during migration windows.
 2. Read shared configuration keys for debug and diagnostics behavior.
-3. Route log outputs through the shared formatter and prefix.
-4. Keep mod-specific, proprietary logic separated from shared helper internals.
+3. Route log output through the shared formatter and prefix.
+4. Keep mod-specific logic separated from shared helper internals.
 
-*This ensures series-wide consistency while preserving the unique gameplay identity of each individual mod.*
+This keeps series-wide consistency while preserving each mod's own gameplay identity.
 
 ---
 
 ## ⚙️ Ecosystem & Architecture
 
-### 🏗️ Architecture Position in Cosmic Series
+### Architecture Position in the Cosmic Series
 
-Think of **Cosmic Vault** as the structural base:
+Cosmic Vault is the structural base: it provides common building blocks, and the gameplay mods (Cosmic Overhaul, Cosmic War, Cosmic Chronicles, Cosmic Ascendancy, Cosmic Starfall) consume them to run their own domain-specific logic. That separation is what keeps maintenance, onboarding, and cross-mod compatibility manageable as the series grows.
 
-- **Foundation Layer:** Provides common building blocks (**Cosmic Vault**).
-- **Gameplay Mods:** Consume those blocks to execute their own domain-specific logic (**Cosmic Overhaul**, **Cosmic War**, **Cosmic Starfall**, **Cosmic Chronicles**, etc.).
+### Compatibility & Safety Notes
 
-This strict separation improves:
+- Cosmic Vault is strictly additive. It never hard-overrides a vanilla gameplay script.
+- Shared interfaces are extended, not broken, across versions.
+- Every cross-mod include is guarded (see section 12), so a mixed or partial install degrades a feature instead of crashing.
 
-- Maintainability.
-- Onboarding speed for new modules.
-- Cross-mod compatibility and reliability.
+### Network Safety
 
-### 🛡️ Compatibility & Safety Notes
-
-- **Cosmic Vault** is strictly an additive foundation, not a hard gameplay override system.
-- Shared helper interfaces will remain conservative and backward-aware.
-- Actively avoiding tight coupling that would force runtime failures in mixed mod stacks during update transition phases.
+- **Deterministic RNG:** background simulation code (ambush spawns, escalation ticks) uses Avorion's own `random():getInt()` rather than Lua's `math.random()`, which is not synchronized across client and server and causes desyncs the moment two peers disagree on a spawn seed.
+- **Callable validation:** every UI function reachable from a client goes through `callable()` registration and server-side argument validation, so a malicious or malformed client request gets rejected instead of executed.
 
 ---
 
 ## 🛠️ Installation & Troubleshooting
 
-### 🛠️ Installation
+### Installation
 
-1. Place folder in:
+1. Place the folder in:
    - **Windows:** `%AppData%\Avorion\mods\`
    - **Linux:** `~/.avorion/mods/`
-2. Enable **Cosmic Vault** in **Settings -> Mods**.
+2. Enable **Cosmic Vault** in **Settings → Mods**.
 3. Restart Avorion when prompted.
 
-### 🛠️ Troubleshooting Checklist
+### Troubleshooting Checklist
 
-- [ ] Confirm **Cosmic Vault** is enabled in your mod load order.
-- [ ] Confirm dependent mod dependency declarations match.
-- [ ] Verify include paths for shared libs under `data/scripts/lib/`.
-- [ ] Check logs for missing helper modules during migration windows.
-- [ ] Ensure mod load order remains consistent in larger stacks.
+- [ ] Confirm Cosmic Vault is enabled in your mod load order.
+- [ ] Confirm dependent mods' declared dependency versions match what's installed.
+- [ ] Verify `include()` paths for shared libs under `data/scripts/lib/`.
+- [ ] Check logs for missing helper modules if you're running a partial Cosmic install.
+- [ ] Keep mod load order consistent, especially in larger stacks.
 
 ---
 
 ## 📈 Development Status
 
-**Lifecycle Status:** Foundational bootstrap + expansion phase.
+Cosmic Vault's foundational API surface is complete: every system in section 11 has existed since v3.0.0 or earlier. v3.5.0 is a stabilization release, not a feature release — it closes out a set of bugs that had been sitting in the library since their respective introductions, several dating back to v3.0.0, including buffs that could never be removed, escort orders with no target, loot drops that dropped nothing, turret generation that silently discarded its own arguments, and two anomaly types that had never actually worked. It also makes the Vault genuinely standalone: every include that reaches into a sister mod's files is now `pcall`-guarded, so installing Cosmic Vault without the rest of the Core 4 no longer crashes it.
 
-### Already Established
-
-- Base metadata and configuration structure.
-- Server Data Contracts (Faction Index, Contextual Dialogue, Player Settings).
-- Initial documentation baseline.
-
-### Ongoing & Next Growth Targets
-
-- Expand the `data/scripts/lib/` shared helper catalog.
-- Standardize diagnostics helper interfaces.
-- Provide stable helper APIs for dependent mods.
-- Migrate duplicate utility patterns out of dependent mods and directly into the Vault.
-
-**Cosmic Vault** is designed to become the stable utility backbone for the entire **Cosmic** series. Future progress heavily emphasizes robust shared libraries, cleaner cross-mod contracts, and reduced code duplication across all gameplay modules.
-
-
-
-
-## 🔗 Latest Additions & Integrations
-
-- **Floating Combat Text & DoTs API**: Added `cosmicvaultcombat.lua` exposing `applyDoT` and native logic to render floating combat text for DOTs dynamically.
-- **Permanent Buffs API**: Added `applyPermanentFactor` to `cosmicvaultbuffs.lua` to dynamically scale boss shields/damage directly via script natively.
-
-
----
-
-## 🔗 Cosmic Series Integration & Audit 3.0 Updates
-<details>
-<summary><b>Click to expand</b></summary>
-
-During the Cosmic Series Final QA Audit (v3.0+), several massive backend systems were standardized across all mods:
-
-### 🌌 Cosmic Vault Synergy (Cross-Mod Engine)
-- **Deep Economy Warfare:** `CosmicVaultEconomy` can natively trigger `CosmicWarBridge.forceDeclareWar()` when a faction's famine score exceeds 100, forcing starvation-driven invasions.
-- **Faction Trait Scaling Integration:** `CosmicVaultScaling` dynamically reads `Cosmic War` diplomatic traits. If an entrenched (Fortified) faction is invaded, their calculated defensive volume and firepower are globally multiplied by `1.3x`.
-- **Unified News API Framework:** Centralized and fortified `CosmicVaultNews` to securely capture and validate news broadcasts from `Cosmic Chronicles`, `Cosmic War`, and `Cosmic Overhaul`.
-
-### 📖 Cosmic Codex Integration
-All deep lore, stat blocks, and dynamic recipes have been fully integrated into the in-game **Cosmic Codex**. You no longer need to tab out of the game to read these features; they will natively update and unlock inside your Codex UI as you progress!
-
-### 🔒 Network Safety & Anti-Cheat
-- **Math.Random Fix:** I've systematically replaced all unstable Lua `math.random` calls with Avorion's deterministic `random():getInt()` generation sequence. This guarantees 100% synchronization on Multiplayer Dedicated Servers and prevents cascading desyncs during massive fleet spawns.
-- **Callable Validation:** UI and background scripts have been fully hardened. Malicious clients can no longer spoof "free" remote calls; the server actively verifies execution contexts before processing any requests, sealing multiple Arbitrary Code Execution (ACE) vulnerabilities.
-
-### 🛠️ Vanilla Bug Fixes
-- **Scout Mission Fix:** I've patched a massive, long-standing vanilla bug where Scout Missions would completely skip and ignore Faction Headquarters sectors because the native dialogue trees were missing the template definition.
-
-### 🛑 C++ Native Engine Safety
-- **Strict API Compliance:** I've ran mass-audit over hundreds of Lua scripts using .py scripts to hunt down incorrectly used Avorion API Indexes where the Lua codebase attempted to call non-existent methods on native C++ userdata objects (e.g., `Entity`, `Galaxy`, `Player`).
-- **Crash Prevention:** Over a dozen critical `attempt to index` bugs were patched out of the wild. Faction borders are now properly respected organically (instead of via force-sets), distance checks use the exact 3D bounding-box math, and stat/entity biases strictly use the native C++ `addMultiplyableBias` and `addBaseMultiplier` terminology.
-</details>
-
-
----
-
-### Cosmic Configuration Menu (CCM) & Keybinds
-As of v3.0.0, the Cosmic Vault introduces a fully standalone, 3-column UI Cosmic Configuration Menu (CCM). Modders can effortlessly expose their settings and keybinds to players.
-- **Dynamic Hotkeys:** Fully supports modifier keys (CTRL, ALT, SHIFT).
-- **Intelligent Input Safeties:** The keybind engine tracks chat-open state via a verified Enter-toggle/Escape-close heuristic (Avorion exposes no direct textbox-focus API), securely preventing any hotkeys from triggering or bleeding through while a player is typing in the chat.
-- **Clean Unbinding:** Players can seamlessly unbind their configured hotkeys using the `Delete` or `Backspace` keys, cleanly avoiding Avorion's hardcoded engine-level `Escape` behavior.
-- **Reset Functionality:** Every single configuration option natively receives an `anticlockwise-rotation` reset button to instantly restore schema defaults.
-
-## Faction Economy
-Cosmic Vault now tracks faction 'Famine Scores'. If factions lose territory, they suffer extreme economic and military penalties.
-
-## Sector Anomalies
-Vault can generate interactable permanent POIs like Precursor Wrecks and Spatial Rifts.
-
-## Synergy Update
-- **Famine Relief Anomalies**: Added a mechanic where severely starving factions (100+ Famine Score) can dynamically spawn Famine Relief Caches. Players can interact with them to steal loot or donate it to instantly lower the famine score by 50 and gain 25,000 reputation.
-- **Alliance PvP Repercussions:** Core faction relations logic natively supports mirroring reputation changes to the player's active Alliance. You can no longer swap to a personal ship to trigger hostilities without implicating your alliance.
-
-
-## [New] Rift DLC Interoperability
-- **Global Rift Escalation:** The Cosmic Vault now tracks global Rift Guardian kills and Depth 50+ successful extractions.
-- **Galaxy-wide Threats:** As the global Escalation Level rises, severe vanilla Xsotan attack swarms have an increased chance to converge on all online players simultaneously.
+Ongoing work is bugfix passes and documentation upkeep as the Core 4 mods continue building on these APIs, rather than net-new Vault features.
