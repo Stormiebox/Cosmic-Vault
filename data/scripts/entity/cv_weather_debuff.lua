@@ -1,5 +1,13 @@
 
 local cv_debuff_type = ""
+-- Handles for this instance's own bonuses, so applyDebuffs() can remove exactly its own
+-- bonuses on reapply instead of entity:removeScriptBonuses(), which clears EVERY script-added
+-- bonus on the entity (including any other Cosmic system's buffs, e.g. a Bastion System or
+-- Captain Elite Trait shield bonus) -- same collateral-wipe bug already found and fixed in
+-- Cosmic Ascendancy's ascendantaegis.lua and Cosmic Vault's own cosmicbuff.lua. Not persisted
+-- across secure()/restore() -- bonus handles are only valid for the current server session,
+-- and restore() runs on a fresh script instance whose own local state starts nil anyway.
+local bonusKeys = {}
 
 function initialize(weatherType)
     cv_debuff_type = type(weatherType) == "string" and weatherType or ""
@@ -10,12 +18,15 @@ end
 
 function applyDebuffs()
     local entity = Entity()
-    entity:removeScriptBonuses() -- Clear any existing bonuses from this script
-    
+    for _, key in pairs(bonusKeys) do
+        entity:removeBonus(key)
+    end
+    bonusKeys = {}
+
     if cv_debuff_type == "IonStorm" then
-        entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, 10.0) -- 1000% slower cooldown
-        entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, -1.0) -- -100% reach
-        entity:addBaseMultiplier(StatsBonuses.RadarReach, -1.0) -- -100% radar
+        table.insert(bonusKeys, entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, 10.0)) -- 1000% slower cooldown
+        table.insert(bonusKeys, entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, -1.0)) -- -100% reach
+        table.insert(bonusKeys, entity:addBaseMultiplier(StatsBonuses.RadarReach, -1.0)) -- -100% radar
     elseif cv_debuff_type == "DarkMatterFog" then
         local faction = Faction(entity.factionIndex)
         local isEclipse = false
@@ -24,10 +35,10 @@ function applyDebuffs()
                 isEclipse = true
             end
         end
-        
+
         if not isEclipse then
-            entity:addBaseMultiplier(StatsBonuses.RadarReach, -0.5) -- -50% radar
-            entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, -0.5) -- -50% jump
+            table.insert(bonusKeys, entity:addBaseMultiplier(StatsBonuses.RadarReach, -0.5)) -- -50% radar
+            table.insert(bonusKeys, entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, -0.5)) -- -50% jump
         end
     end
 end

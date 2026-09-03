@@ -5,6 +5,12 @@ local statMultiplier = 1.0
 local duration = 0
 local timeActive = 0
 local buffId = ""
+-- Handle returned by this instance's own addBaseMultiplier call, so applyBuffs() can remove
+-- exactly its own bonus on reapply. Not persisted across secure()/restore() -- bonus handles
+-- are only valid for the current server session, and restore() runs on a fresh script instance
+-- whose own local state starts nil anyway, matching cosmicvaultbuffs.lua's _biasKeys/
+-- _baseMultiplierKeys convention.
+local bonusKey = nil
 
 -- This is a background entity script that dynamically alters stats and deletes itself.
 -- It avoids needing to overwrite the core vanilla ship update loops.
@@ -39,7 +45,17 @@ end
 
 function applyBuffs()
     local entity = Entity()
-    entity:removeScriptBonuses()
+    -- entity:removeScriptBonuses() clears EVERY script-added bonus on the entity, not just
+    -- this instance's own -- and entity:addScript() lets multiple cosmicbuff.lua instances
+    -- stack on one entity at once (e.g. the Commodore trait's paired Shield + FireRate
+    -- buffs), so the sweeping call was silently wiping sibling buffs (and any other Cosmic
+    -- system's own bonuses, like Bastion System's) every time a new buff was applied on top.
+    -- Same bug pattern already found and fixed in Cosmic Ascendancy's ascendantaegis.lua --
+    -- scope removal to this instance's own previously-added bonus instead.
+    if bonusKey then
+        entity:removeBonus(bonusKey)
+        bonusKey = nil
+    end
 
     -- CosmicVaultBuffs.applyBuff() documents statMultiplier as "0.5 for half
     -- speed, 2.0 for double damage" (a scale factor), but addBaseMultiplier
@@ -49,21 +65,23 @@ function applyBuffs()
     local delta = statMultiplier - 1.0
 
     if targetStat == "Velocity" then
-        entity:addBaseMultiplier(StatsBonuses.Velocity, delta)
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.Velocity, delta)
     elseif targetStat == "Shield" then
-        entity:addBaseMultiplier(StatsBonuses.ShieldDurability, delta)
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.ShieldDurability, delta)
+    elseif targetStat == "ShieldRecharge" then
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.ShieldRecharge, delta)
     elseif targetStat == "Damage" then
-        entity:addBaseMultiplier(StatsBonuses.ArmedTurrets, delta) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.ArmedTurrets, delta) -- Easiest way to boost damage via turret slots, or use custom damage modifiers if applicable
     elseif targetStat == "Acceleration" then
-        entity:addBaseMultiplier(StatsBonuses.Acceleration, delta)
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.Acceleration, delta)
     elseif targetStat == "HyperspaceCooldown" then
-        entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, delta)
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, delta)
     elseif targetStat == "HyperspaceReach" then
-        entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, delta)
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.HyperspaceReach, delta)
     elseif targetStat == "ShieldTimeUntilRechargeAfterHit" then
-        entity:addBaseMultiplier(StatsBonuses.ShieldTimeUntilRechargeAfterHit, delta)
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.ShieldTimeUntilRechargeAfterHit, delta)
     elseif targetStat == "FireRate" then
-        entity:addBaseMultiplier(StatsBonuses.FireRate, delta)
+        bonusKey = entity:addBaseMultiplier(StatsBonuses.FireRate, delta)
     end
 end
 

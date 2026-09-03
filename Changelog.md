@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.6.1] - Emergency Hotfix
+
+### 🪲 Bug Fixes
+- [Bugfix] **Temporary Buffs Silently Erased Each Other (cosmicbuff.lua):** `applyBuffs()` called `entity:removeScriptBonuses()` on every apply/reapply, which clears every script-added bonus on the whole entity, not just this script's own. Since `entity:addScript()` lets several `cosmicbuff.lua` instances stack on one ship at once (e.g. Cosmic Overhaul's Commodore trait applies a Shield buff and a FireRate buff back to back), the second buff's own `initialize()` was wiping the first buff's just-applied bonus in the same tick, and it never came back. Same collateral-wipe bug already found and fixed once in Cosmic Ascendancy's `ascendantaegis.lua`; this is the shared engine every temporary buff in the suite runs through, so the impact was much wider. Now tracks its own bonus key and calls the scoped `entity:removeBonus(key)` instead. Also added a missing `"ShieldRecharge"` case (maps to the real `StatsBonuses.ShieldRecharge`), which left Cosmic Overhaul's Station Governor shield-regen buff a dead no-op.
+- [Bugfix] **Weather Debuffs Had the Same Collateral-Wipe Bug (cv_weather_debuff.lua):** Same root cause as above. Every Ion Storm/Dark Matter Fog (re)application on a ship wiped any other script-added bonus on it (a captain trait buff, a subsystem's own passive bonus). Now tracks its own bonus keys and removes only those.
+
 ## [v3.6.0]
 
 ### 🎨 Shared Assets
