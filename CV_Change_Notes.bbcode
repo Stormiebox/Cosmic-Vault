@@ -1,3 +1,23 @@
+[i]Version 3.6.0[/i]
+[hr][/hr]
+[h1]v3.6.0 🧰SHARED UI TOOLKIT FOR MODDERS🧰[/h1]
+[hr][/hr]
+[b]🛠️ UPDATE[/b]
+[i]This update adds new building blocks other Cosmic mods (and any modder who depends on Cosmic Vault) can use to build consistent-looking tabs and settings screens. No player-facing changes on its own — this powers visual updates landing in Cosmic Overhaul this same release.[/i]
+
+[b]✨ NEW[/b]
+[list]
+[*]🧰 [b]UI Kit API:[/b] A shared toolkit for building player-window tabs with a consistent look: a two-row header layout, a sortable scrolling table, and a common set of status colors (green/amber/red).
+[*]🗂️ [b]Settings Schema API:[/b] A simpler way for mods to define and store per-player settings with built-in validation, instead of every mod hand-rolling its own.
+[*]🎨 [b]New Shared Icon:[/b] Added a new shared icon asset, used by Cosmic Ascendancy's new Eclipse Command Interface window this same release.
+[/list]
+
+[b]🪲 BUGFIXES[/b]
+[list]
+[*]💰 [b]Story Mission Rewards Now Actually Pay Out:[/b] Fixed a bug where completing certain story missions in Cosmic Chronicles could fail to actually credit you the reward money, even though it announced the reward in chat.
+[*]📋 [b]Buff System Log Spam Reduced:[/b] Under a rare condition, a ship's temporary stat buff (e.g. from a captain trait) could fail to attach and then keep retrying every few seconds without end, flooding the server log. This no longer happens — a failed attach now backs off for 15 seconds before trying again.
+[/list]
+
 [i]Version 3.5.0[/i]
 [hr][/hr]
 [h1]v3.5.0 🛠️STABILITY & COMPATIBILITY UPDATE!🛠️[/h1]

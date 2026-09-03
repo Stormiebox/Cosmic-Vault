@@ -298,6 +298,8 @@ CosmicVaultBuffs.removePermanentBaseMultiplier(entityId, "Damage")
 ```
 Before v3.5.0, `removePermanentFactor`/`removePermanentBaseMultiplier` called engine methods that don't exist, and the `apply`/`add` functions threw away the bonus key needed to remove anything even after that was fixed. Permanent buffs could be applied but never removed, and reapplying one stacked indefinitely. Removal is now tracked per entity/stat and is safe to call repeatedly.
 
+**As of v3.6.0:** if you call `applyBuff` with a `buffId` on the standard `refreshBuff` fails → `applyBuff` pattern (see Cosmic Overhaul's `captainelitetraits.lua` for the reference implementation), be aware it now enforces a 15-second cooldown per `(entity, buffId)` — a second `applyBuff` call for the same id within that window is silently ignored rather than attempting another attach. This exists to stop a poll loop from retrying an attach every cycle if it's failing for reasons outside this API's control; it does not affect id-less calls (no retry loop is possible without an id to refresh against) and is cleared immediately by a successful `refreshBuff` or an explicit `terminateBuff`.
+
 ### 🔥 20. Combat & DoTs API (`cosmicvaultcombat.lua`)
 Renders floating combat text and applies Damage-over-Time effects.
 ```lua
@@ -426,6 +428,56 @@ Exposes logic for attaching dynamic, localized environmental hazards (EMP storms
 -- Attach Dark Matter Fog to the current sector indefinitely (-1 duration)
 Sector():addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
 ```
+
+### 🧰 31. UI Kit API (`cosmicvaultuikit.lua`)
+Shared player-window tab building blocks in the visual style Cosmic Overhaul's Command Center and Factory Overview tabs already established: a two-row header layout, a sortable ListBoxEx-backed table, and a canonical status-color palette. Client-only.
+
+```lua
+local UIKit = include("cosmicvaultuikit")
+
+-- Two-row header (title/totals row, then a controls row), with room reserved for a
+-- sortable column-button strip at the bottom -- the exact arithmetic three different
+-- Cosmic Overhaul files got wrong independently before this existed.
+local layout = UIKit.createHeaderLayout(tab, { rows = { {fraction = 0.4}, {fraction = 0.4} } })
+tab:createLabel(layout.rows[1], "My Tab"%_t, 20)
+
+-- Sortable table. IMPORTANT: pass your OWN namespace table first (MyMod below) -- the
+-- engine resolves button/list callbacks against the calling script's own namespace,
+-- never against cosmicvaultuikit's, so this call installs its dispatcher functions
+-- directly onto the table you pass in.
+local table_ = UIKit.createSortableTable(MyMod, tab, layout.contentRect, {
+    { label = "Name"%_t, width = 2, sortValue = function(r) return r.name end, cellText = function(r) return r.name end },
+    { label = "Status"%_t, width = 1, sortValue = function(r) return r.pct end,
+      cellText = function(r) return r.pct.."%" end,
+      cellColor = function(r) return UIKit.statusColorForPercent(r.pct) end },
+}, { sortStripRect = layout.sortStripRect })
+
+table_:setRows(myRowData)
+table_:setSelectionChangedHandler(function(row) -- row is the original data table for the clicked row
+    -- ...
+end)
+```
+
+### 🗂️ 32. Settings Schema API (`cosmicvaultsettingsschema.lua`)
+A schema-driven convenience layer over `cosmicvaultplayersettings.lua`: define a mod's settings once (`key`, `default`, `type`) and get validated get/set/reset instead of hand-plumbing each setting through 2-3 places.
+
+```lua
+local Schema = include("cosmicvaultsettingsschema")
+local mySettings = Schema.define("MyMod_HUD", {
+    { key = "Enabled", default = true, type = "bool" },
+    { key = "Opacity", default = 0.0, type = "number" },
+})
+
+-- Server-side (an RPC handler, a background script):
+mySettings:set(player, "Enabled", false)
+local all = mySettings:getAll(player)
+
+-- Client-side (a HUD render loop reading its own local player's settings):
+local enabled = mySettings:getLocal("Enabled")
+```
+
+> [!WARNING]
+> `get`/`set`/`getAll`/`resetToDefaults` are server-only, same restriction as the `cosmicvaultplayersettings.lua` they're built on. `getLocal` is the client-side path, and it deliberately does NOT go through `cosmicvaultplayersettings.lua` at all — see the doc comment at the top of `cosmicvaultsettingsschema.lua` for a real, still-unresolved discrepancy between that file's stated client-crash restriction (WIKI.md section 10) and Cosmic Overhaul's own shipped `resourcedisplay.lua`, which has safely called the equivalent bare `Player():getValue()` client-side across multiple releases. Read that note before assuming either side of this module is bulletproof.
 
 For how these APIs interact with sister mods (Cosmic War, Cosmic Chronicles) when they're installed alongside Cosmic Vault, see `WIKI.md`'s Cross-Mod Synergy section.
 

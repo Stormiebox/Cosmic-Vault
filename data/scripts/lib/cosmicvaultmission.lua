@@ -49,7 +49,7 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
     if not player then return end
     
     if creditReward and creditReward > 0 then
-        player.money = player.money + creditReward
+        player:receiveWithoutNotify("Mission Reward", creditReward, {})
         player:sendChatMessage("System", 0, "Received %s Credits for completing a mission.", tostring(creditReward))
     end
 
@@ -64,8 +64,12 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
         end
     end
 
-    -- Cleanly remove the mission script from the player
-    player:removeScript(missionId)
+    -- Only real for a caller whose missionId is an actual attached script path (e.g. a
+    -- bulletin-board mission's own scriptPath); a semantic id string with no matching
+    -- script is safely skipped.
+    if player:hasScript(missionId) then
+        player:removeScript(missionId)
+    end
 end
 
 --- Fails the mission and cleans up the script safely
@@ -77,7 +81,9 @@ function CosmicVaultMission.failMission(missionId)
     if not player then return end
 
     player:sendChatMessage("System", 1, "Mission Failed.")
-    player:removeScript(missionId)
+    if player:hasScript(missionId) then
+        player:removeScript(missionId)
+    end
 end
 
 --- Grants an item reward directly to the player's inventory

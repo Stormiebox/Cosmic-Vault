@@ -15,6 +15,20 @@ local function _bonusKeyId(entity, statName)
     return entity.id.string .. "|" .. tostring(statName)
 end
 
+-- Tracks the last time applyBuff attempted to attach a cosmicbuff.lua
+-- instance for a given (entity, buffId), keyed the same way as the bonus
+-- tables above. This exists purely to stop a caller stuck in a
+-- refreshBuff-fails -> applyBuff-retries loop (e.g. a 5-second updateServer
+-- poll) from hammering entity:addScript() every single cycle when the
+-- attach keeps failing for reasons outside this library's control (a known,
+-- still-unconfirmed engine-side issue with include() resolution for
+-- dynamically addScript()'d entity scripts -- see Avorion_Modding_Codex.md,
+-- "A repeating include error scoped to one workshop folder"). It does not
+-- fix that underlying failure; it just caps how often we retry it so one
+-- stuck buff can't flood the log. In-memory only, resets on server restart.
+local _lastAttemptTime = {}
+local ATTEMPT_COOLDOWN = 15.0 -- seconds between retry attempts for the same (entity, buffId)
+
 --- Applies a temporary stat buff or debuff natively to an entity
 -- @param entityId (string|Uuid) The target entity
 -- @param statName (string) The stat to modify (e.g. "Velocity", "Shield", "Damage")
@@ -30,7 +44,20 @@ function CosmicVaultBuffs.applyBuff(entityId, statName, multiplier, durationSeco
     
     local entity = Entity(entityId)
     if not entity then return end
-    
+
+    -- Only buffs with an id can ever be refreshed/terminated by a caller,
+    -- so only those are worth cooldown-tracking here -- an id-less buff is
+    -- by definition a one-shot call from the caller's own side, never a
+    -- refreshBuff-fails-so-retry loop.
+    if buffId and buffId ~= "" then
+        local key = _bonusKeyId(entity, buffId)
+        local lastAttempt = _lastAttemptTime[key]
+        if lastAttempt and (appTime() - lastAttempt) < ATTEMPT_COOLDOWN then
+            return
+        end
+        _lastAttemptTime[key] = appTime()
+    end
+
     -- We natively attach the cosmicbuff script to the entity.
     -- The script will self-terminate when the duration expires.
     entity:addScript("data/scripts/entity/cosmicbuff.lua", statName, multiplier, durationSeconds, buffId or "")
@@ -51,6 +78,10 @@ function CosmicVaultBuffs.terminateBuff(entityId, buffId)
             entity:invokeFunction(index, "terminateBuffById", buffId)
         end
     end
+
+    -- Buff is gone (or was never there) -- a subsequent applyBuff for this
+    -- id shouldn't be held back by the retry cooldown above.
+    _lastAttemptTime[_bonusKeyId(entity, buffId)] = nil
 end
 
 --- Refreshes the duration of a specific buff by its unique ID
@@ -70,11 +101,14 @@ function CosmicVaultBuffs.refreshBuff(entityId, buffId)
             local status, matched = entity:invokeFunction(index, "refreshBuffById", buffId)
             if status == 0 and matched then
                 refreshed = true
+                -- A live instance answered, so the attach clearly worked --
+                -- clear any stale retry cooldown for this id.
+                _lastAttemptTime[_bonusKeyId(entity, buffId)] = nil
                 break
             end
         end
     end
-    
+
     return refreshed
 end
 
