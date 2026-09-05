@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v3.7.0]
+
+### ⭐ API Enhancements
+- [Feature] **Upgrade Categories API Added (`cosmicvaultupgradecategories.lua`):** New shared registry sorting an upgrade system script (e.g. `data/scripts/systems/shieldbooster.lua`) into Military/Civilian/Misc, purely additive. Vanilla has no native category for upgrade *systems* the way it does for turrets (`WeaponTypes.armedTypes`/`.unarmedTypes`/`.defensiveTypes`); this is the Cosmic Vault equivalent, built so a category-based shop UI doesn't need a hand-maintained, easily-stale lookup table per mod. Pre-registers all 25 vanilla-generatable upgrade systems, cross-referenced directly against the `scripts` table in vanilla's own `data/scripts/lib/upgradegenerator.lua` (not the `systems/` folder listing, which also holds quest-locked and Behemoth-exclusive items a normal shop never generates). `registerCategory(scriptPath, category)` lets any mod register its own systems; `getCategory(scriptPath)` defaults to Misc for anything unregistered, so an unrecognized upgrade from a not-yet-updated or external Workshop mod still shows up somewhere instead of silently vanishing from every category tab. Built for, and consumed by, Cosmic Overhaul's new category-split Equipment Dock tabs (see that mod's v5.5.0 changelog) and registered into by Cosmic Starfall's own upgrade systems (see that mod's v2.0.16 changelog).
+
 ## [v3.6.1] - Emergency Hotfix
 
 ### 🪲 Bug Fixes

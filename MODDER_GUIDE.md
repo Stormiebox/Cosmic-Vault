@@ -479,5 +479,22 @@ local enabled = mySettings:getLocal("Enabled")
 > [!WARNING]
 > `get`/`set`/`getAll`/`resetToDefaults` are server-only, same restriction as the `cosmicvaultplayersettings.lua` they're built on. `getLocal` is the client-side path, and it deliberately does NOT go through `cosmicvaultplayersettings.lua` at all — see the doc comment at the top of `cosmicvaultsettingsschema.lua` for a real, still-unresolved discrepancy between that file's stated client-crash restriction (WIKI.md section 10) and Cosmic Overhaul's own shipped `resourcedisplay.lua`, which has safely called the equivalent bare `Player():getValue()` client-side across multiple releases. Read that note before assuming either side of this module is bulletproof.
 
+### 🗂️ 33. Upgrade Categories API (`cosmicvaultupgradecategories.lua`)
+Shared registry sorting an upgrade system script into Military/Civilian/Misc, so a category-based shop UI (Cosmic Overhaul's split Equipment Dock tabs, for one) doesn't need its own hand-maintained lookup table. Server and client safe — plain data, no engine calls.
+
+```lua
+local UpgradeCategories = include("cosmicvaultupgradecategories")
+
+-- Register your own mod's upgrade systems once, wherever they're defined:
+UpgradeCategories.registerCategory("data/scripts/systems/myShieldSystem.lua", UpgradeCategories.Category.Military)
+
+-- A shop UI reads categories back to sort its stock:
+local category = UpgradeCategories.getCategory("data/scripts/systems/myShieldSystem.lua")
+local militaryScripts = UpgradeCategories.getScriptsOfCategory(UpgradeCategories.Category.Military)
+```
+
+> [!NOTE]
+> All 25 vanilla-generatable upgrade systems are pre-registered — cross-referenced against the actual `scripts` table in vanilla's own `data/scripts/lib/upgradegenerator.lua`, not the `systems/` folder listing (which also holds quest-locked and Behemoth-exclusive items a normal shop never generates). An unregistered script — a not-yet-updated mod, or an external Workshop mod's own custom system — defaults to Misc via `getCategory` rather than being dropped from every category tab.
+
 For how these APIs interact with sister mods (Cosmic War, Cosmic Chronicles) when they're installed alongside Cosmic Vault, see `WIKI.md`'s Cross-Mod Synergy section.
 
