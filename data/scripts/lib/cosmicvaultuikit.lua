@@ -386,8 +386,130 @@ function CosmicVaultUIKit.buildFactionTooltip(data)
     return table.concat(lines, "\n") .. "\n"
 end
 
+-- ============================================================================
+-- Dossier panel
+-- ============================================================================
+
+-- v4.0.0: a labeled key/value detail panel -- built for Cosmic War's Galactic
+-- Politics rebuild (its own single-faction "Dossier" sub-tab), but the same shape
+-- ("select one thing from a list, show its full detail alongside") recurs anywhere a
+-- Cosmic mod's own sortable table (createSortableTable above) needs a companion detail
+-- view. Rows are pre-allocated to a fixed pool and toggled via setData() rather than
+-- recreated per refresh -- the same reasoning createSortableTable's own row-population
+-- comment already gives for reusing engine UI elements instead of rebuilding them.
+local DossierHandle = {}
+DossierHandle.__index = DossierHandle
+
+--- Replaces the panel's displayed title and rows. Rows beyond the pool's `maxRows`
+-- (set at createDossierPanel() time) are silently dropped rather than erroring, since
+-- an overflowing dossier is a caller-side sizing mistake, not a runtime one worth a
+-- crash over.
+-- @param data (table) {
+--     title (string|nil) -- shown in the panel's own header row
+--     rows (table|nil) -- array of {
+--         label (string) -- left column
+--         value (string|nil) -- right column text; ignored when `bar` is set
+--         bar (number|nil) -- 0.0-1.0; when present, renders a ProgressBar instead of
+--             the value text
+--         color (ColorRGB|nil) -- applied to the value text, or the bar's fill when
+--             `bar` is set; defaults to a plain white/gray
+--         tooltip (string|nil) -- set on both the label and value/bar cells, e.g. a
+--             trait's full description text alongside its short display name
+--     }
+-- }
+function DossierHandle:setData(data)
+    data = data or {}
+    self.titleLabel.caption = data.title or ""
+
+    local rows = data.rows or {}
+    for i, slot in ipairs(self.rowSlots) do
+        local row = rows[i]
+        if row then
+            slot.label.visible = true
+            slot.label.caption = row.label or ""
+            slot.label.tooltip = row.tooltip
+            slot.value.tooltip = row.tooltip
+            slot.bar.tooltip = row.tooltip
+            local color = row.color or ColorRGB(0.85, 0.85, 0.85)
+            if row.bar then
+                slot.value.visible = false
+                slot.bar.visible = true
+                slot.bar.progress = math.max(0.0, math.min(1.0, row.bar))
+                slot.bar.color = color
+            else
+                slot.bar.visible = false
+                slot.value.visible = true
+                slot.value.caption = row.value or ""
+                slot.value.color = color
+            end
+        else
+            slot.label.visible = false
+            slot.value.visible = false
+            slot.bar.visible = false
+        end
+    end
+end
+
+--- Builds a dossier panel: a title row above a fixed-size pool of label/value (or
+-- label/bar) rows inside a frame.
+-- @param container (Tab|Window|ScrollFrame) must expose createFrame/createLabel/createProgressBar
+-- @param rect (Rect) the panel's own rect
+-- @param opts (table|nil) {
+--     maxRows (number, default 12) -- row pool size
+--     rowHeight (number, default 24)
+--     labelWidthFraction (number, default 0.42) -- left column's share of the row width
+--     titleFontSize (number, default 16)
+--     rowFontSize (number, default 14)
+-- }
+-- @return (table) DossierHandle -- call :setData({title=..., rows={...}}) to populate
+function CosmicVaultUIKit.createDossierPanel(container, rect, opts)
+    opts = opts or {}
+    local maxRows = opts.maxRows or 12
+    local rowHeight = opts.rowHeight or 24
+    local labelWidthFraction = opts.labelWidthFraction or 0.42
+    local titleFontSize = opts.titleFontSize or 16
+    local rowFontSize = opts.rowFontSize or 14
+
+    local handle = setmetatable({}, DossierHandle)
+
+    container:createFrame(rect)
+
+    local width = rect.width
+    local titleHeight = titleFontSize + 10
+    handle.titleLabel = container:createLabel(Rect(rect.lower + vec2(10, 6), rect.lower + vec2(width - 10, 6 + titleHeight)), "", titleFontSize)
+    handle.titleLabel:setTopLeftAligned()
+
+    local labelWidth = (width - 20) * labelWidthFraction
+    local valueWidth = (width - 20) - labelWidth - 10
+
+    handle.rowSlots = {}
+    local rowTop = rect.lower.y + titleHeight + 12
+    for i = 1, maxRows do
+        local y0 = rowTop + (i - 1) * rowHeight
+        local labelRect = Rect(rect.lower.x + 10, y0, rect.lower.x + 10 + labelWidth, y0 + rowHeight)
+        local valueRect = Rect(rect.lower.x + 10 + labelWidth + 10, y0, rect.lower.x + 10 + labelWidth + 10 + valueWidth, y0 + rowHeight)
+
+        local labelEl = container:createLabel(labelRect, "", rowFontSize)
+        labelEl:setTopLeftAligned()
+        labelEl.color = ColorRGB(0.6, 0.6, 0.6)
+
+        local valueEl = container:createLabel(valueRect, "", rowFontSize)
+        valueEl:setTopLeftAligned()
+
+        local barEl = container:createProgressBar(Rect(valueRect.lower, valueRect.lower + vec2(valueWidth, rowFontSize + 2)), ColorRGB(0.5, 0.5, 0.5))
+        barEl.visible = false
+
+        labelEl.visible = false
+        valueEl.visible = false
+
+        table.insert(handle.rowSlots, { label = labelEl, value = valueEl, bar = barEl })
+    end
+
+    return handle
+end
+
 if CosmicVaultFramework and CosmicVaultFramework.registerModule then
-    CosmicVaultFramework.registerModule("CosmicVaultUIKit", {version = "1.0.0"})
+    CosmicVaultFramework.registerModule("CosmicVaultUIKit", {version = "1.1.0"})
 end
 
 return CosmicVaultUIKit

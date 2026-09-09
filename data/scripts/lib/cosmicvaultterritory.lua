@@ -162,6 +162,65 @@ if onServer() then
         end
     end
 
+--- Finds the sectors where two named factions' territories actually meet -- any sector
+-- controlled by one of the two whose immediate neighbor is controlled by the other. Scans a
+-- bounded square centered on the midpoint of the two factions' home sectors, out to `radius`
+-- sectors in each direction; getControllingFaction() is a faction-map lookup, not a sector
+-- load, so this stays cheap even at the default radius, but the scan is still bounded rather
+-- than sweeping the whole galaxy.
+-- @param factionAIndex (number) First faction's index
+-- @param factionBIndex (number) Second faction's index
+-- @param radius (number) How far from the midpoint to scan, in sectors (default 15)
+-- @return (table) A list of {x, y} sectors bordering the other faction's territory
+    function CosmicVaultTerritory.getBorderSectors(factionAIndex, factionBIndex, radius)
+        if not factionAIndex or not factionBIndex or factionAIndex == factionBIndex then return {} end
+        radius = radius or 15
+
+        local factionA = Faction(factionAIndex)
+        local factionB = Faction(factionBIndex)
+        if not factionA or not factionB then return {} end
+
+        local hxA, hyA = factionA:getHomeSectorCoordinates()
+        local hxB, hyB = factionB:getHomeSectorCoordinates()
+        if not hxA or not hyA or not hxB or not hyB then return {} end
+
+        local cx = math.floor((hxA + hxB) / 2 + 0.5)
+        local cy = math.floor((hyA + hyB) / 2 + 0.5)
+
+        local galaxy = Galaxy()
+        local owners = {}
+        local function ownerAt(x, y)
+            local key = x .. ":" .. y
+            local cached = owners[key]
+            if cached == nil then
+                local f = galaxy:getControllingFaction(x, y)
+                cached = f and f.index or false
+                owners[key] = cached
+            end
+            if cached == false then return nil end
+            return cached
+        end
+
+        local borders = {}
+        for x = cx - radius, cx + radius do
+            for y = cy - radius, cy + radius do
+                local owner = ownerAt(x, y)
+                if owner == factionAIndex or owner == factionBIndex then
+                    local other = (owner == factionAIndex) and factionBIndex or factionAIndex
+                    local neighbors = { {x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1} }
+                    for _, n in pairs(neighbors) do
+                        if ownerAt(n[1], n[2]) == other then
+                            table.insert(borders, {x = x, y = y})
+                            break
+                        end
+                    end
+                end
+            end
+        end
+
+        return borders
+    end
+
 end
 
 return CosmicVaultTerritory

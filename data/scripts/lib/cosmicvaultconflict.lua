@@ -1,4 +1,4 @@
--- v3.8.0: A shared, generic "who's winning this fight" scoreboard between
+-- v4.0.0: A shared, generic "who's winning this fight" scoreboard between
 -- two factions -- proposed after Cosmic War's own War Score & Attrition system proved the
 -- idea out. Deliberately NOT what Cosmic War's own getWarScore() runs on: War Score needs
 -- asymmetric per-category weighting (kills vs. territory) with an independent cap on just

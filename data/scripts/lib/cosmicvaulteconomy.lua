@@ -145,7 +145,7 @@ function CosmicVaultEconomy.registerPriceHook(goodName, scriptName, functionName
     server:setValue(key, hooksStr == "" and entry or (hooksStr .. "|" .. entry))
 end
 
--- V3.8.0: generalizes a pattern Cosmic War built for its own Warbonds system
+-- v4.0.0: generalizes a pattern Cosmic War built for its own Warbonds system
 -- (a payout that scales off how a tracked score changed during a holding period, which a
 -- player could otherwise game by personally applying the very relief action that would
 -- guarantee a good outcome) into a reusable Vault primitive. Any mod with a similar

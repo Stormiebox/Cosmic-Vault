@@ -129,7 +129,7 @@ cvf.registerCustomTrait(
 cvf.setTrait(faction.index, "industrial", 1.0)
 ```
 
-**Generic Per-Actor Resource Ledger (v3.8.0):** a "banked resource against a specific faction" primitive — Intel, favor, reputation, anything shaped like it. `actor` is anything supporting `getValue`/`setValue`: a `Player()` for a per-player ledger, or an `Alliance()` to pool it across an Alliance's members. `ledgerKey` namespaces the resource so multiple mods/mechanics can safely share one actor.
+**Generic Per-Actor Resource Ledger (v4.0.0):** a "banked resource against a specific faction" primitive — Intel, favor, reputation, anything shaped like it. `actor` is anything supporting `getValue`/`setValue`: a `Player()` for a per-player ledger, or an `Alliance()` to pool it across an Alliance's members. `ledgerKey` namespaces the resource so multiple mods/mechanics can safely share one actor.
 ```lua
 cvf.grantLedger(player, targetFactionIndex, "intel", 25)      -- server-only
 local balance = cvf.getLedger(player, targetFactionIndex, "intel")
@@ -209,7 +209,7 @@ CosmicVaultMission.failMission(missionId)
 CosmicVaultMission.grantItemReward(itemTemplate, amount)
 ```
 
-**Extended bulletin builder (v3.8.0):** a superset of `createBulletin()` for when you need `formatArguments` (dynamic reward-text substitution) or `onAccept` (an inline accept-time script) — the original's fixed parameter list doesn't support either. Fully additive; `createBulletin()` is unchanged.
+**Extended bulletin builder (v4.0.0):** a superset of `createBulletin()` for when you need `formatArguments` (dynamic reward-text substitution) or `onAccept` (an inline accept-time script) — the original's fixed parameter list doesn't support either. Fully additive; `createBulletin()` is unchanged.
 ```lua
 local bulletin = CosmicVaultMission.createBulletinEx({
     title = "Bounty Target", description = "Kill the pirate lord", difficulty = "Hard",
@@ -381,6 +381,13 @@ CosmicVaultTerritory.setContestedZone(x, y, 2, 3, 60)
 
 -- Dynamically generate a new outpost or pirate base in empty space without crashing the server.
 CosmicVaultTerritory.expandToSector(x, y, factionIndex, isPirate)
+
+-- Find where faction 2's and faction 3's territory actually meet, within 15 sectors of the
+-- midpoint between their home sectors -- e.g. to highlight a contested frontline on the map.
+local border = CosmicVaultTerritory.getBorderSectors(2, 3, 15)
+for _, sector in pairs(border) do
+    -- sector.x, sector.y
+end
 ```
 
 ### 🧩 25. Framework Core API (`cosmicvaultframework.lua`)
@@ -430,20 +437,20 @@ CosmicVaultEconomy.addFamineScore(factionIndex, 500)
 local severity = CosmicVaultEconomy.getFamineLevel(factionIndex)
 ```
 
-**Relief-applied tracker (v3.8.0):** a running, never-reset total for any score family, not just Famine — generalizes a pattern Cosmic War built for its own Warbonds system (a payout scaling off how a tracked score changed during a holding period, which a player could otherwise game by personally applying the relief action that would guarantee a good outcome). Snapshot the total at the start of a hold, diff it at the end, and back that delta out of your own raw-score comparison.
+**Relief-applied tracker (v4.0.0):** a running, never-reset total for any score family, not just Famine — generalizes a pattern Cosmic War built for its own Warbonds system (a payout scaling off how a tracked score changed during a holding period, which a player could otherwise game by personally applying the relief action that would guarantee a good outcome). Snapshot the total at the start of a hold, diff it at the end, and back that delta out of your own raw-score comparison.
 ```lua
 CosmicVaultEconomy.recordReliefApplied("famine", factionIndex, 20)   -- server-only
 local totalEverApplied = CosmicVaultEconomy.getReliefApplied("famine", factionIndex)
 ```
 
-**Passive decay registry (v3.8.0):** register a score family that should drift toward a floor over time; Cosmic Vault has no background loop of its own, so call `tickPassiveDecay` from your own mod's existing update cycle.
+**Passive decay registry (v4.0.0):** register a score family that should drift toward a floor over time; Cosmic Vault has no background loop of its own, so call `tickPassiveDecay` from your own mod's existing update cycle.
 ```lua
 CosmicVaultEconomy.registerPassiveDecay("my_corruption_", 5, 0) -- 5/hour toward 0
 -- inside your own mod's background update(timeStep):
 CosmicVaultEconomy.tickPassiveDecay("my_corruption_", factionIndex, timeStep)
 ```
 
-**Galactic Hostility Index (v3.8.0):** a soft read of the sum of every AI faction's current War Heat, published by Cosmic War if installed. Returns 0 if Cosmic War isn't installed or hasn't published one yet — no hard dependency required.
+**Galactic Hostility Index (v4.0.0):** a soft read of the sum of every AI faction's current War Heat, published by Cosmic War if installed. Returns 0 if Cosmic War isn't installed or hasn't published one yet — no hard dependency required.
 ```lua
 local hostility = CosmicVaultEconomy.getGalacticHostilityIndex()
 ```
@@ -497,13 +504,29 @@ table_:setSelectionChangedHandler(function(row) -- row is the original data tabl
 end)
 ```
 
-**Faction dossier tooltip (v3.8.0):** formats a consistent "=== Name ===\nTraits: ...\nRelation: ..." block from already-resolved plain data. Client-only, additive alongside any tab's existing tooltip formatting — not a required migration.
+**Faction dossier tooltip (v4.0.0):** formats a consistent "=== Name ===\nTraits: ...\nRelation: ..." block from already-resolved plain data. Client-only, additive alongside any tab's existing tooltip formatting — not a required migration.
 ```lua
 local tooltip = UIKit.buildFactionTooltip({
     name = faction.name,
     traits = "Aggressive, Mercantile",
     relationText = "Friendly (12000)",
     extraLines = { "Famine Score: 60", "Your Intel: 50 (spend 50 via /cosmicwarintel)" }
+})
+```
+
+**Dossier panel (v4.0.0):** a labeled key/value detail panel — the companion to a sortable table (above): select a row, show its full detail alongside. Rows are a fixed pool toggled by `setData()`, not recreated per refresh — same reasoning as the sortable table's own row reuse. Client-only.
+```lua
+-- Build once, alongside your table:
+local dossier = UIKit.createDossierPanel(tab, dossierRect, { maxRows = 10 })
+
+-- Then refresh it whenever the selected row changes:
+dossier:setData({
+    title = faction.name,
+    rows = {
+        { label = "Trait"%_t, value = "Warmonger"%_t, tooltip = "Highly aggressive and eager to declare war."%_t }, -- tooltip is optional, set on both the label and value/bar cells
+        { label = "War Heat"%_t, bar = heat, color = UIKit.statusColorForPercent(heat * 100, { invert = true }) },
+        { label = "Famine"%_t, value = "Critical"%_t, color = UIKit.STATUS_COLORS.red },
+    }
 })
 ```
 
@@ -546,7 +569,7 @@ local militaryScripts = UpgradeCategories.getScriptsOfCategory(UpgradeCategories
 > All 25 vanilla-generatable upgrade systems are pre-registered — cross-referenced against the actual `scripts` table in vanilla's own `data/scripts/lib/upgradegenerator.lua`, not the `systems/` folder listing (which also holds quest-locked and Behemoth-exclusive items a normal shop never generates). An unregistered script — a not-yet-updated mod, or an external Workshop mod's own custom system — defaults to Misc via `getCategory` rather than being dropped from every category tab.
 
 ### ⚔️ 34. Faction Conflict Scoreboard API (`cosmicvaultconflict.lua`)
-A generic "who's winning this fight between two factions" combined score, new in v3.8.0. Built after Cosmic War's own War Score & Attrition system proved the idea out — this is separate, general-purpose infrastructure for any OTHER Cosmic mod (or a future Cosmic War mechanic) that wants a shared conflict score without War's specific per-category weighting/capping rules.
+A generic "who's winning this fight between two factions" combined score, new in v4.0.0. Built after Cosmic War's own War Score & Attrition system proved the idea out — this is separate, general-purpose infrastructure for any OTHER Cosmic mod (or a future Cosmic War mechanic) that wants a shared conflict score without War's specific per-category weighting/capping rules.
 
 ```lua
 local Conflict = include("cosmicvaultconflict")
