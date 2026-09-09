@@ -6,7 +6,7 @@
 
 Cosmic Vault is the shared spine every other Cosmic mod builds on: libraries for the Cosmic Codex, unified UI components, asynchronous task scheduling, and secure client/server communication. It exists so the rest of the series doesn't reimplement the same helpers five times, and so modders extending the series never need a destructive hard override of a vanilla script.
 
-**Current version: 3.5.0** — a stabilization release. It fixes a long list of bugs that had shipped since earlier versions (permanent buffs that could never be removed, escort orders with no target, loot drops that dropped nothing, custom faction traits that never rendered, two anomaly types that spawned with no behavior attached, and more — see `Changelog.md` for the full list), and makes every cross-mod hook `pcall`-guarded so Cosmic Vault runs standalone without the rest of the Core 4 installed.
+**Current version: 3.8.0.** v3.5.0 was a stabilization release (permanent buffs that could never be removed, escort orders with no target, loot drops that dropped nothing, custom faction traits that never rendered, two anomaly types that spawned with no behavior attached, and more — see `Changelog.md`), and made every cross-mod hook `pcall`-guarded so Cosmic Vault runs standalone without the rest of the Core 4 installed. v3.6.0-v3.8.0 have been additive feature releases since — a UI Kit, a Settings Schema layer, Upgrade Categories, and (v3.8.0) a generic per-actor resource ledger, a relief-applied tracker, a passive-decay registry, a galactic hostility index reader, a faction dossier tooltip builder, an extended bulletin builder, and a new Faction Conflict Scoreboard — all built to support Cosmic War's v4.0.0 War Overhaul Update, all reusable by any Cosmic mod.
 
 ## ✨ Key Features
 
@@ -18,6 +18,7 @@ Cosmic Vault is the shared spine every other Cosmic mod builds on: libraries for
 - **⚡ Async Task Scheduler:** spreads heavy script work across ticks instead of stalling the server.
 - **🖥️ Unified UI System:** cinematic banners, proportional splitters, and a shared configuration menu (CCM) other mods register into.
 - **🔒 Security Layer:** validates server callbacks and uses deterministic RNG, closing off remote-execution exploits and multiplayer desyncs.
+- **📒 Shared Resource Ledgers & Conflict Scoring:** a generic per-actor (Player or Alliance) resource ledger, a relief-applied tracker, a passive-decay registry, and a standalone faction conflict scoreboard, all purely additive.
 
 ## ⚙️ Requirements
 

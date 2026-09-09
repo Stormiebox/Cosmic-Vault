@@ -350,6 +350,42 @@ function CosmicVaultUIKit.createSortableTable(namespaceTable, container, rect, c
     return handle
 end
 
+-- ============================================================================
+-- Faction dossier tooltip
+-- ============================================================================
+
+--- Builds a consistent "faction dossier" tooltip block from already-resolved plain data.
+-- Every Cosmic mod with a faction-facing tab (Cosmic War's Galactic Politics among them)
+-- currently hand-formats this same "=== Name ===\nTraits: ...\nRelation: ..." shape
+-- slightly differently -- this is the shared, additive version, not a replacement for any
+-- of them (adopt at your own pace). Takes plain data rather than a live Faction() object
+-- since this file is client-only (see the guard at the top) and callers already resolve
+-- their own server-side data before building a tooltip client-side.
+-- @param data (table) {
+--     name (string, required) -- the faction's display name
+--     traits (string|nil) -- pre-localized, already-joined trait list
+--     relationText (string|nil) -- e.g. "Friendly (12000)"
+--     extraLines (table|nil) -- array of already-formatted strings, one per line, appended
+--         after the standard block (e.g. "Famine Score: 60", "Your Intel: 50")
+-- }
+-- @return (string) a "=== Name ===\n..." block, newline-terminated, ready to concatenate
+--     into a larger tooltip alongside another faction's block.
+function CosmicVaultUIKit.buildFactionTooltip(data)
+    data = data or {}
+    local lines = { "=== " .. tostring(data.name or "Unknown") .. " ===" }
+
+    if data.traits then table.insert(lines, "Traits: " .. data.traits) end
+    if data.relationText then table.insert(lines, "Relation: " .. data.relationText) end
+
+    if data.extraLines then
+        for _, line in pairs(data.extraLines) do
+            table.insert(lines, line)
+        end
+    end
+
+    return table.concat(lines, "\n") .. "\n"
+end
+
 if CosmicVaultFramework and CosmicVaultFramework.registerModule then
     CosmicVaultFramework.registerModule("CosmicVaultUIKit", {version = "1.0.0"})
 end

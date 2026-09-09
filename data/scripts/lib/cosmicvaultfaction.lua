@@ -36,7 +36,7 @@ function CosmicVaultFaction.setTrait(factionIndex, traitName, value)
     if not traitName then return end
     local faction = Faction(factionIndex)
     if not faction then return end
-    
+
     local key = VAULT_PREFIX .. traitName
     faction:setValue(key, value)
 end
@@ -49,7 +49,7 @@ function CosmicVaultFaction.getTrait(factionIndex, traitName)
     if not traitName then return nil end
     local faction = Faction(factionIndex)
     if not faction then return nil end
-    
+
     local key = VAULT_PREFIX .. traitName
     return faction:getValue(key)
 end
@@ -62,14 +62,14 @@ function CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
     if not onServer() then return end
     if not delta then return end
     if factionIndex1 == factionIndex2 then return end
-    
+
     local f1 = Faction(factionIndex1)
     local f2 = Faction(factionIndex2)
     if not f1 or not f2 then return end
 
     local current = f1:getRelations(factionIndex2) or 0
     local newRelation = math.max(-100000, math.min(100000, current + delta))
-    
+
     Galaxy():setFactionRelations(f1, f2, newRelation)
 
     -- Synergy & Balancing: Mirror relations changes to Alliance if Player
@@ -95,6 +95,43 @@ function CosmicVaultFaction.changeRelations(factionIndex1, factionIndex2, delta)
             end
         end
     end
+end
+
+--- Generic per-actor, per-faction resource ledger (e.g. banked Intel against a scouted
+-- faction, a future reputation/favor system) -- any Cosmic mod with a "banked resource
+-- against a specific faction" mechanic can share this instead of reimplementing the same
+-- getValue/setValue pattern under its own key. `actor` is any object supporting
+-- getValue/setValue -- a Player() for a per-player ledger, or an Alliance() for one shared
+-- across an Alliance's members. `ledgerKey` namespaces the resource (e.g. "intel",
+-- "favor") so multiple mods/mechanics can share one actor without key collisions.
+-- @param actor (Player|Alliance) the ledger holder
+-- @param factionIndex (int) the faction the resource is banked against
+-- @param ledgerKey (string) namespaces the resource being tracked
+-- @param amount (number) amount to grant, must be positive
+function CosmicVaultFaction.grantLedger(actor, factionIndex, ledgerKey, amount)
+    if not onServer() then return end
+    if not actor or not factionIndex or factionIndex <= 0 or not ledgerKey or not amount or amount <= 0 then return end
+    local key = "cvf_ledger_" .. ledgerKey .. "_" .. tostring(factionIndex)
+    local current = actor:getValue(key) or 0
+    actor:setValue(key, current + amount)
+end
+
+--- @return number the actor's current balance for this faction/ledgerKey (0 if none)
+function CosmicVaultFaction.getLedger(actor, factionIndex, ledgerKey)
+    if not actor or not factionIndex or factionIndex <= 0 or not ledgerKey then return 0 end
+    return actor:getValue("cvf_ledger_" .. ledgerKey .. "_" .. tostring(factionIndex)) or 0
+end
+
+--- Deducts `amount` if the actor had enough; returns false and changes nothing otherwise.
+-- @return boolean whether the spend succeeded
+function CosmicVaultFaction.spendLedger(actor, factionIndex, ledgerKey, amount)
+    if not onServer() then return false end
+    if not actor or not factionIndex or factionIndex <= 0 or not ledgerKey or not amount then return false end
+    local key = "cvf_ledger_" .. ledgerKey .. "_" .. tostring(factionIndex)
+    local current = actor:getValue(key) or 0
+    if current < amount then return false end
+    actor:setValue(key, current - amount)
+    return true
 end
 
 return CosmicVaultFaction

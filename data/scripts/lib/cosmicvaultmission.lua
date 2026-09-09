@@ -26,6 +26,38 @@ function CosmicVaultMission.createBulletin(title, description, difficulty, rewar
     return bulletin
 end
 
+--- Extended bulletin builder -- additive alongside createBulletin() above, for callers
+-- that need `formatArguments` (dynamic reward-text substitution, e.g. "${reward}") or
+-- `onAccept` (an inline script run the moment a player accepts, e.g. an NPC chat message)
+-- that the original's fixed parameter list doesn't support. Cosmic War's own 25+ mission
+-- files currently build this exact superset shape by hand; this is the shared version any
+-- Cosmic mod's bulletin-board missions can adopt instead.
+-- @param opts (table) {
+--     title, description, difficulty, rewardText, scriptPath, icon -- same as createBulletin()
+--     args (table|nil) -- positional arguments passed to the mission script's initialize()
+--     formatArguments (table|nil) -- named substitutions for `${key}`-style tokens in rewardText/description
+--     msg (string|nil) -- defaults to `description` if omitted, matching createBulletin()'s behavior
+--     onAccept (string|nil) -- inline Lua source run as `function(self, player) ... end` when accepted
+-- }
+-- @return table|nil a formatted bulletin object, or nil if a required field is missing/wrong type
+function CosmicVaultMission.createBulletinEx(opts)
+    opts = opts or {}
+    if type(opts.title) ~= "string" or type(opts.description) ~= "string" or type(opts.scriptPath) ~= "string" then return nil end
+
+    return {
+        brief = opts.title,
+        description = opts.description,
+        difficulty = opts.difficulty or "Normal",
+        reward = opts.rewardText,
+        script = opts.scriptPath,
+        arguments = opts.args or {},
+        formatArguments = opts.formatArguments or {},
+        msg = opts.msg or opts.description,
+        icon = opts.icon or "data/textures/icons/mission.png",
+        onAccept = opts.onAccept
+    }
+end
+
 --- Safely attempts to sync a mission state objective across the UI
 -- @param missionId (string) The mission UUID or identifier
 -- @param objectiveText (string) The new objective text to display
