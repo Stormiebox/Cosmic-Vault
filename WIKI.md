@@ -1,8 +1,14 @@
 # ⚙️ Cosmic Vault — Wiki
 
+![Version](https://img.shields.io/badge/version-4.0.0-6f42c1?style=flat-square)
+![Avorion](https://img.shields.io/badge/Avorion-2.5.13-2f81f7?style=flat-square)
+
 Technical reference for **Cosmic Vault**, the shared foundation layer of the **Cosmic** mod series. This document covers every system the Vault exposes: what it does, which files implement it, and what changed in the most recent stabilization pass (v3.5.0).
 
-Cosmic Vault centralizes reusable code, configuration patterns, and shared assets so the other Cosmic mods can avoid duplicate implementations, stay behavior-consistent, and integrate without extra maintenance cost. If you're building a mod on top of these APIs rather than just reading about them, see `MODDER_GUIDE.md` instead — it has code examples and function signatures.
+Cosmic Vault centralizes reusable code, configuration patterns, and shared assets so the other Cosmic mods can avoid duplicate implementations, stay behavior-consistent, and integrate without extra maintenance cost.
+
+> [!TIP]
+> If you're building a mod on top of these APIs rather than just reading about them, see [`MODDER_GUIDE.md`](MODDER_GUIDE.md) instead — it has code examples and function signatures. See [`README.md`](README.md) for installation.
 
 ---
 
@@ -148,6 +154,47 @@ Stores per-player UI settings, filter states, and preferences through `Player():
 
 The Vault's largest surface: standalone APIs for task scheduling, item generation, data tagging, cinematic UI, economy hooks, and more, built so mods never need a destructive hard override of a vanilla script. Every file below lives in `data/scripts/lib/` unless noted otherwise.
 
+<details>
+<summary><strong>📋 Quick-reference — jump straight to a file's detail below</strong></summary>
+
+| File | What it does |
+|---|---|
+| `cosmicvaulttask.lua` | Coroutine scheduler, spreads heavy work across ticks |
+| `cosmicvaultdata.lua` | Structured table storage + tags on entities |
+| `cosmicvaultui.lua` | Cinematic banners, popups, client sounds |
+| `cosmicvaultnews.lua` / `_server.lua` | Global news buffer (see section 1) |
+| `cosmicvaultarsenal.lua` | Balanced custom `Weapon`/`InventoryTurret` generation |
+| `cosmicvaulteconomy.lua` | Market data, booms/crashes, famine, price hooks, ledgers, decay |
+| `cosmicvaultgoods.lua` | Custom trade goods registration |
+| `cosmicvaultencounter.lua` | Custom ambushes, anomalies, boss spawns |
+| `cosmicvaultmission.lua` | Bulletin-board missions, rewards |
+| `cosmicvaultprogression.lua` | Custom XP, levels, skill-tree perks |
+| `cosmicvaultfleet.lua` | AI orders — patrol, escort, mine, salvage |
+| `cosmicvaultfaction.lua` | Custom diplomacy traits, relation mirroring, resource ledger |
+| `cosmicvaultframework.lua` | Internal bootstrapper — not usually called directly |
+| `cosmicvaultloot.lua` | Custom cargo/weapon/turret/upgrade drops |
+| `cosmicvaultblueprint.lua` | Spawns ships/stations from XML plans |
+| `cosmicvaultstation.lua` | Safe dialogue/interaction tabs on vanilla stations |
+| `cosmicvaultevents.lua` | Persistent galaxy-wide timers |
+| `cosmicvaultbuffs.lua` | Self-terminating buffs, permanent multipliers, faction tiers |
+| `cosmicvaultcombat.lua` | `applyDoT()`, floating combat text |
+| `cosmicvaultscaling.lua` | Sector defender Volume/Omicron scaling |
+| `cosmicvaultanomalies.lua` + entity scripts | Persistent interactive points of interest |
+| `cosmicvaultweather.lua` / `_server.lua` | Sector hazard trigger API |
+| `cv_weather_controller.lua` | Sector-attached hazard behavior |
+| `cosmicvaultweatherdictionary.lua` | Hazard definitions and ship-protection checks |
+| `cosmicvaultconfig.lua` | Server → client config sync bootloader |
+| `cosmicvaultdebug.lua` | Shared namespaced logging |
+| `cosmicvaultmetrics_server.lua` | Telemetry via native login/sector callbacks |
+| `cosmicvaultriftescalation_server.lua` | Rift DLC escalation tracking |
+| `cosmicvaultcodex.lua` + `codex/infoCv.lua` | Vault's own in-game Codex pages |
+| `cosmicvaultuikit.lua` | Shared UI Kit — headers, sortable tables, dossier panels |
+| `cosmicvaultconflict.lua` | Generic two-faction conflict scoreboard |
+| `cosmicvaultsettingsschema.lua` | Schema layer over Player Settings API |
+| `cosmicvaultupgradecategories.lua` | Military/Civilian/Misc upgrade-system registry |
+
+</details>
+
 - **`cosmicvaulttask.lua`** — coroutine-based scheduler for spreading heavy operations across multiple server ticks instead of stalling one frame.
 - **`cosmicvaultdata.lua`** — stores structured Lua tables on entities via `dkjson`, plus tag-based grouping and querying.
 - **`cosmicvaultui.lua`** — cinematic banners, popups, and sounds on the client. **v3.5.0:** the fallback `addScriptOnce("cosmicvaultcinematic.lua")` call (used only when a player is somehow missing the script) used a bare filename instead of the full `data/scripts/...` path `addScriptOnce` requires to resolve through the VFS, so it silently failed to attach. Fixed across all three call sites.
@@ -266,3 +313,11 @@ Cosmic Vault is the structural base: it provides common building blocks, and the
 Cosmic Vault's foundational API surface is complete: every system in section 11 has existed since v3.0.0 or earlier. v3.5.0 is a stabilization release, not a feature release — it closes out a set of bugs that had been sitting in the library since their respective introductions, several dating back to v3.0.0, including buffs that could never be removed, escort orders with no target, loot drops that dropped nothing, turret generation that silently discarded its own arguments, and two anomaly types that had never actually worked. It also makes the Vault genuinely standalone: every include that reaches into a sister mod's files is now `pcall`-guarded, so installing Cosmic Vault without the rest of the Core 4 no longer crashes it.
 
 Since then, Vault has kept growing alongside the Core 4's own needs: v3.6.0 added the UI Kit and Settings Schema APIs, v3.7.0 added Upgrade Categories, and v4.0.0 added seven more primitives (a generic per-actor resource ledger, a relief-applied tracker, a passive-decay registry, a galactic hostility index reader, a faction dossier tooltip builder plus a companion dossier detail panel, an extended bulletin builder, and a new standalone Faction Conflict Scoreboard) — all built to support Cosmic War's own v4.0.0 War Overhaul Update, all purely additive and reusable by any Cosmic mod. Ongoing work is a mix of bugfix passes, documentation upkeep, and genuine new API surface as the Core 4 mods continue to need shared infrastructure.
+
+---
+
+<div align="center">
+
+[⬆ Back to top](https://github.com/Stormiebox/Cosmic-Vault/wiki/Features) · [🌌 README](https://github.com/Stormiebox/Cosmic-Vault) · [🔧 Modder Guide](https://github.com/Stormiebox/Cosmic-Vault/wiki/Modder%E2%80%90Guide)
+
+</div>

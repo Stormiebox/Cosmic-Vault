@@ -1,6 +1,35 @@
 # 🌌 Cosmic Vault — Modder Guide
 
-Technical reference for modders building on top of Cosmic Vault's shared systems: architecture rules that will crash your mod if you ignore them, function signatures, and code examples for every public API. If you want prose explanations of what each system does and why, see `WIKI.md` instead.
+![Version](https://img.shields.io/badge/version-4.0.0-6f42c1?style=flat-square)
+![Avorion](https://img.shields.io/badge/Avorion-2.5.13-2f81f7?style=flat-square)
+
+Technical reference for modders building on top of Cosmic Vault's shared systems: architecture rules that will crash your mod if you ignore them, function signatures, and code examples for every public API.
+
+> [!TIP]
+> If you want prose explanations of what each system does and why, see [`WIKI.md`](WIKI.md) instead. See [`README.md`](README.md) for installation.
+
+---
+
+## 📑 Contents
+
+- [🏗️ Architecture & Best Practices](#-architecture--best-practices)
+- **📑 The API Library**
+  - **Player, Settings & Progression** — [1. Player Settings](#-1-player-settings-api-cosmicvaultplayersettingslua) · [12. Progression](#-12-progression-api-cosmicvaultprogressionlua) · [32. Settings Schema](#-32-settings-schema-api-cosmicvaultsettingsschemalua)
+  - **News & Dialogue** — [2. Galactic News](#-2-galactic-news-api-cosmicvaultnewslua) · [23. Dialogue](#-23-dialogue-api-cosmicvaultdialoguelua)
+  - **Faction, Diplomacy & Conflict** — [3. Faction API & Custom Traits](#-3-faction-api--custom-traits-cosmicvaultfactionlua) · [26. Faction & Diplomacy](#-26-faction--diplomacy-api-cosmicvaultfactionlua) · [34. Conflict Scoreboard](#-34-faction-conflict-scoreboard-api-cosmicvaultconflictlua)
+  - **UI & Presentation** — [4. UI Components](#-4-cosmic-ui-components-cosmicvaultuilua) · [31. UI Kit](#-31-ui-kit-api-cosmicvaultuikitlua)
+  - **Scheduling, Data & Framework** — [5. Task Scheduler](#-5-task-scheduler-api-cosmicvaulttasklua) · [6. Data Serialization](#-6-data-serialization-api-cosmicvaultdatalua) · [25. Framework Core](#-25-framework-core-api-cosmicvaultframeworklua)
+  - **Arsenal & Combat** — [7. Arsenal](#-7-arsenal-api-cosmicvaultarsenallua) · [20. Combat & DoTs](#-20-combat--dots-api-cosmicvaultcombatlua)
+  - **Economy & Goods** — [8. Economy](#-8-economy-api-cosmicvaulteconomylua--cosmicvaultgoodslua) · [14. Goods](#-14-goods-api-cosmicvaultgoodslua) · [28. Economy Famine](#-28-economy-famine-api-cosmicvaulteconomylua)
+  - **Encounters & Missions** — [9. Encounter](#-9-encounter-api-cosmicvaultencounterlua) · [10. Mission](#-10-mission-api-cosmicvaultmissionlua)
+  - **Scaling & Territory** — [11. Dynamic Scaling](#-11-dynamic-scaling-api-cosmicvaultscalinglua) · [24. Territory](#-24-territory-api-cosmicvaultterritorylua)
+  - **Fleet & Loot** — [13. Fleet Command](#-13-fleet-command-api-cosmicvaultfleetlua) · [15. Loot](#-15-loot-api-cosmicvaultlootlua)
+  - **Blueprints & Stations** — [16. Blueprint](#-16-blueprint-api-cosmicvaultblueprintlua) · [17. Station Interaction](#-17-station-interaction-api-cosmicvaultstationlua)
+  - **Events, Buffs & Weather** — [18. Global Events](#-18-global-events-api-cosmicvaulteventslua) · [19. Buffs](#-19-buffs-api-cosmicvaultbuffslua) · [30. Subspace Weather](#-30-subspace-weather-api-cv_weather_controllerlua)
+  - **Config, Debug & Keybinds** — [21. Config](#-21-config-api-cosmicvaultconfiglua) · [22. Debug](#-22-debug-api-cosmicvaultdebuglua) · [27. CCM Keybinds](#-27-cosmic-configuration-menu-ccm-keybind-api-ccmlua--ccm_keycodeslua)
+  - **Upgrade Categories** — [33. Upgrade Categories](#-33-upgrade-categories-api-cosmicvaultupgradecategorieslua)
+
+---
 
 ## 🏗️ Architecture & Best Practices
 
@@ -585,3 +614,10 @@ Conflict.resetScore(factionAIndex, factionBIndex)         -- once a conflict res
 
 For how these APIs interact with sister mods (Cosmic War, Cosmic Chronicles) when they're installed alongside Cosmic Vault, see `WIKI.md`'s Cross-Mod Synergy section.
 
+---
+
+<div align="center">
+
+[⬆ Back to top](https://github.com/Stormiebox/Cosmic-Vault/wiki/Modder%E2%80%90Guide) · [🌌 README](https://github.com/Stormiebox/Cosmic-Vault) · [⚙️ Wiki](https://github.com/Stormiebox/Cosmic-Vault/wiki/Features)
+
+</div>

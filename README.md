@@ -2,6 +2,15 @@
 
 *The foundational API library and core framework for the Cosmic Series.*
 
+![Version](https://img.shields.io/badge/version-4.0.0-6f42c1?style=flat-square)
+![Avorion](https://img.shields.io/badge/Avorion-1.0--5.0-2f81f7?style=flat-square)
+![License](https://img.shields.io/badge/license-GPLv3-informational?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey?style=flat-square)
+![Dependencies](https://img.shields.io/badge/dependencies-none-success?style=flat-square)
+
+> [!TIP]
+> New here? [`WIKI.md`](https://github.com/Stormiebox/Cosmic-Vault/wiki/Features) explains what each system does. [`MODDER_GUIDE.md`](https://github.com/Stormiebox/Cosmic-Vault/wiki/Modder%E2%80%90Guide) has the function signatures and code examples if you're building on top of the Vault.
+
 ## 📖 Overview
 
 Cosmic Vault is the shared spine every other Cosmic mod builds on: libraries for the Cosmic Codex, unified UI components, asynchronous task scheduling, and secure client/server communication. It exists so the rest of the series doesn't reimplement the same helpers five times, and so modders extending the series never need a destructive hard override of a vanilla script.
@@ -36,6 +45,16 @@ Cosmic Vault is the shared spine every other Cosmic mod builds on: libraries for
 
 ## 📚 Documentation
 
-- `WIKI.md` — full technical reference for every system the Vault exposes.
-- `MODDER_GUIDE.md` — API signatures and code examples for modders building on top of the Vault.
-- The in-game **Cosmic Codex** also carries Vault lore and mechanics for players who never leave the game.
+| Document | For | Covers |
+|---|---|---|
+| [`WIKI.md`](https://github.com/Stormiebox/Cosmic-Vault/wiki/Features) | Anyone curious how the Vault works | Full technical reference for every system the Vault exposes — what it does, which files implement it, what changed recently. |
+| [`MODDER_GUIDE.md`](https://github.com/Stormiebox/Cosmic-Vault/wiki/Modder%E2%80%90Guide) | Modders building on top of the Vault | Function signatures and copy-pasteable code examples for every public API. |
+| **Cosmic Codex** *(in-game)* | Players | Vault lore and mechanics, readable without leaving the game. |
+
+---
+
+<div align="center">
+
+**🌌 Cosmic Vault** — part of the [Cosmic Series](https://github.com/Stormiebox) · built by **Stormbox**
+
+</div>
