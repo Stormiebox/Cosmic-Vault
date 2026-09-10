@@ -3,7 +3,7 @@
 *The foundational API library and core framework for the Cosmic Series.*
 
 ![Version](https://img.shields.io/badge/version-4.0.0-6f42c1?style=flat-square)
-![Avorion](https://img.shields.io/badge/Avorion-1.0--5.0-2f81f7?style=flat-square)
+![Avorion](https://img.shields.io/badge/Avorion-2.5.13-2f81f7?style=flat-square)
 ![License](https://img.shields.io/badge/license-GPLv3-informational?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey?style=flat-square)
 ![Dependencies](https://img.shields.io/badge/dependencies-none-success?style=flat-square)
