@@ -1,8 +1,32 @@
 
 include("cosmicvaultframework")
+include("weapontype")
 
 -- namespace CosmicVaultArsenal
 CosmicVaultArsenal = CosmicVaultArsenal or {}
+
+-- These are the exact dispatch keys registered by vanilla turretgenerator.lua.
+local supportedWeaponTypes = {
+    [WeaponType.ChainGun] = true,
+    [WeaponType.PointDefenseChainGun] = true,
+    [WeaponType.PointDefenseLaser] = true,
+    [WeaponType.Laser] = true,
+    [WeaponType.MiningLaser] = true,
+    [WeaponType.RawMiningLaser] = true,
+    [WeaponType.SalvagingLaser] = true,
+    [WeaponType.RawSalvagingLaser] = true,
+    [WeaponType.PlasmaGun] = true,
+    [WeaponType.RocketLauncher] = true,
+    [WeaponType.Cannon] = true,
+    [WeaponType.RailGun] = true,
+    [WeaponType.RepairBeam] = true,
+    [WeaponType.Bolter] = true,
+    [WeaponType.LightningGun] = true,
+    [WeaponType.TeslaGun] = true,
+    [WeaponType.ForceGun] = true,
+    [WeaponType.PulseCannon] = true,
+    [WeaponType.AntiFighter] = true
+}
 
 --[[
     Cosmic Vault Arsenal API
@@ -70,6 +94,53 @@ function CosmicVaultArsenal.GenerateTurret(config)
     -- turret:updateStaticAttributes() -- Removed: improperly used method
 
     return turret
+end
+
+--- Generates a seeded turret through vanilla's weapon-type dispatcher.
+-- @param config (table) Typed generation parameters
+-- @return (TurretTemplate|nil, string|nil) Generated turret or an error code
+function CosmicVaultArsenal.GenerateTypedTurret(config)
+    if type(config) ~= "table" then return nil, "invalid_config" end
+    if not supportedWeaponTypes[config.weaponType] then return nil, "unsupported_weapon_type" end
+    if config.seed == nil then return nil, "missing_seed" end
+    if type(config.dps) ~= "number" or config.dps <= 0 then return nil, "invalid_dps" end
+    if type(config.tech) ~= "number" or config.tech < 0 then return nil, "invalid_tech" end
+    if config.rarity == nil then return nil, "missing_rarity" end
+    if config.material == nil then return nil, "missing_material" end
+    if config.coaxialAllowed ~= nil and type(config.coaxialAllowed) ~= "boolean" then
+        return nil, "invalid_coaxial_allowed"
+    end
+    if config.title ~= nil and type(config.title) ~= "string" then return nil, "invalid_title" end
+    if config.icon ~= nil and type(config.icon) ~= "string" then return nil, "invalid_icon" end
+    if config.size ~= nil and (type(config.size) ~= "number" or config.size <= 0) then
+        return nil, "invalid_size"
+    end
+    if config.slots ~= nil and (type(config.slots) ~= "number" or config.slots < 1) then
+        return nil, "invalid_slots"
+    end
+
+    local TurretGenerator = include("turretgenerator")
+    if not TurretGenerator or type(TurretGenerator.generateSeeded) ~= "function" then
+        return nil, "generator_unavailable"
+    end
+
+    local generated, turret = pcall(
+        TurretGenerator.generateSeeded,
+        config.seed,
+        config.weaponType,
+        config.dps,
+        config.tech,
+        config.rarity,
+        config.material,
+        config.coaxialAllowed)
+    if not generated or not turret then return nil, "generation_failed" end
+
+    if config.title ~= nil then turret.title = config.title end
+    if config.icon ~= nil then turret.icon = config.icon end
+    if config.size ~= nil then turret.size = config.size end
+    if config.slots ~= nil then turret.slots = math.floor(config.slots) end
+
+    return turret, nil
 end
 
 --- Spawns a turret drop in the sector

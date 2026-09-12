@@ -7,7 +7,92 @@
 local cw_ok, cw_bridge = pcall(include, "cosmicwarbridge")
 if not cw_ok then cw_bridge = nil end
 local FactionEradicationUtility = include("factioneradicationutility")
+local CosmicVaultData = include("cosmicvaultdata")
 local CosmicVaultEconomy = {}
+
+local MARKET_KEY = "cv_market_events_v1"
+local MARKET_VERSION = 1
+local DEFAULT_DURATION = 1800
+local TERMINAL_RETENTION = 7 * 24 * 60 * 60
+
+local function marketNow()
+    local server = Server()
+    return server and server.unpausedRuntime or 0
+end
+
+local function marketCopy(value, seen)
+    if type(value) ~= "table" then return value end
+    seen = seen or {}
+    if seen[value] then return seen[value] end
+
+    local copy = {}
+    seen[value] = copy
+    for key, item in pairs(value) do
+        copy[marketCopy(key, seen)] = marketCopy(item, seen)
+    end
+    return copy
+end
+
+local function loadMarketEvents()
+    local record, err = CosmicVaultData.GetRecord(Server(), MARKET_KEY, MARKET_VERSION)
+    if not record and err == "missing" then
+        record = {schemaVersion = MARKET_VERSION, revision = 0, events = {}}
+    elseif not record then
+        return nil, err
+    end
+
+    if type(record.revision) ~= "number" or type(record.events) ~= "table" then
+        return nil, "corrupt"
+    end
+    for eventId, event in pairs(record.events) do
+        if type(eventId) ~= "string" or type(event) ~= "table"
+                or event.eventId ~= eventId or type(event.revision) ~= "number"
+                or type(event.state) ~= "string" then
+            return nil, "corrupt"
+        end
+    end
+    return record, nil
+end
+
+local function saveMarketEvents(record)
+    record.revision = (record.revision or 0) + 1
+    local saved, err = CosmicVaultData.SetRecord(Server(), MARKET_KEY, record)
+    if not saved then
+        record.revision = math.max(0, record.revision - 1)
+        return nil, err
+    end
+    return true, nil
+end
+
+local function eventScopeMatches(event, sourceId, goodName, x, y, radius)
+    return event.sourceId == sourceId
+        and event.goodName == goodName
+        and event.x == x
+        and event.y == y
+        and event.radius == radius
+end
+
+local function maintainMarketEvents(record, currentTime)
+    local changed = false
+    local removed = 0
+    for eventId, event in pairs(record.events) do
+        if event.state == "active" and type(event.expiresAt) == "number" and event.expiresAt <= currentTime then
+            event.state = "expired"
+            event.endedAt = event.expiresAt
+            event.endReason = "expired"
+            event.revision = (event.revision or 0) + 1
+            changed = true
+        elseif removed < 25 and (event.state == "expired" or event.state == "ended") then
+            local terminalAt = event.endedAt or event.expiresAt
+            if type(terminalAt) == "number" and currentTime - terminalAt >= TERMINAL_RETENTION then
+                record.events[eventId] = nil
+                removed = removed + 1
+                changed = true
+            end
+        end
+    end
+    return changed
+end
 
 -- Famine Score logic:
 -- 0 = Normal, 1-100 = Struggling, >100 = Famine
@@ -114,13 +199,197 @@ function CosmicVaultEconomy.getFamineLevel(factionIndex)
     end
 end
 
-function CosmicVaultEconomy.TriggerMarketEvent(goodName, x, y, radius, eventType)
-    if not onServer() then return end
-    local server = Server()
-    if not server then return end
+--- Starts or refreshes a persistent regional market event.
+-- @param options (table) Event identity, scope, type, duration, delta, and notification preference
+-- @return (table|nil, string|nil) The stored event or an error code
+function CosmicVaultEconomy.StartMarketEvent(options)
+    if not onServer() then return nil, "server_only" end
+    if type(options) ~= "table" then return nil, "invalid_options" end
 
-    server:broadcastChatMessage("Server"%_T, ChatMessageType.Economy, "Market event %s for %s started near (%d, %d)."%_T, eventType, goodName, x, y)
-    -- In a full implementation this would attach a script to the sector or register it globally
+    local eventId = options.eventId
+    local sourceId = options.sourceId
+    local goodName = options.goodName
+    local eventType = type(options.eventType) == "string" and string.lower(options.eventType) or nil
+    if type(eventId) ~= "string" or eventId == "" then return nil, "invalid_event_id" end
+    if type(sourceId) ~= "string" or sourceId == "" then return nil, "invalid_source_id" end
+    if type(goodName) ~= "string" or goodName == "" then return nil, "invalid_good_name" end
+    if type(options.x) ~= "number" or type(options.y) ~= "number" then return nil, "invalid_coordinates" end
+    if type(options.radius) ~= "number" or options.radius < 0 then return nil, "invalid_radius" end
+    if eventType ~= "boom" and eventType ~= "crash" then return nil, "invalid_event_type" end
+
+    local delta = options.delta
+    if delta == nil then delta = eventType == "boom" and 0.10 or -0.10 end
+    if type(delta) ~= "number" then return nil, "invalid_delta" end
+
+    local duration = options.duration == nil and DEFAULT_DURATION or options.duration
+    if type(duration) ~= "number" or duration <= 0 then return nil, "invalid_duration" end
+    if options.notify ~= nil and type(options.notify) ~= "boolean" then return nil, "invalid_notify" end
+
+    local record, loadError = loadMarketEvents()
+    if not record then return nil, loadError end
+    local currentTime = marketNow()
+    local working = marketCopy(record)
+    maintainMarketEvents(working, currentTime)
+
+    local existing = working.events[eventId]
+    if existing and not eventScopeMatches(
+            existing, sourceId, goodName, options.x, options.y, options.radius) then
+        return nil, "event_id_conflict"
+    end
+
+    if not existing then
+        for _, candidate in pairs(working.events) do
+            if eventScopeMatches(candidate, sourceId, goodName, options.x, options.y, options.radius) then
+                existing = candidate
+                break
+            end
+        end
+    end
+
+    local notify = options.notify ~= false
+    local event
+    if existing then
+        event = existing
+        event.eventType = eventType
+        event.priceDelta = delta
+        event.startedAt = currentTime
+        event.expiresAt = currentTime + duration
+        event.state = "active"
+        event.notify = notify
+        event.endedAt = nil
+        event.endReason = nil
+        event.lastError = nil
+        event.repairRequired = nil
+        event.revision = (event.revision or 0) + 1
+    else
+        event = {
+            schemaVersion = MARKET_VERSION,
+            revision = 1,
+            eventId = eventId,
+            sourceId = sourceId,
+            goodName = goodName,
+            x = options.x,
+            y = options.y,
+            radius = options.radius,
+            eventType = eventType,
+            priceDelta = delta,
+            startedAt = currentTime,
+            expiresAt = currentTime + duration,
+            state = "active",
+            notify = notify,
+            endedAt = nil,
+            endReason = nil,
+            migrationProvenance = "native",
+            lastError = nil,
+            repairRequired = nil
+        }
+        working.events[eventId] = event
+    end
+
+    local saved, saveError = saveMarketEvents(working)
+    if not saved then return nil, saveError end
+
+    if notify then
+        Server():broadcastChatMessage(
+            "Server"%_T,
+            ChatMessageType.Economy,
+            "Market event %s for %s started near (%d, %d)."%_T,
+            eventType,
+            goodName,
+            options.x,
+            options.y)
+    end
+    return marketCopy(event), nil
+end
+
+--- Reads one market event and expires it when its deadline has passed.
+function CosmicVaultEconomy.GetMarketEvent(eventId)
+    if not onServer() then return nil, "server_only" end
+    if type(eventId) ~= "string" or eventId == "" then return nil, "invalid_event_id" end
+
+    local record, loadError = loadMarketEvents()
+    if not record then return nil, loadError end
+    local working = marketCopy(record)
+    local changed = maintainMarketEvents(working, marketNow())
+    if changed then
+        local saved, saveError = saveMarketEvents(working)
+        if not saved then return nil, saveError end
+    end
+
+    local event = working.events[eventId]
+    if not event then return nil, "missing" end
+    return marketCopy(event), nil
+end
+
+--- Ends an active market event without deleting its audit record.
+function CosmicVaultEconomy.EndMarketEvent(eventId, reason)
+    if not onServer() then return nil, "server_only" end
+    if type(eventId) ~= "string" or eventId == "" then return nil, "invalid_event_id" end
+
+    local record, loadError = loadMarketEvents()
+    if not record then return nil, loadError end
+    local event = record.events[eventId]
+    if not event then return nil, "missing" end
+    if event.state == "ended" or event.state == "expired" then return marketCopy(event), nil end
+    if event.state ~= "active" then return nil, "invalid_state" end
+
+    local working = marketCopy(record)
+    event = working.events[eventId]
+    event.state = "ended"
+    event.endedAt = marketNow()
+    event.endReason = tostring(reason or "ended")
+    event.revision = (event.revision or 0) + 1
+    local saved, saveError = saveMarketEvents(working)
+    if not saved then return nil, saveError end
+    return marketCopy(event), nil
+end
+
+--- Returns the additive price delta from active events covering a good and sector.
+function CosmicVaultEconomy.GetMarketPriceDelta(goodName, x, y, currentTime)
+    if not onServer() then return 0, "server_only" end
+    if type(goodName) ~= "string" or type(x) ~= "number" or type(y) ~= "number" then
+        return 0, "invalid_scope"
+    end
+    currentTime = type(currentTime) == "number" and currentTime or marketNow()
+
+    local record, loadError = loadMarketEvents()
+    if not record then return 0, loadError end
+    local working = marketCopy(record)
+    local changed = maintainMarketEvents(working, currentTime)
+
+    local delta = 0
+    for _, event in pairs(working.events) do
+        if event.state == "active" and type(event.x) == "number"
+                and type(event.y) == "number" and type(event.radius) == "number"
+                and type(event.priceDelta) == "number"
+                and (event.goodName == "All" or event.goodName == goodName) then
+            local dx = x - event.x
+            local dy = y - event.y
+            if dx * dx + dy * dy <= event.radius * event.radius then
+                delta = delta + event.priceDelta
+            end
+        end
+    end
+
+    if changed then
+        local saved, saveError = saveMarketEvents(working)
+        if not saved then return delta, saveError end
+    end
+    return delta, nil
+end
+
+function CosmicVaultEconomy.TriggerMarketEvent(goodName, x, y, radius, eventType)
+    local sourceId = table.concat({"legacy", tostring(eventType), tostring(goodName), tostring(x), tostring(y), tostring(radius)}, ":")
+    return CosmicVaultEconomy.StartMarketEvent({
+        eventId = sourceId,
+        sourceId = sourceId,
+        goodName = goodName,
+        x = x,
+        y = y,
+        radius = radius,
+        eventType = eventType,
+        notify = true
+    })
 end
 
 -- Registers a dynamic price hook for a good. economyupdater.lua's

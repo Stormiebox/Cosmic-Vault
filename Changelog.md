@@ -7,6 +7,68 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v4.1.0] - Persistent Operations Toolkit
+
+This release adds the shared persistence primitives required by Cosmic Ascendancy's structural
+overhaul. Every addition is backward-compatible: existing exports, call signatures, and legacy
+wrappers remain available.
+
+### ⭐ API Enhancements
+
+- [Feature] **Versioned JSON Records (`cosmicvaultdata.lua`):** Added
+  `CosmicVaultData.SetRecord(actor, key, record)` and `GetRecord(actor, key)`. Records require a
+  numeric `schemaVersion`, serialize through JSON because Avorion custom values cannot store Lua
+  tables, and distinguish missing, corrupt, unsupported-version, validation, and actor-capability
+  failures. Any verified Server, Player, Alliance, Faction, or Entity actor with `getValue` and
+  `setValue` is supported. `SetTable` and `GetTable` are unchanged.
+- [Feature] **Durable Materialization Queue (`cosmicvaultterritory.lua`):** Added
+  `QueueMaterialization`, `ClaimMaterialization`, `CompleteMaterialization`,
+  `RetryMaterialization`, `GetMaterialization`, `RequireMaterializationRepair`, and
+  `ResolveMaterializationRepair`. Queues use exact `x:y` keys, coalesce identical requests, reject
+  conflicting payloads, lease work to one claimant, retry failed work up to five times, and retain
+  completed tombstones for seven days. Each generation includes its creation time in external tags
+  and receipts so stale sector evidence cannot satisfy new work at reused coordinates.
+- [Feature] **Typed Turret Generation (`cosmicvaultarsenal.lua`):** Added
+  `CosmicVaultArsenal.GenerateTypedTurret(config)`. The function validates the requested weapon type
+  against the types vanilla's `turretgenerator.lua` actually dispatches, calls
+  `TurretGenerator.generateSeeded` with the verified argument order, and limits post-generation
+  edits to supported cosmetic and slot adjustments. Existing `GenerateTurret` behavior is unchanged.
+- [Feature] **Persistent Market Events (`cosmicvaulteconomy.lua`):** Added `StartMarketEvent`,
+  `GetMarketEvent`, `EndMarketEvent`, and `GetMarketPriceDelta`. Events persist their source, scope,
+  position, radius, delta, lifetime, and state; matching source/scope events refresh instead of
+  stacking; different overlaps combine and clamp to vanilla's `-0.30` to `+0.30` price-change
+  range. Legacy booms and crashes default to ±0.10 for 30 minutes, and `TriggerMarketEvent` remains
+  as a broadcasting compatibility wrapper.
+
+### 🗺️ Territory & Economy Integration
+
+- [Refactor] **One Shared Territory Consumer (`player/cv_territory_injector_persistent.lua`):** Vault
+  now owns shared flip and expansion materialization. `resolveSiege` and `expandToSector` remain
+  public but enqueue their work; pending values are not cleared until the sector-side result is
+  verified. Legacy delimiter queues migrate once with exact-coordinate parsing and remain untouched
+  for diagnosis.
+- [Reliability] **Cross-VM Writers Read Fresh Persistent State:** Queue and market mutations no
+  longer trust a module-local writer cache. Avorion loads library modules independently in separate
+  script VMs, so each mutation reloads the Server record before incrementing its revision; this
+  prevents one VM from overwriting another VM's newer queue item or event.
+- [Reliability] **Expired Work Preserves Ambiguity:** A materializing expansion whose lease expires
+  without a generation-tagged station enters repair instead of spawning a possible duplicate. The
+  repair bridge lets consuming mods settle their own related receipt before Vault resolves the queue.
+- [Feature] **Server/Client Market Parity (`sector/background/economyupdater.lua`):** The existing
+  economy updater applies active market-event deltas after vanilla supply/demand and registered
+  hooks, then synchronizes the relevant event snapshot so client price displays use the same value
+  as server trades. This extends the existing updater collision surface; it does not add another
+  vanilla-path replacement.
+
+### 🔗 Compatibility & Documentation
+
+- [Compatibility] **Existing APIs Preserved:** All prior Vault exports remain callable. Cosmic War's
+  duplicate pending-flip worker now yields to the Vault consumer, while a compatibility bridge keeps
+  War Score and momentum updates receipted with the flip.
+- [Docs] **Public References Updated (`WIKI.md`, `MODDER_GUIDE.md`):** Added record, queue, repair,
+  typed-turret, and market-event contracts, including validation results, lease behavior, refresh
+  semantics, and compatibility wrappers.
+
 ## [v4.0.0] MODDER TOOLKIT EXPANSION
 
 *A major version bump reflecting the scope of this release, not a break: seven purely additive API surfaces, all built to support Cosmic War's own v4.0.0 War Overhaul Update, all reusable by any Cosmic mod. No existing exported behavior changed or removed.*

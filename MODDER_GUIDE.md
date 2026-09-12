@@ -191,6 +191,24 @@ CosmicVaultData.SetTable(entity, "MyCustomData", {isBoss = true})
 CosmicVaultData.AddTag(entity, "VIP_Target")
 ```
 
+For durable state-machine records, use the versioned record API. It JSON-encodes the table because
+Avorion custom values accept scalar values, not Lua tables:
+
+```lua
+local saved, err = CosmicVaultData.SetRecord(Server(), "my_record_v1", {
+    schemaVersion = 1,
+    revision = 0,
+    state = "pending"
+})
+
+local record, readError = CosmicVaultData.GetRecord(Server(), "my_record_v1", 1)
+```
+
+`SetRecord(actor, key, record)` requires a numeric `schemaVersion`, rejects cyclic/functions/userdata,
+and supports any verified Server, Player, Alliance, Faction, or Entity actor with `getValue`/`setValue`.
+`GetRecord(actor, key, expectedVersion)` distinguishes `missing`, `corrupt`, and
+`unsupported_version`. Existing `SetTable` and `GetTable` behavior is unchanged.
+
 ### ⚔️ 7. Arsenal API (`cosmicvaultarsenal.lua`)
 Generates properly balanced, custom `Weapon`/`InventoryTurret` objects dynamically.
 ```lua
@@ -198,6 +216,21 @@ local CosmicVaultArsenal = include("cosmicvaultarsenal")
 local turret = CosmicVaultArsenal.GenerateTurret({rarity = Rarity(RarityType.Legendary), weaponType = WeaponType.Bolter, damage = 500})
 ```
 As of v3.5.0, `rarity` and `material` are written to the generated `Weapon` object and actually take effect — earlier versions wrote them to `InventoryTurret` instead, which silently discards both since they're read-only there. **`weaponType` still does nothing.** It isn't wired to anything the engine reads; giving a weapon a real per-type identity (Bolter vs. Laser vs. Cannon, etc.) needs the manual physics setup vanilla's own `weapongenerator.lua` does — `Weapon:setProjectile()`/`:setBeam()`, `fireDelay`, `pvelocity`, and related fields — which this helper doesn't implement. Pass it if you like for readability, but don't expect it to change the result.
+
+When the weapon type must be genuine, use `GenerateTypedTurret(config)`. This validates the type
+against vanilla `turretgenerator.lua` and delegates to its seeded typed dispatcher:
+
+```lua
+local turret, err = CosmicVaultArsenal.GenerateTypedTurret({
+    seed = Seed(12345), weaponType = WeaponType.Laser,
+    dps = 250000, tech = 52,
+    rarity = Rarity(RarityType.Legendary),
+    material = Material(MaterialType.Avorion), coaxialAllowed = true
+})
+```
+
+Unsupported weapon types and invalid configuration return `nil, error`. `GenerateTurret` remains
+available with its original behavior.
 
 ### 💹 8. Economy API (`cosmicvaulteconomy.lua` & `cosmicvaultgoods.lua`)
 Reads live market data, broadcasts economic events, and injects custom trade goods into the five global vanilla economy arrays.
@@ -216,6 +249,26 @@ CosmicVaultEconomy.TriggerMarketEvent("Processors", 150, -50, 10, "boom")
 -- Register dynamic price fluctuations
 CosmicVaultEconomy.registerPriceHook("Contraband", "mymod.lua", "onCalculateContrabandPrice")
 ```
+
+`TriggerMarketEvent` remains compatible and now starts a persistent event. New code can control the
+full lifecycle directly:
+
+```lua
+local event, err = CosmicVaultEconomy.StartMarketEvent({
+    sourceId = "my_factory", goodName = "Processors",
+    x = 150, y = -50, radius = 10, eventType = "boom",
+    duration = 1800, notify = false
+})
+local current = CosmicVaultEconomy.GetMarketEvent(event.eventId)
+local delta = CosmicVaultEconomy.GetMarketPriceDelta("Processors", 151, -50,
+    Server().unpausedRuntime)
+CosmicVaultEconomy.EndMarketEvent(event.eventId, "source_removed")
+```
+
+Boom and crash default to `+0.10` and `-0.10`. The default duration is 30 minutes. A repeated event
+from the same source and scope refreshes instead of stacking; distinct overlapping events combine,
+with the final price delta clamped to vanilla's `-0.30` to `+0.30` range. `notify = false` suppresses
+only the broadcast.
 
 ### 🏴‍☠️ 9. Encounter API (`cosmicvaultencounter.lua`)
 Injects custom ambushes or anomalies when a player enters a sector.
@@ -397,7 +450,7 @@ CosmicVaultDialogue.registerLine({
 Manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap (loading a sector just to flip a station's owner). Includes bindings to `CosmicVaultNews` and functions for background faction generation.
 
 > [!NOTE]
-> **Station Flip Queue (Progressive Materialization):** Due to engine limits in Avorion 2.0+, stations in unloaded offline sectors cannot be physically flipped without using `Galaxy():loadSector()`, which physically spins up the sector thread and causes massive server stutters. The Territory API safely bypasses this using a **Lazy Loading** architecture by placing territory conquests into a global deferred queue (`Server():setValue("CosmicVault_PendingExpansions")`). The actual station ownership transfer happens during the loading screen the next time any player loads into that sector.
+> **Progressive Materialization:** Due to engine limits in Avorion 2.0+, stations in unloaded sectors cannot be physically changed without loading and simulating the sector. The Territory API stores versioned JSON queue records and lets the shared player-entry consumer perform the work when the sector is already loading. Legacy pending strings are imported once and preserved only as migration evidence.
 
 > [!TIP]
 > **Precise Siege Progress:** The `setContestedZone()` API automatically injects an absolute `startTime` property (using `Server().unpausedRuntime`) into the serialized background simulation state. Client-side scripts like `cw_battlefieldhud.lua` can pass `zone.startTime` from the server down to the client to render 100% mathematically accurate siege progress bars even for players who join hours late.
@@ -411,6 +464,24 @@ CosmicVaultTerritory.setContestedZone(x, y, 2, 3, 60)
 -- Dynamically generate a new outpost or pirate base in empty space without crashing the server.
 CosmicVaultTerritory.expandToSector(x, y, factionIndex, isPirate)
 
+-- New durable queue workflow. Coordinates, including negatives, are exact identities.
+local queued = CosmicVaultTerritory.QueueMaterialization("my_kind", x, y, {
+    factionIndex = factionIndex
+})
+local claimed = CosmicVaultTerritory.ClaimMaterialization("my_kind", x, y,
+    "my-worker", 60)
+-- Perform the external work, verify its entity/script/result, then:
+CosmicVaultTerritory.CompleteMaterialization("my_kind", x, y, "my-worker", {
+    entityId = station.id.string
+})
+-- Or retain it with bounded backoff:
+CosmicVaultTerritory.RetryMaterialization("my_kind", x, y, "my-worker",
+    "station_creation_failed", 300)
+-- If the worker persisted an external side effect but cannot prove whether it completed,
+-- stop automatic retries and expose the operation to the repair tooling instead.
+CosmicVaultTerritory.RequireMaterializationRepair("my_kind", x, y, "my-worker",
+    "external_receipt_ambiguous")
+
 -- Find where faction 2's and faction 3's territory actually meet, within 15 sectors of the
 -- midpoint between their home sectors -- e.g. to highlight a contested frontline on the map.
 local border = CosmicVaultTerritory.getBorderSectors(2, 3, 15)
@@ -418,6 +489,15 @@ for _, sector in pairs(border) do
     -- sector.x, sector.y
 end
 ```
+
+`GetMaterialization(kind, x, y)` returns the current record. Identical queue requests coalesce;
+conflicting payloads for the same kind/coordinate return an error and mark the record for repair.
+Claims expire back to `retryable`, work is never removed before verified completion, automatic
+attempts stop at five, and completed tombstones are retained for seven days. `resolveSiege` and
+`expandToSector` remain public compatibility wrappers and enqueue through this lifecycle.
+`RequireMaterializationRepair` is for the unsafe crash window after an external system may already
+have applied its side effect; it deliberately prevents an automatic retry from duplicating that
+effect. `ResolveMaterializationRepair` is the administrator-side resolution hook.
 
 ### 🧩 25. Framework Core API (`cosmicvaultframework.lua`)
 The internal state machine and bootstrapper for all vault APIs. Generally not interacted with directly, but handles dependency injection and strict type-checking.

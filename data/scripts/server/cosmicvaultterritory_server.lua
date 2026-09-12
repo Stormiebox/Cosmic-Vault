@@ -16,6 +16,7 @@ end
 
 function CosmicVaultTerritoryServer.initialize()
     if onServer() then
+        CosmicVaultTerritory.ImportLegacyMaterializations()
         Server():registerCallback("onPlayerLogIn", "onPlayerLogIn")
     end
 end
@@ -27,15 +28,10 @@ function CosmicVaultTerritoryServer.onPlayerLogIn(playerIndex)
     end
 end
 
--- This function is called by the API when a sector is briefly loaded to flip its stations
+-- This compatibility entry point now queues work for an ordinary player-loaded sector.
 function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
     if type(x) ~= "number" or type(y) ~= "number" or type(newFactionIndex) ~= "number" then return end
 
-    -- Queue the territory flip for the next time a player enters the sector.
-    -- Server():setValue() only supports bool/number/string/nil, and every reader
-    -- (CosmicVaultTerritory.resolveSiege and cv_territory_injector_persistent.lua)
-    -- expects the "x__y__factionIndex," string queue format - delegate to the
-    -- shared implementation instead of maintaining a second, incompatible format.
     if CosmicVaultTerritory and CosmicVaultTerritory.resolveSiege then
         CosmicVaultTerritory.resolveSiege(x, y, newFactionIndex)
     end

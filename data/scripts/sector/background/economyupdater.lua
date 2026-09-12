@@ -11,12 +11,11 @@ local self = EconomyUpdater
 self.supply = nil
 self.demand = nil
 self.sum = nil
+self.marketEvents = {}
 self.waitingForRefresh = false
 
 function EconomyUpdater.getUpdateInterval()
-    if onClient() and not self.supply and not self.demand and not self.sum then
-        return 5
-    end
+    if onClient() then return self.sum and 30 or 5 end
 
     return 300
 end
@@ -35,9 +34,42 @@ function EconomyUpdater.initialize()
 end
 
 function EconomyUpdater.updateClient(timeStep)
+    for _, event in ipairs(self.marketEvents or {}) do
+        event.remaining = math.max(0, (event.remaining or 0) - timeStep)
+    end
     if not self.supply and not self.demand and not self.sum then
         EconomyUpdater.requestData()
+    else
+        -- Market events can begin or end between the five-minute supply refreshes.
+        EconomyUpdater.requestData()
     end
+end
+
+local function marketEventsForCurrentSector()
+    if not onServer() then return {} end
+    local CosmicVaultData = include("cosmicvaultdata")
+    local record = CosmicVaultData.GetRecord(Server(), "cv_market_events_v1", 1)
+    if not record or type(record.events) ~= "table" then return {} end
+    local x, y = Sector():getCoordinates()
+    local currentTime = Server().unpausedRuntime
+    local events = {}
+    for _, event in pairs(record.events) do
+        if event.state == "active" and type(event.expiresAt) == "number"
+                and event.expiresAt > currentTime and type(event.x) == "number"
+                and type(event.y) == "number" and type(event.radius) == "number"
+                and type(event.goodName) == "string" and type(event.priceDelta) == "number" then
+            local dx, dy = x - event.x, y - event.y
+            if dx * dx + dy * dy <= event.radius * event.radius then
+                table.insert(events, {
+                    eventId = event.eventId,
+                    goodName = event.goodName,
+                    priceDelta = event.priceDelta,
+                    remaining = event.expiresAt - currentTime
+                })
+            end
+        end
+    end
+    return events
 end
 
 function EconomyUpdater.updateServer(timeStep)
@@ -46,24 +78,25 @@ function EconomyUpdater.updateServer(timeStep)
     -- Cosmic Chronicles/Vault: Vault Economy + Chronicles (Famine Relief Anomalies)
     local sector = Sector()
     local x, y = sector:getCoordinates()
-    local factionIndex = Galaxy():getControllingFaction(x, y)
+    local controllingFaction = Galaxy():getControllingFaction(x, y)
+    if type(controllingFaction) == "number" then controllingFaction = Faction(controllingFaction) end
 
-    if factionIndex then
+    if controllingFaction then
         local cve = include("cosmicvaulteconomy")
         if cve and cve.getFamineScore then
-            local score = cve.getFamineScore(factionIndex)
+            local score = cve.getFamineScore(controllingFaction.index)
             if type(score) == "number" and score >= 100 then
                 -- 1% chance to spawn a Famine Relief Cache in a starving sector
                 if random():test(0.01) then
                     local generator = SectorGenerator(x, y)
-                    local beacon = generator:createBeacon(generator:getPositionInSector(), Faction(factionIndex), "EMERGENCY RELIEF CACHE")
+                    local beacon = generator:createBeacon(generator:getPositionInSector(), controllingFaction, "EMERGENCY RELIEF CACHE")
                     if beacon then
                         beacon.title = "Famine Relief Cache"
                         -- cc_blackbox.lua only exists in Cosmic Chronicles; Cosmic
                         -- Vault has no dependencies and must keep working without
                         -- it, so this attach is best-effort only.
                         pcall(function() beacon:addScriptOnce("data/scripts/entity/cc_blackbox.lua") end)
-                        beacon:setValue("is_famine_relief", factionIndex)
+                        beacon:setValue("is_famine_relief", controllingFaction.index)
                     end
                 end
             end
@@ -127,7 +160,8 @@ function EconomyUpdater.onEconomyRefreshDone(supply, demand, sum)
     self.demand = demand
     self.sum = sum
 
-    broadcastInvokeClientFunction("setData", self.supply, self.demand)
+    broadcastInvokeClientFunction("setData", self.supply, self.demand,
+        marketEventsForCurrentSector())
 end
 
 function EconomyUpdater.requestData()
@@ -137,17 +171,19 @@ function EconomyUpdater.requestData()
     end
 
     if callingPlayer and self.supply and self.demand then
-        invokeClientFunction(Player(callingPlayer), "setData", self.supply, self.demand)
+        invokeClientFunction(Player(callingPlayer), "setData", self.supply, self.demand,
+            marketEventsForCurrentSector())
     end
 end
 callable(EconomyUpdater, "requestData")
 
-function EconomyUpdater.setData(supply, demand)
+function EconomyUpdater.setData(supply, demand, marketEvents)
     if type(supply) ~= "table" then supply = {} end
     if type(demand) ~= "table" then demand = {} end
 
     self.supply = supply
     self.demand = demand
+    self.marketEvents = type(marketEvents) == "table" and marketEvents or {}
     self.sum = {}
 
     local sum = self.sum
@@ -168,8 +204,7 @@ function EconomyUpdater.getSupplyDemandPriceChange(good, ownSupplyType)
     if type(good) ~= "string" then return 0 end
     if not self.sum then return 0 end
 
-    local sum = self.sum[good]
-    if not sum then return 0 end
+    local sum = self.sum[good] or 0
 
 
     if ownSupplyType then
@@ -207,9 +242,25 @@ function EconomyUpdater.getSupplyDemandPriceChange(good, ownSupplyType)
                 end
             end
         end
+
+        local sector = Sector()
+        local x, y = sector:getCoordinates()
+        local economy = include("cosmicvaulteconomy")
+        if economy and economy.GetMarketPriceDelta then
+            local eventDelta = economy.GetMarketPriceDelta(good, x, y, Server().unpausedRuntime)
+            if type(eventDelta) == "number" then factor = factor + eventDelta end
+        end
+    else
+        for _, event in ipairs(self.marketEvents or {}) do
+            if (event.remaining or 0) > 0
+                    and (event.goodName == "All" or event.goodName == good)
+                    and type(event.priceDelta) == "number" then
+                factor = factor + event.priceDelta
+            end
+        end
     end
 
-    return factor
+    return math.max(-0.30, math.min(0.30, factor))
 end
 
-
+

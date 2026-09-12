@@ -6,6 +6,24 @@ local json = include("dkjson")
 -- namespace CosmicVaultData
 CosmicVaultData = CosmicVaultData or {}
 
+local function hasActorMethod(actor, methodName)
+    if actor == nil then return false end
+
+    local ok, method = pcall(function() return actor[methodName] end)
+    return ok and type(method) == "function"
+end
+
+local function versionSupported(schemaVersion, supportedVersions)
+    if supportedVersions == nil then return true end
+    if type(supportedVersions) == "number" then
+        return schemaVersion == supportedVersions
+    end
+    if type(supportedVersions) == "table" then
+        return supportedVersions[schemaVersion] == true
+    end
+    return false
+end
+
 --[[
     Cosmic Vault Data & Tagging API
     Allows modders to easily store complex Lua tables onto Entities, and apply tags
@@ -41,6 +59,51 @@ function CosmicVaultData.GetTable(entity, key)
         return nil
     end
     return decoded
+end
+
+--- Stores a versioned Lua record as a JSON custom value.
+-- Avorion custom values only persist primitives, so callers must never pass a
+-- record directly to actor:setValue().
+-- @param actor (Server|Player|Alliance|Faction|Entity) The persistence owner
+-- @param key (string) The custom-value key
+-- @param record (table) A record containing a numeric schemaVersion
+-- @return (boolean|nil, string|nil) True on success or nil plus an error code
+function CosmicVaultData.SetRecord(actor, key, record)
+    if not hasActorMethod(actor, "setValue") then return nil, "invalid_actor" end
+    if type(key) ~= "string" or key == "" then return nil, "invalid_key" end
+    if type(record) ~= "table" then return nil, "invalid_record" end
+    if type(record.schemaVersion) ~= "number" then return nil, "missing_schema_version" end
+
+    local encodedOk, encoded = pcall(json.encode, record, {indent = false})
+    if not encodedOk or type(encoded) ~= "string" then return nil, "encode_failed" end
+
+    local writeOk = pcall(function() actor:setValue(key, encoded) end)
+    if not writeOk then return nil, "write_failed" end
+    return true, nil
+end
+
+--- Loads and validates a versioned JSON record from an Avorion custom value.
+-- @param actor (Server|Player|Alliance|Faction|Entity) The persistence owner
+-- @param key (string) The custom-value key
+-- @param supportedVersions (number|table|nil) One version or a lookup set
+-- @return (table|nil, string|nil) The record or nil plus an error code
+function CosmicVaultData.GetRecord(actor, key, supportedVersions)
+    if not hasActorMethod(actor, "getValue") then return nil, "invalid_actor" end
+    if type(key) ~= "string" or key == "" then return nil, "invalid_key" end
+
+    local readOk, value = pcall(function() return actor:getValue(key) end)
+    if not readOk then return nil, "invalid_actor" end
+    if value == nil then return nil, "missing" end
+    if type(value) ~= "string" or value == "" then return nil, "corrupt" end
+
+    local decodeOk, decoded, _, decodeError = pcall(json.decode, value, 1, nil)
+    if not decodeOk or decodeError or type(decoded) ~= "table" then return nil, "corrupt" end
+    if type(decoded.schemaVersion) ~= "number" then return nil, "corrupt" end
+    if not versionSupported(decoded.schemaVersion, supportedVersions) then
+        return nil, "unsupported_version"
+    end
+
+    return decoded, nil
 end
 
 --- Adds a string tag to an entity
