@@ -87,6 +87,11 @@ wrappers remain available.
   extraction hook is reduced from a full DLC library copy to a small wrapper around vanilla's
   `RiftMissionUT.showMissionAccomplished`; this path remains a documented VFS collision because the
   DLC exposes no public extraction-success callback.
+- [Fix] **Server-Safe Rift Detection (`player/cv_player_weather_tracker.lua`,
+  `sector/cv_rift_observer.lua`):** Replaced calls to the client-only
+  `isIntoTheRiftDLCInstalled()` global in server scripts with the verified server-side
+  `Galaxy:sectorInRift(x, y)` check. Player initialization and sector-entry tracking no longer fail
+  or repeat the same Lua error, and the observer terminates if restored outside a Rift sector.
 - [Fix] **Spatial Rift Claims Are Restart-Safe (`entity/cv_anomaly_rift.lua`):** Added the
   entity-local `cv_anomaly_rift_claim_v1` record. The script persists claimant identity, player,
   deterministic reward seed, and intended reward before the first drop call, then receipts

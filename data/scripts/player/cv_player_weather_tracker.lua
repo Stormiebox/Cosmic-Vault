@@ -24,7 +24,6 @@ local function conditionIds(snapshot)
 end
 
 local function attachRiftObserver(x, y)
-    if not isIntoTheRiftDLCInstalled() then return end
     if not Galaxy():sectorInRift(x, y) then return end
     local sector = Sector()
     if sector then sector:addScriptOnce(RIFT_OBSERVER) end

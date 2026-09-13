@@ -24,12 +24,17 @@ function CosmicVaultRiftObserver.scan()
 end
 
 function CosmicVaultRiftObserver.initialize()
-    if not onServer() or not isIntoTheRiftDLCInstalled() then
+    if not onServer() then
         terminate()
         return
     end
     local sector = Sector()
     if not sector then return end
+    local x, y = sector:getCoordinates()
+    if not Galaxy():sectorInRift(x, y) then
+        terminate()
+        return
+    end
     sector:registerCallback("onEntityCreated", "onEntityCreated")
     scansRemaining = 5
     CosmicVaultRiftObserver.scan()
