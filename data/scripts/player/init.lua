@@ -7,4 +7,5 @@ if onServer() then
     player:addScriptOnce("data/scripts/player/ui/cosmicconfigmenu.lua")
     player:addScriptOnce("data/scripts/player/cosmicvaultcinematic.lua")
     player:addScriptOnce("data/scripts/player/ui/cosmicbuff_hud.lua")
+    player:addScriptOnce("data/scripts/player/cv_player_weather_tracker.lua")
 end

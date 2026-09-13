@@ -573,16 +573,111 @@ CosmicVaultAnomalies.spawnAnomaly(x, y, "PrecursorWreck")
 ```
 Both anomaly types have called `entity:addScriptOnce()` against `data/scripts/entity/cv_anomaly_rift.lua` and `cv_anomaly_wreck.lua` since this API launched in v3.0.0 — but neither file existed until v3.5.0. Anything spawned before that update sat in the sector with no interaction and no behavior attached. Both are now implemented: each offers a one-time Salvage/Channel interaction that drops a scaled reward, then leaves the entity behind as a permanent landmark.
 
-### 🛠️ 30. Subspace Weather API (`cv_weather_controller.lua`)
-Exposes logic for attaching dynamic, localized environmental hazards (EMP storms, radiation, etc.) to a sector, integrated with Avorion's own ship-problem UI system.
+### 🛠️ 30. Environmental Weather and Rift APIs (`cosmicvaultweather.lua`, `cosmicvaultrift.lua`)
 
-> [!TIP]
-> Do not attempt to use `Sector():addScript()` manually for weather, use the vault API `addScriptOnce` to prevent duplicated hazards on server restarts. Modders can review `cosmicvaultweatherdictionary.lua` to add their own custom hazards with linked descriptions and UI icons.
+Cosmic Vault owns a versioned galaxy record for localized environmental conditions. Callers submit
+server-side intent; the Vault attaches and reconciles the loaded-sector controller, applies built-in
+mechanics, and sends each player a coordinate-scoped UI snapshot. Do not attach
+`cv_weather_controller.lua`, `cv_weather_debuff.lua`, or `cv_weather_ui.lua` directly. Those files
+exist only to migrate old attachments.
 
 ```lua
--- Attach Dark Matter Fog to the current sector indefinitely (-1 duration)
-Sector():addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
+local Weather = include("cosmicvaultweather")
+
+local condition, err = Weather.StartWeather({
+    sourceId = "my-mod:storm:12:-8",
+    weatherType = "IonStorm",
+    x = 12,
+    y = -8,
+    duration = 1800,             -- seconds; use -1 for no automatic expiry
+    conflictPolicy = "reject"    -- or "replace"
+})
+
+if condition then
+    Weather.RefreshWeather(condition.conditionId, 1800)
+    local current = Weather.GetWeather(condition.conditionId)
+    local atCoordinate = Weather.ListWeatherAt(12, -8)
+    Weather.EndWeather(condition.conditionId, "source_removed")
+end
 ```
+
+The public lifecycle is:
+
+- `StartWeather(options)` — creates a deterministic condition or refreshes an identical source.
+- `RefreshWeather(conditionId, duration)` — updates the expiry without changing ownership.
+- `EndWeather(conditionId, reason)` — ends only that condition and leaves a bounded tombstone.
+- `GetWeather(conditionId)` — returns the active record or retained tombstone.
+- `ListWeatherAt(x, y)` — returns every active condition at an exact coordinate.
+- `GetWeatherSnapshot()` — returns the bounded galaxy record for diagnostics.
+
+All calls return `result, nil` on success or `nil, errorCode`. They are server-only. Expected errors
+include `client_context`, `invalid_arguments`, `unknown_type`, `type_conflict`,
+`stacking_conflict`, `corrupt`, `unsupported_version`, and `persistence_failure`.
+
+The built-ins are `IonStorm`, `SolarFlare`, `DarkMatterFog`, and `RiftInstability`. Atmospheric
+weather uses the exclusive `atmosphere` stacking group. Rift instability uses the independent
+`rift` group, so one atmospheric condition and one Rift condition can coexist at the same
+coordinate. A different source in the same group is rejected unless the caller explicitly selects
+`conflictPolicy = "replace"`. The environment UI uses native sector problems, entry warnings, and
+client-only particles and thunder. It never changes persistent sector fog.
+
+External mods can register presentation-only types:
+
+```lua
+local definition, err = Weather.RegisterWeatherType({
+    type = "StaticField",
+    category = "weather",
+    stackingGroup = "static",
+    icon = "data/textures/icons/hazard-sign.png",
+    color = {r = 0.2, g = 0.7, b = 1.0},
+    name = "Static Field",
+    detailedName = "Charged Static Field",
+    description = "Local space is electrically unstable.",
+    chatWarning = "WARNING: Static field detected.",
+    presentationProfile = "ion",
+    mechanicsProfile = "presentation_only"
+})
+```
+
+Custom definitions must contain plain serializable data. Vault does not execute function callbacks
+stored by another script VM, and external types cannot select a built-in mechanics profile. A custom
+presentation profile that Vault does not recognize still receives its sector-problem icon and text
+but no built-in particle pattern. Registering different data under an existing type returns
+`type_conflict` and stores a bounded `repair_required` finding in `GetWeatherSnapshot()`; Vault never
+changes the live definition silently.
+
+The old `triggerStorm`, `clearStorm`, and `getWeatherAt` calls remain compatible. Legacy secure
+weather maps migrate once into `cv_weather_v2`; their original secure evidence is retained. A loaded
+legacy controller submits its remaining duration to the manager and then retires.
+
+Rift presentation uses the same condition lifecycle without requiring the DLC:
+
+```lua
+local Rift = include("cosmicvaultrift")
+local condition, err = Rift.StartRiftHazard({
+    sourceId = "my-mod:rift:12:-8",
+    x = 12, y = -8, duration = -1,
+    conflictPolicy = "reject"
+})
+Rift.EndRiftHazard(condition.conditionId, "rift_closed")
+```
+
+`ReportGuardianDestroyed(eventId, evidence)` and `ReportDeepExtraction(eventId, evidence)` feed the
+separate `cv_rift_escalation_v1` record. Guardian event IDs use `guardian:<entity UUID>`. Deep
+extractions at depth 50 or greater use a player/sector/depth fingerprint. Events are receipted and
+deduplicated. Escalation is `guardianKills + deepExtractions * 0.5`; each point above 10 adds a 5%
+swarm-dispatch chance, capped at 50%. The manager prepares, attaches, and verifies attacks before it
+reduces the counters. Failed attachments retry five times. An interrupted materialization becomes
+`repair_required` rather than repeating an uncertain attack.
+
+The Guardian tracker is now additive and loaded only for already-loaded Rift sectors when Into the
+Rift is installed. Vault no longer replaces vanilla `riftguardian.lua`. Deep extraction still needs
+a small extension at `data/scripts/dlc/rift/lib/riftmissionutility.lua` because the DLC exposes no
+public extraction-success callback; that path remains a documented VFS collision surface.
+
+Spatial Rift anomaly claims use the entity-local `cv_anomaly_rift_claim_v1` record. The reward
+snapshot is stored before any loot drop. A restored `claim_prepared`, corrupt record, or unsupported
+schema becomes visibly `repair_required` and never replays loot automatically.
 
 ### 🧰 31. UI Kit API (`cosmicvaultuikit.lua`)
 Shared player-window tab building blocks in the visual style Cosmic Overhaul's Command Center and Factory Overview tabs already established: a two-row header layout, a sortable ListBoxEx-backed table, and a canonical status-color palette. Client-only.

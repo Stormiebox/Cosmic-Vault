@@ -1,34 +1,75 @@
-
 local CosmicVaultWeather = {}
 
--- This is a universal API that other mods can require.
--- Example: local cv_weather = include("cosmicvaultweather")
--- cv_weather.triggerStorm(x, y, "IonStorm", 14400) -- 4 hours
+local MANAGER = "data/scripts/server/cosmicvaultweather_server.lua"
+
+local function invoke(functionName, ...)
+    if not onServer() then return nil, "client_context" end
+    local status, result, errorCode = Galaxy():invokeFunction(MANAGER, functionName, ...)
+    if status ~= 0 then return nil, "manager_unavailable" end
+    return result, errorCode
+end
+
+function CosmicVaultWeather.RegisterWeatherType(definition)
+    if type(definition) ~= "table" then return nil, "invalid_arguments" end
+    return invoke("registerWeatherType", definition)
+end
+
+function CosmicVaultWeather.StartWeather(options)
+    if type(options) ~= "table" then return nil, "invalid_arguments" end
+    return invoke("startWeather", options)
+end
+
+function CosmicVaultWeather.RefreshWeather(conditionId, duration)
+    if type(conditionId) ~= "string" or type(duration) ~= "number" then
+        return nil, "invalid_arguments"
+    end
+    return invoke("refreshWeather", conditionId, duration)
+end
+
+function CosmicVaultWeather.EndWeather(conditionId, reason)
+    if type(conditionId) ~= "string" then return nil, "invalid_arguments" end
+    if reason ~= nil and type(reason) ~= "string" then return nil, "invalid_arguments" end
+    return invoke("endWeather", conditionId, reason)
+end
+
+function CosmicVaultWeather.GetWeather(conditionId)
+    if type(conditionId) ~= "string" then return nil, "invalid_arguments" end
+    return invoke("getWeather", conditionId)
+end
+
+function CosmicVaultWeather.ListWeatherAt(x, y)
+    if type(x) ~= "number" or type(y) ~= "number" then return nil, "invalid_arguments" end
+    return invoke("listWeatherAt", x, y)
+end
+
+function CosmicVaultWeather.GetWeatherSnapshot()
+    return invoke("getWeatherSnapshot")
+end
 
 function CosmicVaultWeather.triggerStorm(x, y, stormType, duration)
-    if type(x) ~= "number" or type(y) ~= "number" or type(stormType) ~= "string" then return end
-    if duration and type(duration) ~= "number" then return end
-    if not onServer() then return end
-    -- Forward the request to the central server manager
-    Galaxy():invokeFunction("server/cosmicvaultweather_server.lua", "createWeather", x, y, stormType, duration)
+    if type(x) ~= "number" or type(y) ~= "number" or type(stormType) ~= "string" then
+        return nil, "invalid_arguments"
+    end
+    if duration ~= nil and type(duration) ~= "number" then return nil, "invalid_arguments" end
+
+    return CosmicVaultWeather.StartWeather({
+        sourceId = "legacy-weather:" .. tostring(x) .. ":" .. tostring(y),
+        weatherType = stormType,
+        x = x,
+        y = y,
+        duration = duration or -1,
+        conflictPolicy = "replace"
+    })
 end
 
 function CosmicVaultWeather.clearStorm(x, y)
-    if type(x) ~= "number" or type(y) ~= "number" then return end
-    if not onServer() then return end
-    Galaxy():invokeFunction("server/cosmicvaultweather_server.lua", "removeWeather", x, y)
+    if type(x) ~= "number" or type(y) ~= "number" then return nil, "invalid_arguments" end
+    return invoke("clearLegacyWeather", x, y)
 end
 
--- Synchronous check to see if weather exists at a coordinate.
--- Note: Requires Server context or invokeFunction callback if queried from client.
 function CosmicVaultWeather.getWeatherAt(x, y)
-    if type(x) ~= "number" or type(y) ~= "number" then return nil end
-    if not onServer() then return nil end
-    local ok, weather = Galaxy():invokeFunction("server/cosmicvaultweather_server.lua", "getWeatherSync", x, y)
-    if ok == 0 then
-        return weather
-    end
-    return nil
+    if type(x) ~= "number" or type(y) ~= "number" then return nil, "invalid_arguments" end
+    return invoke("getLegacyWeatherAt", x, y)
 end
 
 return CosmicVaultWeather

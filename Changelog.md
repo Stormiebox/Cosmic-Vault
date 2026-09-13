@@ -40,6 +40,66 @@ wrappers remain available.
   range. Legacy booms and crashes default to ±0.10 for 30 minutes, and `TriggerMarketEvent` remains
   as a broadcasting compatibility wrapper.
 
+### 🌩️ Environmental Weather & Rift Infrastructure
+
+- [Feature] **Versioned Weather Lifecycle (`cosmicvaultweather.lua`,
+  `server/cosmicvaultweather_server.lua`):** Replaced the secure-only `activeWeathers` map with the
+  server-owned `cv_weather_v2` record. Added `RegisterWeatherType`, `StartWeather`,
+  `RefreshWeather`, `EndWeather`, `GetWeather`, `ListWeatherAt`, and `GetWeatherSnapshot` with
+  deterministic condition IDs, source ownership, exact `x:y` coordinates, independent stacking
+  groups, explicit reject/replace policies, persisted expiry, bounded materialization retries, and
+  seven-day/2,048-record tombstone bounds. Corrupt and unsupported records stop with distinct
+  errors instead of being treated as empty state. Conflicting custom type definitions are rejected
+  and retained as bounded repair findings instead of silently changing the shared contract.
+  Existing `triggerStorm`, `clearStorm`, and `getWeatherAt` exports remain available.
+- [Feature] **Canonical Sector Environment (`sector/cv_environment_controller.lua`,
+  `entity/cv_environment_effect.lua`, `player/cv_player_weather_tracker.lua`):** Replaced
+  galaxy-wide weather-map broadcasts and caller-owned controller attachments with coordinate-only
+  snapshots. One loaded-sector controller now reconciles condition revisions, uses one ship query
+  per mechanics tick, owns exact bonus handles, and sends plain per-player snapshots across the
+  server/client boundary. Clients render native sector problems, deduplicated entry warnings,
+  expiry feedback, and throttled thunder/dust/glow/spark effects. No persistent fog state is
+  overwritten.
+- [Balance/Fix] **Weather Mechanics Match Their Descriptions:** Ion Storm still removes radar and
+  hyperspace reach and lengthens cooldown; Dark Matter Fog still halves radar/jump reach for
+  non-Eclipse ships. Solar Flare now selects shield or hull damage from current shield state,
+  applies 2% maximum-shield Energy damage without overflowing a nearly depleted shield, and applies
+  0.5% maximum-hull Physical damage only while unshielded. A hull with more than half its volume in
+  Trinium-or-higher material halves only that physical damage, and the sector tooltip shows the
+  interacting player's current preparation result.
+- [Compatibility] **Legacy Weather Attachments Retire Safely (`cv_weather_controller.lua`,
+  `cv_weather_debuff.lua`, `cv_weather_ui.lua`):** Existing controller secure data migrates once
+  through a deterministic `legacy-direct` source with its remaining duration. The old entity and UI
+  scripts remove only their own stale bonuses/problem key and terminate. New code must use the
+  public weather lifecycle rather than attach these scripts directly.
+- [Feature] **Rift Event API and Receipts (`cosmicvaultrift.lua`,
+  `server/cosmicvaultriftescalation_server.lua`):** Added immutable Guardian UUID receipts,
+  replay-suppressed Depth 50+ extraction fingerprints, canonical escalation snapshots, and Rift
+  hazard start/end facade calls. Escalation is now consistently `guardianKills + deepExtractions *
+  0.5`; swarm chance is 5% per point above 10, capped at 50%. Dispatches persist prepared,
+  materializing, verifying, retryable, completed, and repair-required states; counters fall only
+  after at least one target's attack script verifies. Five failed attachments require repair, and a
+  restored materializing dispatch is never repeated because its side effect is ambiguous.
+- [Compatibility] **Reduced Into the Rift Collision Surface (`sector/cv_rift_observer.lua`,
+  `entity/cv_rift_escalation_tracker.lua`, `dlc/rift/lib/riftmissionutility.lua`):** Removed Vault's
+  full `dlc/rift/lib/riftguardian.lua` replacement. A guarded loaded-sector observer now discovers
+  the internal Guardian identity script and attaches the intent-only tracker additively. The
+  extraction hook is reduced from a full DLC library copy to a small wrapper around vanilla's
+  `RiftMissionUT.showMissionAccomplished`; this path remains a documented VFS collision because the
+  DLC exposes no public extraction-success callback.
+- [Fix] **Spatial Rift Claims Are Restart-Safe (`entity/cv_anomaly_rift.lua`):** Added the
+  entity-local `cv_anomaly_rift_claim_v1` record. The script persists claimant identity, player,
+  deterministic reward seed, and intended reward before the first drop call, then receipts
+  `claimed` only after every intended drop returns. Restored prepared claims, corrupt data, and
+  unsupported schemas become visibly repair-required and never replay an uncertain reward.
+- [Correction] **`addSectorProblem` Is a Real Client API:** The v3.5.0 changelog entry that said
+  `addSectorProblem` and `removeSectorProblem` do not exist was based only on class stubs and a
+  vanilla-source search. Both are global client functions in the raw official `Functions.html`
+  documentation, and vanilla Into the Rift's environmental-effect script uses them. Weather now
+  uses exact Vault-owned sector-problem keys; the ship-problem shim exists only to remove the stale
+  key created by the interim implementation. The historical entry remains unchanged for audit
+  context.
+
 ### 🗺️ Territory & Economy Integration
 
 - [Refactor] **One Shared Territory Consumer (`player/cv_territory_injector_persistent.lua`):** Vault

@@ -1,17 +1,30 @@
+-- namespace CosmicVaultRiftEscalationTracker
+CosmicVaultRiftEscalationTracker = {}
 
-function initialize()
-    if onServer() then
-        Entity():registerCallback("onDestroyed", "onDestroyed")
-    end
+local entityUuid
+
+function CosmicVaultRiftEscalationTracker.initialize()
+    if not onServer() then return end
+    local entity = Entity()
+    if not entity then return end
+    entityUuid = entity.id.string
+    entity:registerCallback("onDestroyed", "onDestroyed")
 end
 
-function onDestroyed()
-    if onServer() then
-        local server = Server()
-        local count = server:getValue("cv_rift_guardian_kills")
-        if type(count) ~= "number" then count = 0 end
-        server:setValue("cv_rift_guardian_kills", count + 1)
-        
-        server:sendCallback("onRiftGuardianDestroyed", Entity().id.string)
+function CosmicVaultRiftEscalationTracker.onDestroyed()
+    if not onServer() or type(entityUuid) ~= "string" or entityUuid == "" then return end
+    include("cosmicvaultrift").ReportGuardianDestroyed(
+        "guardian:" .. entityUuid,
+        {entityUuid = entityUuid}
+    )
+end
+
+function CosmicVaultRiftEscalationTracker.secure()
+    return {entityUuid = entityUuid}
+end
+
+function CosmicVaultRiftEscalationTracker.restore(data)
+    if type(data) == "table" and type(data.entityUuid) == "string" then
+        entityUuid = data.entityUuid
     end
 end
