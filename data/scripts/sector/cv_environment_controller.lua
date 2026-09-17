@@ -184,7 +184,9 @@ function CosmicVaultEnvironmentController.reconcile(snapshot, reason)
         end
     end
 
-    return runtime.rootRevision, conditionIds(runtime.conditions)
+    local ids = conditionIds(runtime.conditions)
+    if #runtime.conditions == 0 then terminate() end
+    return runtime.rootRevision, ids
 end
 
 function CosmicVaultEnvironmentController.onEntityEntered(entityId)
@@ -220,7 +222,6 @@ end
 function CosmicVaultEnvironmentController.updateServer(timeStep)
     local sector = Sector()
     if not sector then return end
-    local ships = {sector:getEntitiesByType(EntityType.Ship)}
     local solarActive = false
     for _, condition in ipairs(runtime.conditions) do
         if condition.definition.mechanicsProfile == "solar" then
@@ -230,6 +231,7 @@ function CosmicVaultEnvironmentController.updateServer(timeStep)
     end
     if not solarActive then return end
 
+    local ships = {sector:getEntitiesByType(EntityType.Ship)}
     for _, ship in ipairs(ships) do
         if valid(ship) and ship.isShip and not WeatherDictionary.isEclipse(ship) then
             local maxShield = ship.shieldMaxDurability or 0

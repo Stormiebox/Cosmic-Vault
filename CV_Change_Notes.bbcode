@@ -11,6 +11,7 @@
 [*]📈 Market booms and crashes are now real regional price events. They persist through restarts, expire after their set time, refresh instead of stacking when repeated by the same source, and display the same price on client and server.
 [*]🔫 Mods can now ask Vault for a verified weapon type when generating a turret. Cosmic Ascendancy uses this to guarantee its Titan Worldbreaker is a laser.
 [*]🔗 Existing Vault functions remain available, so mods built against older releases do not need to change at once.
+[*]🛠️ Temporary ship buffs now attach and synchronize without flooding client and server logs with repeated script errors.
 [/list]
 
 [b]🌩️ WEATHER & RIFT UPDATE[/b]
@@ -18,6 +19,7 @@
 [*]🌩️ Weather now survives restarts through one save-safe galaxy record. Storms refresh, expire, replace, and coexist by clear ownership rules instead of leaving stale or invisible effects.
 [*]⚠️ Players now get native sector warnings, clear chat feedback, and throttled visual and sound effects for Ion Storms, Solar Flares, Dark Matter Fog, and Rift instability.
 [*]🛡️ Weather penalties clean up without erasing buffs from other systems. Solar Flares now damage shields first, then exposed hull; Trinium-heavy hulls halve only the physical hull damage.
+[*]🧹 Finished weather effects now remove their inactive background scripts instead of leaving them loaded.
 [*]🌀 Rift Guardian kills and deep extractions now use saved receipts, and Rift swarm escalation is consumed only after an attack actually attaches. Failed or uncertain work stops for repair instead of counting as success.
 [*]🎁 Spatial Rift rewards now lock their claim before dropping loot, preventing a restart from creating the same reward twice.
 [*]🐛 Rift detection now uses the correct server-side game check, preventing player initialization and sector entry from producing repeated Lua errors.
@@ -30,6 +32,7 @@
 [*]👥 Each player keeps their own read state, followed stories, saved leads, and notification choices through Chronicles.
 [*]🗣️ Vault now provides a shared dialogue catalog for contextual rumors and Captain's Logs while keeping older mod integrations available.
 [*]🐛 Cross-script News and Dialogue calls now work with Avorion's Lua runtime without losing empty return values.
+[*]🐛 News and Dialogue registration now works even when another Cosmic mod initializes before Vault's managers.
 [/list]
 
 [i]Version 4.0.0[/i]

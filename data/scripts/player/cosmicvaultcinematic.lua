@@ -53,8 +53,6 @@ function CosmicVaultCinematic.showFloatingText(entityId, text, cInfo)
         return
     end
     -- Fallback to combat log since Avorion lacks 3D text renderer from Lua
-    local color = ColorRGB(cInfo.r, cInfo.g, cInfo.b)
-
     local entity = Entity(entityId)
     local name = entity and entity.translatedTitle or "Unknown Entity"
 

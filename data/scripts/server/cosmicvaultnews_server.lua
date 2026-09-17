@@ -149,6 +149,12 @@ local function registerCanonicalPublishers()
     end
 end
 
+local function ensureRuntimeRecord()
+    if self.record then return end
+    self.record = newRecord()
+    registerCanonicalPublishers()
+end
+
 local function normalizeSet(values, maximum)
     if values == nil then return nil, nil end
     if type(values) ~= "table" then return nil, "invalid_arguments" end
@@ -442,11 +448,13 @@ end
 
 function CosmicVaultNewsServer.registerPublisher(definition)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     return registerPublisherInternal(definition)
 end
 
 function CosmicVaultNewsServer.publish(options)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     local normalized, normalizeError = Schema.NormalizeArticle(options)
     if normalizeError then return nil, normalizeError end
     assignReporter(normalized)
@@ -488,6 +496,7 @@ end
 
 function CosmicVaultNewsServer.updateArticle(articleId, publisherId, expectedRevision, patch)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     if not Schema.IsIdentifier(articleId, Schema.LIMITS.articleId) or not Schema.IsIdentifier(publisherId, Schema.LIMITS.publisherId) then return nil, "invalid_id" end
     if type(expectedRevision) ~= "number" or expectedRevision % 1 ~= 0 then return nil, "invalid_arguments" end
 
@@ -509,6 +518,7 @@ end
 
 function CosmicVaultNewsServer.resolveArticle(articleId, publisherId, expectedRevision, resolution)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     if not Schema.IsIdentifier(articleId, Schema.LIMITS.articleId) or not Schema.IsIdentifier(publisherId, Schema.LIMITS.publisherId) then return nil, "invalid_id" end
     if type(expectedRevision) ~= "number" or expectedRevision % 1 ~= 0 then return nil, "invalid_arguments" end
 
@@ -532,6 +542,7 @@ end
 
 function CosmicVaultNewsServer.getArticle(articleId, options)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     if not Schema.IsIdentifier(articleId, Schema.LIMITS.articleId) then return nil, "invalid_id" end
     options = options or {}
     if type(options) ~= "table" then return nil, "invalid_arguments" end
@@ -546,6 +557,7 @@ end
 
 function CosmicVaultNewsServer.query(options)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     local query, queryError = normalizeQuery(options)
     if queryError then return nil, queryError end
     if query.ifRevision == self.record.feedRevision and not query.beforeSequence then return nil, "not_modified" end
@@ -585,6 +597,7 @@ end
 
 function CosmicVaultNewsServer.getSnapshot()
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     local openRepairs = 0
     for _, finding in ipairs(self.record.repairFindings) do
         if finding.state == "open" then openRepairs = openRepairs + 1 end
@@ -623,11 +636,13 @@ end
 -- Compatibility entry point for code that included this manager directly.
 function CosmicVaultNewsServer.publishArticle(article)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     return publishLegacy(article, "legacy:direct")
 end
 
 function CosmicVaultNewsServer.getNews()
     if not onServer() then return {} end
+    ensureRuntimeRecord()
     local page = CosmicVaultNewsServer.query({pageSize = 30, includeArchive = true})
     if type(page) ~= "table" then return {} end
     local legacy = {}
@@ -646,6 +661,7 @@ end
 
 function CosmicVaultNewsServer.onSyncRequest(playerIndex)
     if not onServer() then return end
+    ensureRuntimeRecord()
     if tableCount(self.record.active) + tableCount(self.record.archive) == 0 then
         debugInfo("News store is empty; requesting compatibility seeds for player %s.", tostring(playerIndex))
         Server():sendCallback("onCCNewsRequestSeed")
@@ -654,11 +670,13 @@ end
 
 function CosmicVaultNewsServer.onPublishArticle(article)
     if not onServer() then return end
+    ensureRuntimeRecord()
     local _, err = publishLegacy(article, "legacy:callback")
     if err then debugError("Rejected legacy callback article: %s", tostring(err)) end
 end
 
 function CosmicVaultNewsServer.secure()
+    ensureRuntimeRecord()
     local record = defensiveCopy(self.record)
     return {
         newsV2 = record or newRecord(),

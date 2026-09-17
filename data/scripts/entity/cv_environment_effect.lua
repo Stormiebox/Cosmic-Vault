@@ -62,6 +62,10 @@ function CosmicVaultEnvironmentEffect.getUpdateInterval()
 end
 
 function CosmicVaultEnvironmentEffect.updateServer(timeStep)
+    if #runtime.conditions == 0 then
+        terminate()
+        return
+    end
     local sector = Sector()
     if not sector or not sector:hasScript(EFFECT_CONTROLLER) then
         terminate()

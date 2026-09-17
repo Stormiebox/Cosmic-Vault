@@ -96,6 +96,12 @@ local function registerCanonicalPublishers()
     end
 end
 
+local function ensureRuntimeRecord()
+    if self.record then return end
+    self.record = newRecord()
+    registerCanonicalPublishers()
+end
+
 function CosmicVaultDialogueServer.initialize()
     if not onServer() then return end
     if not self.record then self.record = newRecord() end
@@ -104,11 +110,13 @@ end
 
 function CosmicVaultDialogueServer.registerPublisher(definition)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     return registerPublisherInternal(definition)
 end
 
 function CosmicVaultDialogueServer.registerEntries(publisherId, entries)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     if type(publisherId) ~= "string" or not self.record.publishers[publisherId] then return nil, "not_found" end
     if type(entries) ~= "table" or #entries < 1 or #entries > Schema.LIMITS.entriesPerCall then return nil, "invalid_arguments" end
 
@@ -153,6 +161,7 @@ end
 
 function CosmicVaultDialogueServer.registerLegacyEntry(entry)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     local normalized, normalizeError = Schema.NormalizeLegacyEntry(entry)
     if normalizeError then return nil, normalizeError end
     if not self.record.publishers[normalized.publisherId] then
@@ -174,6 +183,7 @@ end
 
 function CosmicVaultDialogueServer.getEntry(lineId)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     if type(lineId) ~= "string" then return nil, "invalid_id" end
     local entry = self.record.entries[lineId]
     if not entry then return nil, "not_found" end
@@ -182,6 +192,7 @@ end
 
 function CosmicVaultDialogueServer.query(category, context, options)
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     if type(category) ~= "string" or category == "" or #category > Schema.LIMITS.category then return nil, "invalid_category" end
     local normalizedContext, contextError = Schema.NormalizeContext(context)
     if contextError then return nil, contextError end
@@ -216,6 +227,7 @@ end
 
 function CosmicVaultDialogueServer.getCatalogSnapshot()
     if not onServer() then return nil, "server_only" end
+    ensureRuntimeRecord()
     local openRepairs = 0
     for _, finding in ipairs(self.record.repairFindings) do
         if finding.state == "open" then openRepairs = openRepairs + 1 end
@@ -233,6 +245,7 @@ function CosmicVaultDialogueServer.getCatalogSnapshot()
 end
 
 function CosmicVaultDialogueServer.secure()
+    ensureRuntimeRecord()
     local copy = defensiveCopy(self.record)
     return {dialogueV2 = copy or newRecord()}
 end

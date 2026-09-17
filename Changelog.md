@@ -127,6 +127,22 @@ wrappers remain available.
 
 ### 🔗 Compatibility & Documentation
 
+- [Fix] **News and Dialogue Managers Accept Early Registrations
+  (`server/cosmicvaultnews_server.lua`, `server/cosmicvaultdialogue_server.lua`):** Galaxy script
+  initialization order is undefined, so Cosmic Chronicles could reach an attached Vault manager
+  before that manager's `initialize()` callback created its runtime record. Public manager entry
+  points now lazily establish the canonical record before reading it. Early publisher and dialogue
+  catalog registration therefore succeeds regardless of galaxy-script initialization order while
+  the normal initialize/restore paths remain idempotent.
+- [Fix] **Dynamic Entity Scripts Resolve the Callable Helper Reliably (`entity/cosmicbuff.lua`,
+  `entity/cv_anomaly_rift.lua`, `entity/cv_anomaly_wreck.lua`):** Dynamically attached entity
+  scripts now include vanilla's verified `data/scripts/lib/callable.lua` path explicitly. This
+  prevents bare include resolution from failing, aborting temporary-buff attachment, and producing
+  repeated uncallable `sync` requests from clients.
+- [Optimization] **Empty Weather Runtime Scripts Retire Promptly
+  (`sector/cv_environment_controller.lua`, `entity/cv_environment_effect.lua`):** Reconciliation
+  now terminates controllers and effects with no remaining conditions. The sector controller also
+  skips its ship enumeration unless Solar Flare mechanics are active.
 - [Feature] **News v2 Persistent Store (`cosmicvaultnews.lua`, `cosmicvaultnews_schema.lua`,
   `server/cosmicvaultnews_server.lua`):** Added validated publisher registration and stable
   publish, update, resolve, query, archive, and retrieval operations backed by a versioned Server
