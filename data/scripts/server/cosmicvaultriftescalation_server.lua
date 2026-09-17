@@ -5,6 +5,7 @@ include("stringutility")
 CosmicVaultRiftEscalation = {}
 
 local CosmicVaultData = include("cosmicvaultdata")
+local CosmicVaultNewsAdapter = include("cosmicvaultnewsadapter")
 
 local RECORD_KEY = "cv_rift_escalation_v1"
 local SCHEMA_VERSION = 1
@@ -187,32 +188,97 @@ local function pruneReceipts(working, currentTime)
     end
 end
 
-local function announceEvent(kind)
+local function newsLocation(evidence)
+    if type(evidence) == "table" and type(evidence.x) == "number" and type(evidence.y) == "number" then
+        return {x = evidence.x, y = evidence.y, radius = 12}
+    end
+end
+
+local function publishEscalationEvent(kind, receipt)
+    local eventId = CosmicVaultNewsAdapter.StableId("rift-escalation", receipt.eventId)
+    if not eventId then return end
+    local guardian = kind == "guardian"
+    local location = newsLocation(receipt.evidence)
+    CosmicVaultNewsAdapter.Upsert({
+        eventId = eventId,
+        threadId = "rift:escalation",
+        eventType = guardian and "rift.escalation.guardian_destroyed" or "rift.escalation.deep_extraction",
+        topic = "rift",
+        category = "Rift",
+        severity = guardian and "critical" or "warning",
+        breaking = guardian,
+        title = guardian and "Rift Guardian Down" or "Deep Rift Extraction",
+        content = (guardian and "A Rift Guardian has been destroyed." or "A deep Rift extraction succeeded.")
+            .. " Global Rift Escalation: " .. tostring(state.escalation),
+        author = "Cosmic Vault",
+        location = location,
+        audience = location and {mode = "region"} or {mode = "galaxy"},
+        lead = location and {kind = "location", x = location.x, y = location.y} or nil,
+        provenance = {
+            recordType = RECORD_KEY,
+            sourceEventId = tostring(receipt.eventId),
+            sourceRevision = state.revision or 0,
+            sourceState = tostring(receipt.state),
+            escalation = state.escalation,
+        },
+    })
+end
+
+local function publishDispatch(dispatch)
+    if type(dispatch) ~= "table" then return end
+    local eventId = CosmicVaultNewsAdapter.StableId("rift-retaliation", dispatch.dispatchId)
+    if not eventId then return end
+    local verifiedCount = 0
+    for _ in pairs(dispatch.verifiedTargets or {}) do verifiedCount = verifiedCount + 1 end
+    local article = CosmicVaultNewsAdapter.Upsert({
+        eventId = eventId,
+        threadId = eventId,
+        eventType = "rift.retaliation.lifecycle",
+        topic = "rift",
+        category = "Crisis",
+        severity = dispatch.state == "completed" and "critical" or "warning",
+        breaking = dispatch.state == "completed",
+        title = "Global Rift Retaliation",
+        content = dispatch.state == "completed"
+            and ("Xsotan retaliation was verified against " .. tostring(verifiedCount) .. " commanders.")
+            or ("Rift retaliation state: " .. tostring(dispatch.state) .. "."),
+        author = "Cosmic Vault",
+        audience = {mode = "galaxy"},
+        provenance = {
+            recordType = RECORD_KEY,
+            dispatchId = tostring(dispatch.dispatchId),
+            sourceRevision = dispatch.revision or 0,
+            sourceState = tostring(dispatch.state),
+            attempts = dispatch.attempts or 0,
+            verifiedTargets = verifiedCount,
+        },
+    })
+    if article and dispatch.state == "completed" then
+        CosmicVaultNewsAdapter.Resolve(eventId,
+            "Retaliation dispatch verified for " .. tostring(verifiedCount) .. " commanders.")
+    end
+end
+
+local function announceEvent(kind, receipt)
     local level = state.escalation
     if kind == "guardian" then
         Server():broadcastChatMessage("System"%_T, ChatMessageType.Warning,
             "WARNING: A Rift Guardian has been destroyed. Global Rift Escalation: %1%"%_T,
             tostring(level))
-        include("cosmicvaultnews").publishArticle({
-            title = "Rift Guardian Down",
-            category = "Event",
-            content = "A Rift Guardian has been destroyed. Global Rift Escalation: " .. tostring(level)
-        })
     else
         Server():broadcastChatMessage("System"%_T, ChatMessageType.Warning,
             "WARNING: A deep Rift extraction succeeded. Global Rift Escalation: %1%"%_T,
             tostring(level))
-        include("cosmicvaultnews").publishArticle({
-            title = "Deep Rift Extraction",
-            category = "Event",
-            content = "A deep Rift extraction succeeded. Global Rift Escalation: " .. tostring(level)
-        })
     end
+    publishEscalationEvent(kind, receipt)
 end
 
 local function acceptEvent(eventId, kind, evidence)
     local existing = state.processedEvents[eventId]
-    if existing then return deepCopy(existing), nil end
+    if existing then
+        publishEscalationEvent(kind, existing)
+        return deepCopy(existing), nil
+    end
 
     local working = deepCopy(state)
     if kind == "guardian" then
@@ -232,7 +298,7 @@ local function acceptEvent(eventId, kind, evidence)
     pruneReceipts(working, now())
     local saved, saveError = persist(working)
     if not saved then return nil, saveError end
-    announceEvent(kind)
+    announceEvent(kind, receipt)
     return deepCopy(receipt), nil
 end
 
@@ -247,7 +313,8 @@ function CosmicVaultRiftEscalation.initialize()
         working.dispatch.lastError = "interrupted_materialization"
         working.dispatch.repairRequired = "dispatch_side_effect_ambiguous"
         working.repairRequired = "rift_dispatch_requires_repair"
-        persist(working)
+        local saved = persist(working)
+        if saved then publishDispatch(state.dispatch) end
     end
 end
 
@@ -277,11 +344,15 @@ function CosmicVaultRiftEscalation.reportDeepExtraction(eventId, evidence)
     local fingerprint = playerKey .. ":" .. evidence.sectorSeed .. ":" .. tostring(evidence.riftDepth)
     if eventId ~= "extraction:" .. fingerprint then return nil, "event_id_mismatch" end
     local existing = state.processedEvents[eventId]
-    if existing then return deepCopy(existing), nil end
+    if existing then
+        publishEscalationEvent("extraction", existing)
+        return deepCopy(existing), nil
+    end
 
     local last = state.lastExtractionByPlayer[playerKey]
     if last and last.fingerprint == fingerprint then
         if now() - (last.acceptedAt or 0) <= REPLAY_WINDOW then
+            publishEscalationEvent("extraction", last.receipt)
             return deepCopy(last.receipt), nil
         end
         local working = deepCopy(state)
@@ -310,7 +381,7 @@ function CosmicVaultRiftEscalation.reportDeepExtraction(eventId, evidence)
     pruneReceipts(working, now())
     local saved, saveError = persist(working)
     if not saved then return nil, saveError end
-    announceEvent("extraction")
+    announceEvent("extraction", receipt)
     return deepCopy(receipt), nil
 end
 
@@ -354,7 +425,9 @@ local function prepareDispatch()
         updatedAt = now(),
         nextAttemptAt = now()
     }
-    return persist(working)
+    local saved, saveError = persist(working)
+    if saved then publishDispatch(state.dispatch) end
+    return saved, saveError
 end
 
 local function materializeDispatch()
@@ -415,7 +488,8 @@ local function verifyDispatch()
             working.dispatch.state = "retryable"
             working.dispatch.nextAttemptAt = now() + 60 * working.dispatch.attempts
         end
-        persist(working)
+        local saved = persist(working)
+        if saved then publishDispatch(state.dispatch) end
         return
     end
 
@@ -440,11 +514,7 @@ local function verifyDispatch()
 
     Server():broadcastChatMessage("System"%_T, ChatMessageType.Warning,
         "CRITICAL: Global Rift Escalation Threshold Reached. Xsotan swarms converging galaxy-wide!"%_T)
-    include("cosmicvaultnews").publishArticle({
-        title = "Global Rift Escalation",
-        category = "Crisis",
-        content = "Global Rift Escalation Threshold Reached. Xsotan swarms are converging galaxy-wide!"
-    })
+    publishDispatch(state.dispatch)
 end
 
 function CosmicVaultRiftEscalation.getUpdateInterval()

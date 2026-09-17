@@ -11,12 +11,15 @@ function RiftMissionUT.showMissionAccomplished(brief, arguments)
                 local riftDepth = sector:getValue("rift_depth")
                 if type(riftDepth) == "number" and riftDepth >= 50 then
                     local sectorSeed = tostring(sector.seed)
+                    local x, y = sector:getCoordinates()
                     local eventId = "extraction:" .. tostring(player.index)
                         .. ":" .. sectorSeed .. ":" .. tostring(riftDepth)
                     include("cosmicvaultrift").ReportDeepExtraction(eventId, {
                         playerIndex = player.index,
                         sectorSeed = sectorSeed,
-                        riftDepth = riftDepth
+                        riftDepth = riftDepth,
+                        x = x,
+                        y = y
                     })
                 end
             end

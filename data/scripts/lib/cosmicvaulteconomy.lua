@@ -8,6 +8,7 @@ local cw_ok, cw_bridge = pcall(include, "cosmicwarbridge")
 if not cw_ok then cw_bridge = nil end
 local FactionEradicationUtility = include("factioneradicationutility")
 local CosmicVaultData = include("cosmicvaultdata")
+local CosmicVaultNewsAdapter = include("cosmicvaultnewsadapter")
 local CosmicVaultEconomy = {}
 
 local MARKET_KEY = "cv_market_events_v1"
@@ -70,6 +71,51 @@ local function eventScopeMatches(event, sourceId, goodName, x, y, radius)
         and event.x == x
         and event.y == y
         and event.radius == radius
+end
+
+local function publishMarketEvent(event)
+    if type(event) ~= "table" then return nil, "invalid_arguments" end
+    local newsEventId, idError = CosmicVaultNewsAdapter.StableId("market", event.eventId)
+    if not newsEventId then return nil, idError end
+    local isActive = event.state == "active"
+    local action = isActive and (event.eventType == "boom" and "booming" or "contracting") or event.state
+    local title = event.eventType == "boom" and "Regional Market Boom" or "Regional Market Crash"
+    local article, publishError = CosmicVaultNewsAdapter.Upsert({
+        eventId = newsEventId,
+        threadId = newsEventId,
+        eventType = "economy.market.lifecycle",
+        topic = "economy",
+        category = "Market Watch",
+        severity = event.eventType == "crash" and "warning" or "advisory",
+        title = title,
+        content = string.format("The market for %s near sector (%d, %d) is %s. Reported price movement: %+.0f%%.",
+            tostring(event.goodName), event.x, event.y, action, (event.priceDelta or 0) * 100),
+        author = "Cosmic Vault",
+        location = {x = event.x, y = event.y, radius = event.radius},
+        audience = {mode = "region"},
+        lead = {kind = "location", x = event.x, y = event.y},
+        expiresAt = isActive and event.expiresAt or nil,
+        provenance = {
+            recordType = "cv_market_events_v1",
+            sourceId = tostring(event.sourceId),
+            sourceEventId = tostring(event.eventId),
+            sourceRevision = event.revision or 0,
+            sourceState = tostring(event.state),
+        },
+    })
+    if publishError then return nil, publishError end
+    if not isActive then
+        return CosmicVaultNewsAdapter.Resolve(newsEventId,
+            "Market event " .. tostring(event.state) .. ": " .. tostring(event.endReason or "completed"),
+            event.state == "expired" and "expired" or "resolved")
+    end
+    return article, nil
+end
+
+local function publishTerminalMarketEvents(record)
+    for _, event in pairs(record.events or {}) do
+        if event.state == "ended" or event.state == "expired" then publishMarketEvent(event) end
+    end
 end
 
 local function maintainMarketEvents(record, currentTime)
@@ -148,12 +194,26 @@ function CosmicVaultEconomy.addFamineScore(factionIndex, amount)
             if bestTarget and cw_bridge and cw_bridge.forceDeclareWar then
                 cw_bridge.forceDeclareWar(starvingFaction, bestTarget)
 
-                local CosmicVaultNews = include("cosmicvaultnews")
-                if CosmicVaultNews and CosmicVaultNews.publishArticle then
-                    CosmicVaultNews.publishArticle({
+                local famineEventId = CosmicVaultNewsAdapter.StableId("famine-war",
+                    tostring(starvingFaction.index) .. ":" .. tostring(bestTarget.index) .. ":" .. tostring(math.floor(marketNow())))
+                if famineEventId then
+                    CosmicVaultNewsAdapter.Upsert({
+                        eventId = famineEventId,
+                        threadId = "famine:" .. tostring(starvingFaction.index),
+                        eventType = "economy.famine.war_started",
+                        topic = "conflict",
+                        category = "Conflict",
+                        severity = "critical",
+                        breaking = true,
                         title = "Desperation War: " .. tostring(starvingFaction.name) .. " Attacks " .. tostring(bestTarget.name),
                         content = "Driven by critical resource shortages and a surging famine score, the " .. tostring(starvingFaction.name) .. " military has launched a desperate invasion into " .. tostring(bestTarget.name) .. " territory to seize their wealth and supplies.\n\nGalactic economists are calling this the direct result of a collapsed market.",
-                        category = "Conflict"
+                        author = "Cosmic Vault",
+                        provenance = {
+                            recordType = "cv_famine_score",
+                            sourceRevision = math.floor(currentScore),
+                            starvingFaction = starvingFaction.index,
+                            targetFaction = bestTarget.index,
+                        },
                     })
                 end
 
@@ -289,6 +349,9 @@ function CosmicVaultEconomy.StartMarketEvent(options)
     local saved, saveError = saveMarketEvents(working)
     if not saved then return nil, saveError end
 
+    publishTerminalMarketEvents(working)
+    publishMarketEvent(event)
+
     if notify then
         Server():broadcastChatMessage(
             "Server"%_T,
@@ -314,6 +377,7 @@ function CosmicVaultEconomy.GetMarketEvent(eventId)
     if changed then
         local saved, saveError = saveMarketEvents(working)
         if not saved then return nil, saveError end
+        publishTerminalMarketEvents(working)
     end
 
     local event = working.events[eventId]
@@ -330,7 +394,10 @@ function CosmicVaultEconomy.EndMarketEvent(eventId, reason)
     if not record then return nil, loadError end
     local event = record.events[eventId]
     if not event then return nil, "missing" end
-    if event.state == "ended" or event.state == "expired" then return marketCopy(event), nil end
+    if event.state == "ended" or event.state == "expired" then
+        publishMarketEvent(event)
+        return marketCopy(event), nil
+    end
     if event.state ~= "active" then return nil, "invalid_state" end
 
     local working = marketCopy(record)
@@ -341,6 +408,7 @@ function CosmicVaultEconomy.EndMarketEvent(eventId, reason)
     event.revision = (event.revision or 0) + 1
     local saved, saveError = saveMarketEvents(working)
     if not saved then return nil, saveError end
+    publishMarketEvent(event)
     return marketCopy(event), nil
 end
 
@@ -374,6 +442,7 @@ function CosmicVaultEconomy.GetMarketPriceDelta(goodName, x, y, currentTime)
     if changed then
         local saved, saveError = saveMarketEvents(working)
         if not saved then return delta, saveError end
+        publishTerminalMarketEvents(working)
     end
     return delta, nil
 end

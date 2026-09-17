@@ -36,19 +36,7 @@ function CosmicVaultTerritoryServer.flipSectorTerritory(x, y, newFactionIndex)
         CosmicVaultTerritory.resolveSiege(x, y, newFactionIndex)
     end
 
-    local sectorName = "\\s(" .. x .. ":" .. y .. ")"
-    local factionName = Faction(newFactionIndex) and Faction(newFactionIndex).name or "an Unknown Faction"
-    
     include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Queued territory flip in " .. x .. ":" .. y .. " to faction " .. tostring(newFactionIndex))
-    
-    local CosmicVaultNews = include("cosmicvaultnews")
-    if CosmicVaultNews and CosmicVaultNews.publishArticle then
-        CosmicVaultNews.publishArticle({
-            title = "Territory Conquered",
-            content = "The sector " .. sectorName .. " has been successfully annexed by " .. factionName .. ". The galaxy borders have officially shifted.",
-            category = "War"
-        })
-    end
 end
 
 

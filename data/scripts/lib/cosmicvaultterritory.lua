@@ -3,6 +3,7 @@ include("stringutility")
 
 local CosmicVaultTerritory = {}
 local CosmicVaultData = include("cosmicvaultdata")
+local CosmicVaultNewsAdapter = include("cosmicvaultnewsadapter")
 
 -- This API handles background sieges and contested zones for Cosmic War and other expansions.
 -- It avoids loading 1,000 sectors to simulate combat, instead mathematically conquering sectors.
@@ -63,6 +64,40 @@ if onServer() then
 
     local function operationId(record)
         return record.id .. ":" .. tostring(record.createdAt or 0)
+    end
+
+    local function publishCompletedMaterialization(record)
+        if record.kind ~= "flip" and record.kind ~= "expansion" then return end
+        local factionIndex = record.result and record.result.controllingFactionIndex
+            or record.payload and record.payload.factionIndex
+        if type(factionIndex) ~= "number" then return end
+        local faction = Faction(factionIndex)
+        local factionName = faction and faction.name or "an unknown faction"
+        local eventId = CosmicVaultNewsAdapter.StableId("territory", operationId(record))
+        if not eventId then return end
+        local isExpansion = record.kind == "expansion"
+        CosmicVaultNewsAdapter.Upsert({
+            eventId = eventId,
+            threadId = "territory:" .. tostring(record.x) .. ":" .. tostring(record.y),
+            eventType = isExpansion and "territory.expansion.completed" or "territory.flip.completed",
+            topic = "politics",
+            category = isExpansion and "Politics" or "War",
+            severity = isExpansion and "info" or "warning",
+            title = isExpansion and "Galactic Borders Shift" or "Territory Conquered",
+            content = "Sector [\\s(" .. tostring(record.x) .. ":" .. tostring(record.y)
+                .. ")] is now under the verified control of " .. tostring(factionName) .. ".",
+            author = "Cosmic Vault",
+            location = {x = record.x, y = record.y, radius = 0},
+            audience = {mode = "galaxy"},
+            lead = {kind = "location", x = record.x, y = record.y},
+            provenance = {
+                recordType = "cv_materialization_v1_" .. record.kind,
+                operationId = operationId(record),
+                sourceRevision = record.revision or 0,
+                controllingFaction = factionIndex,
+                verified = record.result and record.result.verified == true or nil,
+            },
+        })
     end
 
     local function queueStorageKey(kind)
@@ -234,7 +269,10 @@ if onServer() then
         local record, err, queue = getEntry(kind, x, y)
         if err then return nil, err end
         if not record then return nil, "missing" end
-        if record.state == "succeeded" then return deepCopy(record), nil end
+        if record.state == "succeeded" then
+            publishCompletedMaterialization(record)
+            return deepCopy(record), nil
+        end
         if record.state ~= "materializing" then return nil, "invalid_state" end
         if record.claimOwner ~= tostring(claimant) then return nil, "claimant_mismatch" end
 
@@ -253,6 +291,7 @@ if onServer() then
 
         local saved, saveErr = saveQueue(kind, queue)
         if not saved then return nil, saveErr end
+        publishCompletedMaterialization(record)
         return deepCopy(record), nil
     end
 
@@ -587,15 +626,6 @@ if onServer() then
                 local faction = Faction(factionIndex)
                 if faction then
                     include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Faction " .. faction.name .. " scheduled expansion to " .. x .. ":" .. y)
-                    local CosmicVaultNews = include("cosmicvaultnews")
-                    if CosmicVaultNews and CosmicVaultNews.publishArticle then
-                        CosmicVaultNews.publishArticle({
-                            title = "Galactic Borders Shift",
-                            content = "The " .. faction.name .. " has officially expanded their sovereign territory, claiming the uncharted sector [\\s(" .. x .. ":" .. y .. ")]. New stations are already operational as the faction establishes its presence.",
-                            category = "Politics",
-                            author = "Cosmic Chronicles"
-                        })
-                    end
                 end
             else
                 include("cosmicvaultdebug").info("Cosmic Vault", "[Cosmic Vault] Pirates scheduled expansion to " .. x .. ":" .. y)

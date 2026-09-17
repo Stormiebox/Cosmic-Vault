@@ -3,6 +3,7 @@ CosmicVaultWeatherServer = {}
 
 local CosmicVaultData = include("cosmicvaultdata")
 local WeatherDictionary = include("cosmicvaultweatherdictionary")
+local CosmicVaultNewsAdapter = include("cosmicvaultnewsadapter")
 
 local RECORD_KEY = "cv_weather_v2"
 local SCHEMA_VERSION = 2
@@ -173,6 +174,64 @@ local function persist(working)
     end
     state = working
     return true, nil
+end
+
+local function weatherNewsEventId(condition)
+    return CosmicVaultNewsAdapter.StableId("hazard", condition.conditionId)
+end
+
+local function publishWeatherCondition(condition)
+    if type(condition) ~= "table" then return nil, "invalid_arguments" end
+    local definition = state and state.typeDefinitions[condition.weatherType]
+        or WeatherDictionary.getDefinition(condition.weatherType)
+    if not definition then return nil, "unknown_type" end
+    local eventId, idError = weatherNewsEventId(condition)
+    if not eventId then return nil, idError end
+    local isRift = condition.category == "rift"
+    local active = condition.state == "active" or condition.state == "retryable"
+        or condition.state == "repair_required"
+    local severity = isRift and "critical" or "warning"
+    local content
+    if active then
+        content = tostring(definition.detailedName) .. " is active in sector ("
+            .. tostring(condition.x) .. ", " .. tostring(condition.y) .. "). "
+            .. tostring(definition.description)
+    else
+        content = tostring(definition.detailedName) .. " in sector ("
+            .. tostring(condition.x) .. ", " .. tostring(condition.y) .. ") has ended."
+    end
+    local article, publishError = CosmicVaultNewsAdapter.Upsert({
+        eventId = eventId,
+        threadId = eventId,
+        eventType = isRift and "rift.hazard.lifecycle" or "weather.lifecycle",
+        topic = isRift and "rift" or "weather",
+        category = isRift and "Rift" or "Weather",
+        severity = severity,
+        breaking = isRift,
+        title = tostring(definition.detailedName),
+        content = content,
+        author = "Cosmic Vault",
+        location = {x = condition.x, y = condition.y, radius = 12},
+        audience = {mode = "region"},
+        lead = {kind = "location", x = condition.x, y = condition.y,
+            expiresAt = condition.expiresAt ~= -1 and condition.expiresAt or nil},
+        expiresAt = active and condition.expiresAt ~= -1 and condition.expiresAt or nil,
+        provenance = {
+            recordType = "cv_weather_v2",
+            conditionId = tostring(condition.conditionId),
+            sourceId = tostring(condition.sourceId),
+            sourceRevision = condition.revision or 0,
+            sourceState = tostring(condition.state),
+            weatherType = tostring(condition.weatherType),
+        },
+    })
+    if publishError then return nil, publishError end
+    if not active then
+        return CosmicVaultNewsAdapter.Resolve(eventId,
+            "Hazard " .. tostring(condition.state) .. ": " .. tostring(condition.reason or "ended"),
+            condition.state == "expired" and "expired" or "resolved")
+    end
+    return article, nil
 end
 
 local function serializable(value, seen)
@@ -468,6 +527,10 @@ function CosmicVaultWeatherServer.startWeather(options)
     pruneTombstones(working, currentTime)
     local saved, saveError = persist(working)
     if not saved then return nil, saveError end
+    for _, retired in pairs(working.tombstones) do
+        if retired.completedAt == currentTime then publishWeatherCondition(retired) end
+    end
+    publishWeatherCondition(record)
     notifyCoordinate(record.x, record.y, "started")
     return deepCopy(record), nil
 end
@@ -491,6 +554,7 @@ function CosmicVaultWeatherServer.refreshWeather(conditionId, duration)
     record.repairRequired = nil
     local saved, saveError = persist(working)
     if not saved then return nil, saveError end
+    publishWeatherCondition(record)
     notifyCoordinate(record.x, record.y, "refreshed")
     return deepCopy(record), nil
 end
@@ -502,7 +566,10 @@ function CosmicVaultWeatherServer.endWeather(conditionId, reason)
     local record = state.conditions[conditionId]
     if not record then
         local tombstone = state.tombstones[conditionId]
-        if tombstone then return deepCopy(tombstone), nil end
+        if tombstone then
+            publishWeatherCondition(tombstone)
+            return deepCopy(tombstone), nil
+        end
         return nil, "missing"
     end
 
@@ -513,6 +580,7 @@ function CosmicVaultWeatherServer.endWeather(conditionId, reason)
     pruneTombstones(working, now())
     local saved, saveError = persist(working)
     if not saved then return nil, saveError end
+    publishWeatherCondition(state.tombstones[conditionId])
     notifyCoordinate(x, y, reason == "expired" and "expired" or "ended")
     return deepCopy(state.tombstones[conditionId]), nil
 end

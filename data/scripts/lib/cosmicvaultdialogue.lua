@@ -1,81 +1,73 @@
-
-include("cosmicvaultdebug")
-include("randomext")
+local Debug = include("cosmicvaultdebug")
 
 -- namespace CosmicVaultDialogue
 CosmicVaultDialogue = {}
-CosmicVaultDialogue._registeredLines = {}
 
--- Registers a single line entry from any mod
-function CosmicVaultDialogue.registerLine(entry)
-    if not entry or not entry.category or not entry.text then
-        if CosmicVaultDebug and CosmicVaultDebug.error then
-            CosmicVaultDebug.error("CosmicVaultDialogue", "Invalid entry provided. Must contain 'category' and 'text'.")
-        else
-            include("cosmicvaultdebug").info("Cosmic Vault", "CosmicVaultDialogue [Error]: Invalid entry provided. Must contain 'category' and 'text'.")
-        end
-        return
-    end
+local MANAGER_PATH = "data/scripts/server/cosmicvaultdialogue_server.lua"
+local unpackValues = table.unpack or unpack
 
-    -- Initialize category if it doesn't exist
-    if not CosmicVaultDialogue._registeredLines[entry.category] then
-        CosmicVaultDialogue._registeredLines[entry.category] = {}
-    end
-
-    table.insert(CosmicVaultDialogue._registeredLines[entry.category], entry)
+local function packValues(...)
+    return {n = select("#", ...), ...}
 end
 
--- Retrieves a random valid string based on category and contextual conditions
-function CosmicVaultDialogue.getValidLine(category, currentContext)
-    local lines = CosmicVaultDialogue._registeredLines[category]
-    if not lines or #lines == 0 then return nil end
+local function reportError(message, ...)
+    if Debug and Debug.error then Debug.error("CosmicVaultDialogue", message, ...) end
+end
 
-    local validLines = {}
-    currentContext = currentContext or {}
+local function invokeManager(functionName, ...)
+    if not onServer() then return nil, "server_only" end
+    local galaxy = Galaxy()
+    if not galaxy then return nil, "manager_unavailable" end
 
-    for _, entry in pairs(lines) do
-        local isValid = true
-
-        -- Validate conditions if they exist
-        if entry.conditions then
-            if entry.conditions.minWarHeat and (currentContext.warHeat or 0) < entry.conditions.minWarHeat then
-                isValid = false
-            end
-            if isValid and entry.conditions.maxWarHeat and (currentContext.warHeat or 0) > entry.conditions.maxWarHeat then
-                isValid = false
-            end
-            if isValid and entry.conditions.factionTrait and currentContext.factionTrait ~= entry.conditions.factionTrait then
-                isValid = false
-            end
-            if isValid and entry.conditions.factionWealth and currentContext.factionWealth ~= entry.conditions.factionWealth then
-                isValid = false
-            end
-            if isValid and entry.conditions.stationType and currentContext.stationType ~= entry.conditions.stationType then
-                isValid = false
-            end
-            if isValid and entry.conditions.minDistanceToCenter and (currentContext.distanceToCenter or 0) < entry.conditions.minDistanceToCenter then
-                isValid = false
-            end
-            if isValid and entry.conditions.maxDistanceToCenter and (currentContext.distanceToCenter or 500) > entry.conditions.maxDistanceToCenter then
-                isValid = false
-            end
-            if isValid and entry.conditions.minReputation and (currentContext.reputation or 0) < entry.conditions.minReputation then
-                isValid = false
-            end
-            if isValid and entry.conditions.maxReputation and (currentContext.reputation or 0) > entry.conditions.maxReputation then
-                isValid = false
-            end
-        end
-
-        if isValid then
-            table.insert(validLines, entry.text)
-        end
+    local results = packValues(galaxy:invokeFunction(MANAGER_PATH, functionName, ...))
+    if results[1] ~= 0 then
+        reportError("Manager call %s failed with invoke status %s.", functionName, tostring(results[1]))
+        return nil, "manager_unavailable"
     end
+    return unpackValues(results, 2, results.n)
+end
 
-    if #validLines == 0 then return nil end
+function CosmicVaultDialogue.RegisterPublisher(definition)
+    return invokeManager("registerPublisher", definition)
+end
 
-    -- Use Avorion's global random() object to pick a valid line safely
-    return validLines[random():getInt(1, #validLines)]
+function CosmicVaultDialogue.RegisterEntries(publisherId, entries)
+    return invokeManager("registerEntries", publisherId, entries)
+end
+
+function CosmicVaultDialogue.GetEntry(lineId)
+    return invokeManager("getEntry", lineId)
+end
+
+function CosmicVaultDialogue.Query(category, context, options)
+    return invokeManager("query", category, context, options)
+end
+
+function CosmicVaultDialogue.GetCatalogSnapshot()
+    return invokeManager("getCatalogSnapshot")
+end
+
+-- Compatibility wrapper for the original free-form registration shape. The server manager
+-- derives a stable legacy line ID, so repeated registration from separate script VMs coalesces.
+function CosmicVaultDialogue.registerLine(entry)
+    if not onServer() then
+        reportError("Dialogue lines can only be registered from the server.")
+        return nil, "server_only"
+    end
+    if type(entry) ~= "table" then
+        reportError("Invalid legacy dialogue entry.")
+        return nil, "invalid_arguments"
+    end
+    return invokeManager("registerLegacyEntry", entry)
+end
+
+-- Compatibility read shape: return the selected text as the first value. The stable line ID is
+-- returned second for callers that want to avoid immediate repetition without breaking v1 users.
+function CosmicVaultDialogue.getValidLine(category, currentContext)
+    local result, err = CosmicVaultDialogue.Query(category, currentContext or {}, nil)
+    if err then return nil, err end
+    if type(result) ~= "table" or type(result.entry) ~= "table" then return nil, "not_found" end
+    return result.entry.text, result.entry.lineId
 end
 
 return CosmicVaultDialogue

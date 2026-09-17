@@ -222,8 +222,7 @@ function TableHandle:_repopulate()
 
     -- addRow's first argument is the row's associated "value" (what .selectedValue
     -- returns for whichever row is clicked) -- confirmed against three working
-    -- examples in this codebase (factory_overview_tab.lua, cc_newsboard.lua,
-    -- galacticpolitics_tab.lua), since neither the ListBoxEx stub nor the raw HTML
+    -- examples in working mod UI lists, since neither the ListBoxEx stub nor the raw HTML
     -- docs document this parameter at all (both show addRow() as taking zero
     -- arguments, which is simply wrong for this API). Every real example passes a
     -- string, never a table, so this follows galacticpolitics_tab.lua's exact

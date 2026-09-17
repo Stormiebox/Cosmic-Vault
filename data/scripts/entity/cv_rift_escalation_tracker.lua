@@ -13,9 +13,10 @@ end
 
 function CosmicVaultRiftEscalationTracker.onDestroyed()
     if not onServer() or type(entityUuid) ~= "string" or entityUuid == "" then return end
+    local x, y = Sector():getCoordinates()
     include("cosmicvaultrift").ReportGuardianDestroyed(
         "guardian:" .. entityUuid,
-        {entityUuid = entityUuid}
+        {entityUuid = entityUuid, x = x, y = y}
     )
 end
 

@@ -69,11 +69,19 @@ It has no dependencies of its own beyond Avorion — every other Cosmic mod depe
 
 **Files:** `data/scripts/lib/cosmicvaultnews.lua`, `data/scripts/server/cosmicvaultnews_server.lua`
 
-Any mod in the Cosmic series can publish a news article to a global server-side buffer, which broadcasts to all connected clients for UI boards such as Cosmic Chronicles' Galactic News Board.
+The server owns a versioned feed of verified facts. A publisher supplies a stable publisher/event identity, and retries converge on the same article instead of creating another headline. Developing reports may be updated or resolved with an expected revision. Articles can carry a topic, severity, location, audience, expiry, lead, provenance, and thread identity.
 
-- `CosmicVaultNews.publishArticle(article)` takes `{title, content, category, breaking}`. `category` defaults to `"General"` and accepts any free-text value, since consuming UIs are expected to group categories themselves. As of v3.5.0, `breaking` is coerced to a real boolean (`article.breaking == true`) instead of trusting whatever truthy value a caller passed in, so a consuming UI can rely on the field's type when deciding whether to fire a banner or an interrupt-worthy chat alert. If no author is set, the server assigns one of 35 randomized reporter names.
-- The server keeps the latest 30 articles and pushes `onCosmicVaultNewsUpdated` to clients whenever the buffer changes.
-- `CosmicVaultNews.getPublishedNews()` was a documented stub through v3.4.x — it existed, but did nothing. v3.5.0 implemented it: called from a server-side script, it now reads the live article list straight out of `cosmicvaultnews_server.lua` via `Galaxy():invokeFunction`. It's still server-only; there's no synchronous client/server call in Avorion, so a client that needs the news list has to request a sync (`invokeServerFunction`) and receive it back through `invokeClientFunction`, the same pattern Cosmic Chronicles' News Board already uses.
+- `RegisterPublisher(definition)` registers presentation metadata for a stable publisher ID.
+- `Publish(options)` creates or coalesces `publisherId:eventId` and returns `record, errorCode, created`.
+- `Update(articleId, publisherId, expectedRevision, patch)` performs an owner- and revision-checked update.
+- `Resolve(articleId, publisherId, expectedRevision, resolution)` records a terminal outcome without deleting thread history.
+- `GetArticle(articleId, options)`, `Query(options)`, and `GetSnapshot()` expose defensive server-side snapshots. Queries use sequence cursors, enforce audience visibility, and clamp pages to 50 records.
+- Topics are `conflict`, `economy`, `threat`, `discovery`, `politics`, `humanitarian`, `weather`, `rift`, `captain`, and `general`. Severities are `info`, `advisory`, `warning`, and `critical`.
+- Audience modes are `galaxy`, `region`, `faction`, `alliance`, and `player`. The server, not the client, supplies the player index used for visibility checks.
+- A successful write queues `onCosmicVaultNewsChanged(feedRevision, articleId, changeType)`. The callback is an invalidation notice; consumers query the manager after the callback rather than receiving a mutable article through it.
+- Active and archived bodies are bounded to 512 records, with a bounded tombstone index preventing a pruned deterministic event from being recreated by a late retry.
+
+The lowercase `publishArticle(article)` and `getPublishedNews()` functions remain compatible. They accept the old free-text article shape and return the newest 30 audience-neutral reports, but new publishers should use stable v2 identities and lifecycle methods. All functions are server-only.
 
 ### 2) Cosmic UI Proportional Splitters
 
@@ -134,11 +142,14 @@ Caches active AI faction indices in `Server()` so background scripts don't re-sc
 
 **File:** `data/scripts/lib/cosmicvaultdialogue.lua`
 
-A registry for narrative mods (Cosmic Chronicles in particular) to store and retrieve contextual dialogue, rumors, and lore strings.
+A server-owned registry for contextual dialogue, rumors, and lore. Registration is visible across separate Avorion script VMs because the catalog lives in one attached manager rather than a module-local Lua table.
 
-- `CosmicVaultDialogue.registerLine(entry)` — registers a `category`, `text`, and optional `conditions`.
-- `CosmicVaultDialogue.getValidLine(category, currentContext)` — returns a random line whose conditions match the given context.
-- **Supported context filters:** `minWarHeat`, `maxWarHeat`, `factionTrait`, `factionWealth`, `stationType`, `minDistanceToCenter`, `maxDistanceToCenter`, `minReputation`, `maxReputation`.
+- `RegisterPublisher(definition)` and `RegisterEntries(publisherId, entries)` register stable, versioned content. Identical retries coalesce; a conflicting publisher or line ID is rejected and exposed in the catalog health snapshot.
+- `GetEntry(lineId)`, `Query(category, context, options)`, and `GetCatalogSnapshot()` return defensive server-side data. `options.excludeIds` supports per-player repetition suppression; `options.seed` makes weighted selection deterministic.
+- Supported numeric conditions are War Heat, reputation, and distance-to-center minima/maxima. Set conditions cover station type, faction trait/wealth, publisher, topic, severity, weather type, Eclipse state, and captain class. `riftActive` is the supported boolean condition.
+- Conditions are plain serializable data. Functions, userdata, metatables, and unknown predicate keys are rejected.
+
+The lowercase `registerLine(entry)` and `getValidLine(category, context)` wrappers remain available. Legacy registration receives a deterministic line ID, and `getValidLine` returns the selected text plus its stable line ID. All manager operations are server-only.
 
 ### 10) Player Settings API
 

@@ -127,12 +127,32 @@ wrappers remain available.
 
 ### 🔗 Compatibility & Documentation
 
+- [Feature] **News v2 Persistent Store (`cosmicvaultnews.lua`, `cosmicvaultnews_schema.lua`,
+  `server/cosmicvaultnews_server.lua`):** Added validated publisher registration and stable
+  publish, update, resolve, query, archive, and retrieval operations backed by a versioned Server
+  record. Articles carry source/event/thread identity, topic, category, severity, audience,
+  location, leads, expiry, lifecycle state, bounded provenance, and resolution outcome. Identical
+  retries coalesce, ownership and revision mismatches fail explicitly, active/archive retention is
+  bounded, and the v1 publish/get exports and callback remain available.
+- [Feature] **Dialogue v2 Registry (`cosmicvaultdialogue.lua`, `cosmicvaultdialogue_schema.lua`,
+  `server/cosmicvaultdialogue_server.lua`):** Added one persistent server catalog with validated
+  pack registration, stable line IDs, serializable predicates, exclusions, weights, deterministic
+  selection, restart restore, and bounded repair findings. Existing Dialogue exports remain
+  callable while new consumers can query reputation, faction, distance, station, captain, nearby
+  news, weather, Rift, War, and Eclipse context without sharing Lua functions across script VMs.
+- [Integration] **Source-Owned News Adapters (`cosmicvaultnewsadapter.lua`):** Vault economy,
+  territory, weather, and Rift managers publish only after their own state transition succeeds.
+  Stable source identities let retries update one thread, and Vault no longer attaches a Chronicle
+  entity or calls a Chronicle UI path.
+- [Compatibility] **Lua 5.1-Safe Public Facades:** News and Dialogue cross-script calls preserve nil
+  return positions without requiring `table.pack` or `table.unpack`, which Avorion's Lua runtime
+  does not provide.
 - [Compatibility] **Existing APIs Preserved:** All prior Vault exports remain callable. Cosmic War's
   duplicate pending-flip worker now yields to the Vault consumer, while a compatibility bridge keeps
   War Score and momentum updates receipted with the flip.
 - [Docs] **Public References Updated (`WIKI.md`, `MODDER_GUIDE.md`):** Added record, queue, repair,
-  typed-turret, and market-event contracts, including validation results, lease behavior, refresh
-  semantics, and compatibility wrappers.
+  typed-turret, market-event, News v2, and Dialogue v2 contracts, including validation results,
+  lifecycle and audience rules, lease behavior, refresh semantics, and compatibility wrappers.
 
 ## [v4.0.0] MODDER TOOLKIT EXPANSION
 

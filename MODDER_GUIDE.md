@@ -108,27 +108,53 @@ local isEnabled = PlayerSettings.get(Player(), "MyMod", "FeatureEnabled", true)
 ```
 
 ### 📰 2. Galactic News API (`cosmicvaultnews.lua`)
-Publish news articles into the centralized server-wide buffer, which broadcasts to all connected clients.
+Publish versioned facts into the server-owned feed. Stable event IDs make retries idempotent, while revision checks prevent one publisher from overwriting another publisher's story or applying a stale update.
 ```lua
 local CosmicVaultNews = include("cosmicvaultnews")
 if onServer() then
-    CosmicVaultNews.publishArticle({
-        title = "Crisis",
-        category = "War",
-        content = "Invasion!",
-        breaking = true, -- optional; coerced to a real boolean as of v3.5.0
+    CosmicVaultNews.RegisterPublisher({
+        schemaVersion = 1,
+        publisherId = "my_mod",
+        displayName = "My Mod",
+        shortName = "MY",
+        color = {r = 0.4, g = 0.8, b = 1.0},
+    })
+
+    local article, err, created = CosmicVaultNews.Publish({
+        schemaVersion = 2,
+        publisherId = "my_mod",
+        eventId = "invasion:-12:8:42",
+        threadId = "war:12:19",
+        eventType = "my_mod.invasion.started",
+        topic = "conflict",
+        category = "War Update",
+        severity = "critical",
+        breaking = true,
+        title = "Invasion Confirmed",
+        content = "A verified invasion has begun in sector [-12:8].",
+        location = {x = -12, y = 8, radius = 0},
+        audience = {mode = "galaxy"},
+        provenance = {recordType = "my_event_v1", recordId = "42", sourceRevision = 3},
     })
 end
 ```
-`breaking` defaults to `false` and marks an article as worth interrupting the player for — a dedicated UI banner, an immediate chat alert, whatever the consuming UI decides to do with it. As of v3.5.0 the API normalizes whatever you pass into a real `true`/`false`, so a consuming UI can trust the field's type rather than treating any truthy value as breaking. Reserve it for genuinely rare events; a breaking article every few minutes defeats the point.
+Use `Update(articleId, publisherId, expectedRevision, patch)` for a developing report and `Resolve(articleId, publisherId, expectedRevision, resolution)` for its outcome. Keep `publisherId`, `eventId`, and `threadId` stable. The manager rejects non-serializable values, so convert engine objects such as `Entity`, `Faction`, `Uuid`, `Color`, and `NamedFormat` into strings or numbers before publishing.
 
-`CosmicVaultNews.getPublishedNews()` was a documented stub through v3.4.x — present, but returned nothing useful. As of v3.5.0 it's implemented and works from any server-side script:
+Queries are server-only and cursor-based:
 ```lua
 if onServer() then
-    local articles = CosmicVaultNews.getPublishedNews() -- returns the live article list
+    local page, err = CosmicVaultNews.Query({
+        pageSize = 30,
+        beforeSequence = nil,
+        topics = {conflict = true},
+        states = {active = true},
+        audiencePlayerIndex = Player().index,
+    })
 end
 ```
-It's still server-only. There's no synchronous client/server call in Avorion, so a client can't call this directly — request a sync with `invokeServerFunction()` and receive the result back through `invokeClientFunction()`, the same pattern Cosmic Chronicles' News Board already uses.
+`page.items`, `page.nextCursor`, `page.hasMore`, `page.feedRevision`, and `page.latestSequence` are defensive snapshots. `onCosmicVaultNewsChanged(feedRevision, articleId, changeType)` only announces that data changed; query after the callback returns.
+
+The lowercase `publishArticle(article)` and `getPublishedNews()` wrappers remain for old publishers. They use the v2 store but cannot provide a strong developing-story identity unless the caller supplies the v2 fields.
 
 ### 🗃️ 3. Faction API & Custom Traits (`cosmicvaultfaction.lua`)
 A cached list of generated factions, plus an API for injecting custom faction traits into the vanilla diplomacy window without touching Avorion's hardcoded UI.
@@ -426,25 +452,43 @@ CosmicVaultDebug.log("System initialized successfully in 12ms.")
 ```
 
 ### 💬 23. Dialogue API (`cosmicvaultdialogue.lua`)
-A wrapper for native NPC conversation branching and contextual random lines without needing explicit file overrides.
-
-> [!TIP]
-> **Contextual Dialogue Conditions:** When registering a dialogue line, you can provide a `conditions` table. The API will automatically filter out invalid dialogues based on the provided context.
-> Supported conditions:
-> - `minWarHeat` / `maxWarHeat` (number)
-> - `minReputation` / `maxReputation` (number)
-> - `minDistanceToCenter` / `maxDistanceToCenter` (number)
-> - `factionTrait` (string)
-> - `stationType` (string)
-
+The v2 catalog is owned by one server manager, so entries registered in a galaxy script remain visible to player, sector, and entity scripts running in other Lua VMs.
 ```lua
 local CosmicVaultDialogue = include("cosmicvaultdialogue")
-CosmicVaultDialogue.registerLine({
-    category = "greeting_hostile",
-    text = "You've got some nerve showing up here.",
-    conditions = { maxReputation = -10000 }
+CosmicVaultDialogue.RegisterPublisher({
+    schemaVersion = 1,
+    publisherId = "my_mod",
+    displayName = "My Mod",
+    shortName = "MY",
+    color = {r = 0.4, g = 0.8, b = 1.0},
+})
+
+CosmicVaultDialogue.RegisterEntries("my_mod", {{
+    schemaVersion = 2,
+    lineId = "my_mod:rumor:blockade-01",
+    category = "rumor",
+    text = "Freighters are avoiding the eastern gate.",
+    weight = 1,
+    tags = {"station", "conflict"},
+    conditions = {
+        minWarHeat = 40,
+        stationTypes = {tradingpost = true},
+        topics = {conflict = true},
+    },
+}})
+
+local result, err = CosmicVaultDialogue.Query("rumor", {
+    warHeat = 72,
+    stationType = "tradingpost",
+    topics = {conflict = true},
+}, {
+    seed = 12345,
+    excludeIds = {"my_mod:rumor:older-line"},
 })
 ```
+Supported numeric ranges cover War Heat, reputation, and distance to center. Set predicates cover station types, faction traits/wealth, publisher IDs, topics, severities, weather types, Eclipse states, and captain classes; `riftActive` is boolean. Unknown predicates, functions, userdata, and metatables are rejected.
+
+The lowercase `registerLine` and `getValidLine` functions remain compatible. New code should keep stable line IDs and save the returned ID when it needs per-player repetition suppression.
 
 ### 🗺️ 24. Territory API (`cosmicvaultterritory.lua`)
 Manages mathematical territory expansion and station flips without triggering the "Sector Alive" performance trap (loading a sector just to flip a station's owner). Includes bindings to `CosmicVaultNews` and functions for background faction generation.

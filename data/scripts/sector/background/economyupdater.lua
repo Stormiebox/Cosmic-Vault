@@ -1,8 +1,6 @@
 
 include("callable")
-include("randomext")
 local FactoryMap = include("factorymap")
-local SectorGenerator = include("SectorGenerator")
 
 -- Don't remove or alter the following comment, it tells the game the namespace this script lives in. If you remove it, the script will break.
 -- namespace EconomyUpdater
@@ -74,34 +72,6 @@ end
 
 function EconomyUpdater.updateServer(timeStep)
     self.refresh()
-
-    -- Cosmic Chronicles/Vault: Vault Economy + Chronicles (Famine Relief Anomalies)
-    local sector = Sector()
-    local x, y = sector:getCoordinates()
-    local controllingFaction = Galaxy():getControllingFaction(x, y)
-    if type(controllingFaction) == "number" then controllingFaction = Faction(controllingFaction) end
-
-    if controllingFaction then
-        local cve = include("cosmicvaulteconomy")
-        if cve and cve.getFamineScore then
-            local score = cve.getFamineScore(controllingFaction.index)
-            if type(score) == "number" and score >= 100 then
-                -- 1% chance to spawn a Famine Relief Cache in a starving sector
-                if random():test(0.01) then
-                    local generator = SectorGenerator(x, y)
-                    local beacon = generator:createBeacon(generator:getPositionInSector(), controllingFaction, "EMERGENCY RELIEF CACHE")
-                    if beacon then
-                        beacon.title = "Famine Relief Cache"
-                        -- cc_blackbox.lua only exists in Cosmic Chronicles; Cosmic
-                        -- Vault has no dependencies and must keep working without
-                        -- it, so this attach is best-effort only.
-                        pcall(function() beacon:addScriptOnce("data/scripts/entity/cc_blackbox.lua") end)
-                        beacon:setValue("is_famine_relief", controllingFaction.index)
-                    end
-                end
-            end
-        end
-    end
 end
 
 function EconomyUpdater.onEntityCreated(id)
