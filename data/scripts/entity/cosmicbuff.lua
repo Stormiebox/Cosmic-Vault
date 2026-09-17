@@ -1,4 +1,4 @@
-include("callable")
+include("data/scripts/lib/callable.lua")
 
 local targetStat = ""
 local statMultiplier = 1.0

@@ -139,6 +139,23 @@ wrappers remain available.
   scripts now include vanilla's verified `data/scripts/lib/callable.lua` path explicitly. This
   prevents bare include resolution from failing, aborting temporary-buff attachment, and producing
   repeated uncallable `sync` requests from clients.
+- [Fix] **Weather Condition Retirement Skips a Dead Intermediate State
+  (`server/cosmicvaultweather_server.lua`):** `retireCondition` no longer writes a `"resolving"`
+  state that was immediately overwritten by the real terminal state two lines later without ever
+  being read or persisted.
+- [Fix] **Client Economy Updates No Longer Branch on an Identical Outcome
+  (`sector/background/economyupdater.lua`):** `EconomyUpdater.updateClient` collapsed its `if`/`else`
+  into one unconditional `EconomyUpdater.requestData()` call; both branches already called the same
+  function.
+- [Fix] **`GetMarketPriceDelta` Clamps Its Own Return Value (`cosmicvaulteconomy.lua`):** The
+  combined delta is now clamped to `-0.30`/`+0.30` inside the function itself, matching the
+  documented contract, instead of relying on `economyupdater.lua` to clamp it one layer up for the
+  only existing internal caller.
+- [Docs] **Famine Relief Cache Article Retired (`player/codex/infoCv.lua`, `WIKI.md`,
+  `MODDER_GUIDE.md`):** The physical cache spawn was intentionally dropped when Vault stopped
+  attaching a Chronicle entity script, but the in-game Codex article and public docs still promised
+  it to players. The Codex article now describes only the still-live alliance reputation mirroring;
+  the cache/donate/reputation claim is removed from all three documents.
 - [Optimization] **Empty Weather Runtime Scripts Retire Promptly
   (`sector/cv_environment_controller.lua`, `entity/cv_environment_effect.lua`):** Reconciliation
   now terminates controllers and effects with no remaining conditions. The sector controller also

@@ -87,12 +87,15 @@ function CosmicVaultMission.completeMission(missionId, creditReward, reputationR
 
     if reputationReward and reputationReward > 0 then
         local sector = Sector()
-        if not sector then return end
-        
-        local x, y = sector:getCoordinates()
-        local faction = Galaxy():getControllingFaction(x, y)
-        if faction then
-            Galaxy():changeFactionRelations(Faction(player.index), faction, reputationReward)
+        -- A missing sector here (e.g. no current sector context) should only skip the
+        -- reputation grant, not the mission-cleanup removeScript call below -- this used
+        -- to `return` the whole function, silently leaving the mission script attached.
+        if sector then
+            local x, y = sector:getCoordinates()
+            local faction = Galaxy():getControllingFaction(x, y)
+            if faction then
+                Galaxy():changeFactionRelations(Faction(player.index), faction, reputationReward)
+            end
         end
     end
 

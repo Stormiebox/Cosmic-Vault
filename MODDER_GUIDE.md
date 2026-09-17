@@ -94,7 +94,7 @@ Technical reference for modders building on top of Cosmic Vault's shared systems
 
 > [!NOTE]
 > **Cosmic Vault Runs Standalone**
-> Every `include()` inside Cosmic Vault that reaches into a sister mod's files — the Cosmic War economy bridge, the three sister config menus (Overhaul/War/Ascendancy), and Chronicles' Famine Relief Cache spawn — is wrapped in `pcall` as of v3.5.0. A Vault-only install, or Vault plus a subset of the Core 4, simply skips those cross-mod hooks instead of crashing. If you build a similar cross-mod hook in your own mod, follow the same pattern: `pcall(include, "someOtherModsLib")` rather than a bare `include()`.
+> Every `include()` inside Cosmic Vault that reaches into a sister mod's files — the Cosmic War economy bridge and the three sister config menus (Overhaul/War/Ascendancy) — is wrapped in `pcall` as of v3.5.0. A Vault-only install, or Vault plus a subset of the Core 4, simply skips those cross-mod hooks instead of crashing. If you build a similar cross-mod hook in your own mod, follow the same pattern: `pcall(include, "someOtherModsLib")` rather than a bare `include()`.
 ---
 
 ## 📑 The API Library

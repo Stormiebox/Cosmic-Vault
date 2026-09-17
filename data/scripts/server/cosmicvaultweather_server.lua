@@ -310,7 +310,6 @@ local function retireCondition(working, conditionId, terminalState, reason, curr
     local condition = working.conditions[conditionId]
     if not condition then return end
     condition = deepCopy(condition)
-    condition.state = "resolving"
     condition.revision = (condition.revision or 0) + 1
     condition.updatedAt = currentTime
     working.conditions[conditionId] = nil

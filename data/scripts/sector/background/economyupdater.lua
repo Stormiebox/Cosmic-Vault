@@ -35,12 +35,9 @@ function EconomyUpdater.updateClient(timeStep)
     for _, event in ipairs(self.marketEvents or {}) do
         event.remaining = math.max(0, (event.remaining or 0) - timeStep)
     end
-    if not self.supply and not self.demand and not self.sum then
-        EconomyUpdater.requestData()
-    else
-        -- Market events can begin or end between the five-minute supply refreshes.
-        EconomyUpdater.requestData()
-    end
+    -- Market events can begin or end between the five-minute supply refreshes,
+    -- so request fresh data every tick regardless of whether supply/demand are already cached.
+    EconomyUpdater.requestData()
 end
 
 local function marketEventsForCurrentSector()

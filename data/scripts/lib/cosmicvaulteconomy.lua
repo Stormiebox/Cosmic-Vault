@@ -438,6 +438,9 @@ function CosmicVaultEconomy.GetMarketPriceDelta(goodName, x, y, currentTime)
             end
         end
     end
+    -- Combined delta from overlapping events is capped the same way the caller-facing
+    -- factor is capped one layer up, so this API's own contract matches -0.30/+0.30 for any caller.
+    delta = math.max(-0.30, math.min(0.30, delta))
 
     if changed then
         local saved, saveError = saveMarketEvents(working)
