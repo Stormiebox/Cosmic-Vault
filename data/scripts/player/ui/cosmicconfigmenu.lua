@@ -2,7 +2,7 @@
 include("utility")
 local ccm = include("ccm")
 include("stringutility")
-include("callable")
+include("data/scripts/lib/callable")
 
 -- namespace CosmicConfigMenu
 CosmicConfigMenu = {}

@@ -1,7 +1,7 @@
 include("randomext")
 include("galaxy")
 include("faction")
-include("data/scripts/lib/callable.lua")
+include("data/scripts/lib/callable")
 
 -- namespace CvAnomalyRift
 CvAnomalyRift = {}

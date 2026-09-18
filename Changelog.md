@@ -9,6 +9,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [v4.1.0] - Persistent Operations Toolkit
 
+- [Docs] **In-Game Codex Accuracy Pass:** Corrected or removed several `infoCv.lua` Codex articles
+  that described mechanics not actually present in the live code (e.g. an automatic "Highlander
+  Shim Injection", a "Deterministic Generation" array synchronizer, a fabricated Scout Missions
+  bug fix, and a misattributed "Callable Validation" security layer). Articles now describe only
+  what the shipped code does.
+
 This release adds the shared persistence primitives required by Cosmic Ascendancy's structural
 overhaul. Every addition is backward-compatible: existing exports, call signatures, and legacy
 wrappers remain available.
@@ -136,9 +142,11 @@ wrappers remain available.
   the normal initialize/restore paths remain idempotent.
 - [Fix] **Dynamic Entity Scripts Resolve the Callable Helper Reliably (`entity/cosmicbuff.lua`,
   `entity/cv_anomaly_rift.lua`, `entity/cv_anomaly_wreck.lua`):** Dynamically attached entity
-  scripts now include vanilla's verified `data/scripts/lib/callable.lua` path explicitly. This
-  prevents bare include resolution from failing, aborting temporary-buff attachment, and producing
-  repeated uncallable `sync` requests from clients.
+  scripts now include vanilla's verified `data/scripts/lib/callable` path explicitly, without a
+  trailing `.lua` extension — `include()` unconditionally appends `.lua` to its argument, so a
+  path that already ends in `.lua` fails as `callable.lua.lua`. This prevents bare include
+  resolution from failing, aborting temporary-buff attachment, and producing repeated uncallable
+  `sync` requests from clients.
 - [Fix] **Weather Condition Retirement Skips a Dead Intermediate State
   (`server/cosmicvaultweather_server.lua`):** `retireCondition` no longer writes a `"resolving"`
   state that was immediately overwritten by the real terminal state two lines later without ever

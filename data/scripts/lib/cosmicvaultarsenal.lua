@@ -86,8 +86,11 @@ function CosmicVaultArsenal.GenerateTurret(config)
     turret:clearWeapons()
     turret:addWeapon(weapon)
 
+    -- Crew:add() takes a CrewMan (a crew member instance), not a bare CrewProfession
+    -- (which only describes the profession's stats/name, not an actual crewman) -
+    -- every vanilla call site (turretgenerator.lua included) constructs a CrewMan.
     local crew = Crew()
-    crew:add(math.max(1, math.floor(turret.slots * 1.5)), CrewProfession(CrewProfessionType.Gunner))
+    crew:add(math.max(1, math.floor(turret.slots * 1.5)), CrewMan(CrewProfessionType.Gunner))
     turret.crew = crew
 
     -- Re-evaluate to lock in stats

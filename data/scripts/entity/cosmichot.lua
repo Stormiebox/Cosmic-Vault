@@ -43,8 +43,14 @@ function updateServer(timeStep)
     
     if hullMissing > 0 then
         local healAmount = math.min(hullMissing, remainingHeal)
-        if entity.heal then
-            entity:heal(healAmount)
+        -- Entity:heal(damage, index, location, inflictorID) targets a single block by
+        -- index and requires all 4 arguments per the stubs -- it's the wrong API for a
+        -- whole-hull regen tick anyway. Durability:healDamage(amount, inflictorId) is the
+        -- pool-wide counterpart to the Durability:inflictDamage() call cosmicdot.lua
+        -- already uses for DoT, so it's the correct match here.
+        local durability = Durability(entity.id)
+        if valid(durability) then
+            durability:healDamage(healAmount, entity.id)
         else
             entity.durability = entity.durability + healAmount
         end

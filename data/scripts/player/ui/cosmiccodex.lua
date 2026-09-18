@@ -1,7 +1,7 @@
 
 include("stringutility")
 include("utility")
-include("callable")
+include("data/scripts/lib/callable")
 
 -- namespace CosmicCodex
 CosmicCodex = {}

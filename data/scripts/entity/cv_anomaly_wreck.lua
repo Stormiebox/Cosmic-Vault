@@ -4,7 +4,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 include("randomext")
 include("galaxy")
 include("faction")
-include("data/scripts/lib/callable.lua")
+include("data/scripts/lib/callable")
 local UpgradeGenerator = include("upgradegenerator")
 local SectorTurretGenerator = include("sectorturretgenerator")
 

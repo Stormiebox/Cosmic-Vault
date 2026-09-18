@@ -1,5 +1,8 @@
 
-include("callable")
+-- Bare include("callable") is the exact pattern the v3.3.3 changelog and the Modding
+-- Codex both document as a confirmed crash source ("attempt to call global 'callable'
+-- (a nil value)") for cosmicbuff.lua; the fix there was the full, extension-less path.
+include("data/scripts/lib/callable")
 local FactoryMap = include("factorymap")
 
 -- Don't remove or alter the following comment, it tells the game the namespace this script lives in. If you remove it, the script will break.

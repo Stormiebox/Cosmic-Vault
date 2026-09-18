@@ -25,7 +25,6 @@ function CosmicVaultTask.RunAsync(taskName, taskFunc, ...)
     local co = coroutine.create(taskFunc)
     _tasks[taskName] = {
         co = co,
-        args = {...},
         status = "running"
     }
 
